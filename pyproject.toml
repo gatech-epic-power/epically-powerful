@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["epicallypowerful"]
+
+[project]
+requires-python = ">=3.9"
+name = "epically-powerful"
+version = "0.1.0"
+description = "A library for controling actuators and reading sensors for scientific and robotics applications."
+authors = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
+maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
+dependencies = [
+    "numpy",
+    "python-can",
+    "scipy"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Private :: Do Not Upload", # Remove this line to upload to PyPI
+]
+
+
+[project.scripts]
+
+[project.urls] # Make sure to update these to your project's URLs
+Homepage = "https://example.com"
+Documentation = "https://readthedocs.org"
+Repository = "https://github.com/me/spam.git"
+Issues = "https://github.com/me/spam/issues"
+Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
