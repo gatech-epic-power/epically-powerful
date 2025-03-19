@@ -1,8 +1,8 @@
-# Welcome to epically powerful
+# Welcome to EpicallyPowerful
 
 ## Getting Started
 
-## Why ep?
+## Why EpicallyPowerful?!?
 
 ## FAQs
 

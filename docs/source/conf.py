@@ -9,7 +9,7 @@
 project = 'EPICallyPoWeRful'
 copyright = '2025, EPIC Lab'
 author = 'EPIC Lab'
-release = '1.0'
+release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -21,7 +21,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_design',
     'sphinx_copybutton',
-
+    'sphinx.ext.todo'
 ]
 
 # Options for connecting other Sphinx projects
@@ -29,6 +29,8 @@ intersphinx_mapping = {
     'can': ('https://python-can.readthedocs.io/en/stable/', None),
     'python': ('https://docs.python.org/3', None),
 }
+
+autodoc_mock_imports = ["mscl"]
 
 source_suffix = ['.rst', '.md']
 master_doc = 'index'
@@ -81,9 +83,9 @@ html_theme_options = {
     'navigation_depth': 3,
     'titles_only': False,
     'logo_only': True,
-    'display_version': False,
+    'display_version': True,
     "sidebar_hide_name": True,
-    'style_nav_header_background': '#bcc7cf'
+    # 'style_nav_header_background': '#bcc7cf' # Use this to change the nave bar background color (under logo)
 }
 
 copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}:"

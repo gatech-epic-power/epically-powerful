@@ -7,16 +7,17 @@ packages = ["epicallypowerful"]
 
 [project]
 requires-python = ">=3.9"
-name = "epically-powerful"
+name = "epicallypowerful"
 version = "0.1.0"
+dynamic=["dependencies"]
 description = "A library for controling actuators and reading sensors for scientific and robotics applications."
 authors = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
 maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
-dependencies = [
-    "numpy",
-    "python-can",
-    "scipy"
-]
+# dependencies = [
+#     "numpy",
+#     "python-can",
+#     "scipy"
+# ]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -30,6 +31,8 @@ classifiers = [
 
 
 [project.scripts]
+ep-collect-imu-data = "epicallypowerful.toolbox.cli:collect_imu_data"
+
 
 [project.urls] # Make sure to update these to your project's URLs
 Homepage = "https://example.com"
