@@ -254,7 +254,7 @@ class MicrostrainImus:
                 # TROUBLESHOOTING: check data qualifiers and channel IDs
                 # print(data_field, data_qualifier, data_point.channelName())
 
-                if data_field == mscl.MipTypes.CH_FIELD_SENSOR_ORIENTATION_MATRIX:  # ORIENTATION QUATERNION
+                if data_field == mscl.MipTypes.CH_FIELD_SENSOR_ORIENTATION_QUATERNION:  # ORIENTATION QUATERNION
                     quat_vec = data_point.as_Vector()
                     imu_data.orientw = quat_vec.as_floatAt(0)
                     imu_data.orientx = quat_vec.as_floatAt(1)
