@@ -1,1 +1,1 @@
-from .cybergear import CyberGear
+from .cybergear import Cybergear

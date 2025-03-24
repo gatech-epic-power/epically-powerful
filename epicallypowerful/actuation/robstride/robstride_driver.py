@@ -28,12 +28,12 @@ MOTOR_MODE_POSITION = 1
 MOTOR_MODE_VELOCITY = 2
 MOTOR_MODE_CURRENT = 3
 
-T_MIN = -12
-T_MAX = 12
-P_MIN = -12.5
-P_MAX = 12.5
-V_MIN = -30
-V_MAX = 30
+T_MIN = {'Cybergear': -12.0, 'RS02': -17.0}
+T_MAX = {'Cybergear': 12.0, 'RS02': 17.0}
+P_MIN = {'Cybergear': -12.5, 'RS02': -12.5}
+P_MAX = {'Cybergear': 12.5, 'RS02': 12.5}
+V_MIN = {'Cybergear': -30.0, 'RS02': -44.0}
+V_MAX = {'Cybergear': 30.0, 'RS02': 44.0}
 KP_MIN = 0
 KP_MAX = 500
 KD_MIN = 0
@@ -179,12 +179,12 @@ def parse_param_response(msg: can.Message) -> list:
 
 
 
-def parse_motion_response(msg: can.Message) -> list:
+def parse_motion_response(msg: can.Message, actuator_model) -> list:
     # Core information
     temperature = (msg.data[7] | (msg.data[6] << 8))/10.0
-    position = uint_to_float(msg.data[1] | (msg.data[0] << 8), P_MIN, P_MAX, N_BITS)
-    velocity = uint_to_float(msg.data[3] | (msg.data[2] << 8), V_MIN, V_MAX, N_BITS)
-    torque = uint_to_float(msg.data[5] | (msg.data[4] << 8), T_MIN, T_MAX, N_BITS)
+    position = uint_to_float(msg.data[1] | (msg.data[0] << 8), P_MIN[actuator_model], P_MAX[actuator_model], N_BITS)
+    velocity = uint_to_float(msg.data[3] | (msg.data[2] << 8), V_MIN[actuator_model], V_MAX[actuator_model], N_BITS)
+    torque = uint_to_float(msg.data[5] | (msg.data[4] << 8), T_MIN[actuator_model], T_MAX[actuator_model], N_BITS)
     # Fault Information
     motor_can_id = (msg.arbitration_id >> 8) & 0xFF
     motor_mode = (msg.arbitration_id >> 22) & 0x3
@@ -272,12 +272,13 @@ def create_zero_position_message(target_motor_id:int):
     )
     return zero_position
 
-def create_motion_message(target_motor_id:int, position:float, velocity:float, kp:float, kd:float, torque:float):
-    pos_field = float_to_uint(position, P_MIN, P_MAX, N_BITS)
-    vel_field = float_to_uint(velocity, V_MIN, V_MAX, N_BITS)
+def create_motion_message(target_motor_id:int, position:float, velocity:float, kp:float, kd:float, torque:float, actuator_model:str):
+    pos_field = float_to_uint(position, P_MIN[actuator_model], P_MAX[actuator_model], N_BITS)
+    vel_field = float_to_uint(velocity, V_MIN[actuator_model], V_MAX[actuator_model], N_BITS)
     kp_field = float_to_uint(kp, KP_MIN, KP_MAX, N_BITS)
     kd_field = float_to_uint(kd, KD_MIN, KD_MAX, N_BITS)
-    torque_field = float_to_uint(torque, T_MIN, T_MAX, N_BITS)
+    torque_field = float_to_uint(torque, T_MIN[actuator_model], T_MAX[actuator_model], N_BITS)
+    #print(T_MIN[actuator_model], T_MAX[actuator_model])
 
     motion = can.Message(
         arbitration_id=build_arbitration_id(target_id=target_motor_id, cmd_id=CMD_SET_MOTION, data_field=torque_field),

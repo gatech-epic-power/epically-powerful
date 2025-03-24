@@ -85,14 +85,23 @@ MOTOR_PARAMS = { # Listed with increasing
         'kd_limits': (0.0, 5.0),
         'super_type': 'TMotor'
     },
-    'CyberGear': {
+    'Cybergear': {
         'position_limits': (-12.5, 12.5),
         'velocity_limits': (-30.0, 30.0),
         'torque_limits': (-12.0, 12.0),
         'rated_torque_limits': (-4.0, 4.0),
         'kp_limits': (0, 500.0),
         'kd_limits': (0, 5.0),
-        'super_type': 'CyberGear'
+        'super_type': 'Robstride'
+    },
+    'RS02': {
+        'position_limits': (-12.5, 12.5),
+        'velocity_limits': (-30.0, 30.0),
+        'torque_limits': (-17.0, 17.0),
+        'rated_torque_limits': (-4.0, 4.0),
+        'kp_limits': (0, 500.0),
+        'kd_limits': (0, 5.0),
+        'super_type': 'Robstride'
     }
 }
 
@@ -106,7 +115,10 @@ def t_motors():
     return [motor_key for motor_key in MOTOR_PARAMS.keys() if MOTOR_PARAMS[motor_key]['super_type'] == 'TMotor']
 
 def cybergears():
-    return [motor_key for motor_key in MOTOR_PARAMS.keys() if MOTOR_PARAMS[motor_key]['super_type'] == 'CyberGear']
+    return [motor_key for motor_key in MOTOR_PARAMS.keys() if MOTOR_PARAMS[motor_key]['super_type'] == 'Robstride']
+    
+def robstrides():
+    return [motor_key for motor_key in MOTOR_PARAMS.keys() if MOTOR_PARAMS[motor_key]['super_type'] == 'Robstride']
 
 @dataclass
 class MotorData:
@@ -136,6 +148,7 @@ class MotorData:
     timestamp: float = -1
     last_command_time: float = -1
     initialized: bool = False
+    responding: bool = False
     unique_hardware_id: int = -1
     running_torque: list = None
     rms_torque: float = 0

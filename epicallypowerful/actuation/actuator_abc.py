@@ -15,10 +15,6 @@ class Actuator(ABC):
         pass
 
     @abstractmethod
-    def set_control(self, torque: float, velocity: float, kp: float, kd: float, degrees: bool = False):
-        pass
-
-    @abstractmethod
     def zero_encoder(self):
         pass
 
