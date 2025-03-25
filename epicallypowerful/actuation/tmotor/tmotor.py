@@ -49,7 +49,6 @@ class TMotor(can.Listener, Actuator):
         data (MotorData): Data from the actuator. Contains up-to-date information from the actuator as of the last time a message was sent to the actuator.
     """
     def __init__(self, can_id: int, motor_type: str, invert: bool=False):
-        super().__init__()
         self.can_id = can_id
         self.motor_type = motor_type
         if invert: self.invert = -1
@@ -62,7 +61,7 @@ class TMotor(can.Listener, Actuator):
             kp=0, kd=0, timestamp=-1,
             running_torque=(), rms_torque=0, rms_time_prev=0
         )
-
+        
         self._connection_established = False
         self._priming_reconnection = False
         self._reconnection_start_time = 0
@@ -92,7 +91,7 @@ class TMotor(can.Listener, Actuator):
         return
 
     def call_response_latency(self) -> float:
-        return self.data.timestamp - self.data.last_command_time
+        return self.data.last_command_time - self.data.timestamp
     
     def set_torque(self, torque: float) -> None:
         """Sets the torque of the motor in Newton-meters. This will saturate if the torque is outside the limits of the motor.
@@ -130,7 +129,7 @@ class TMotor(can.Listener, Actuator):
             kd = kd * RAD2DEG
 
         position = position * self.invert
-
+    
         self.data.commanded_position = position
         self.data.kp = kp
         self.data.kd = kd

@@ -1,7 +1,8 @@
 from epicallypowerful.actuation.actuator_abc import Actuator
 from epicallypowerful.actuation.tmotor import TMotor
-from epicallypowerful.actuation.cybergear import CyberGear
-from epicallypowerful.actuation.motor_data import MotorData, t_motors, cybergears
+from epicallypowerful.actuation.robstride import Robstride
+from epicallypowerful.actuation.cybergear import Cybergear
+from epicallypowerful.actuation.motor_data import MotorData, t_motors, cybergears, robstrides
 import can
 from can import CanOperationError
 import time
@@ -53,15 +54,15 @@ def _load_can_drivers() -> None:
 
 
 class ActuatorGroup():
-    """Controls a group of actuators, which can all have different types (TMotor, CyberGear, etc.). You can mix and match different AK Series actuators, as well as CyberGear actuators in the same group.
+    """Controls a group of actuators, which can all have different types (TMotor, Robstride, Cybergear, etc.). You can mix and match different AK Series actuators, as well as Robstride actuators in the same group.
 
 
     To control the actuators, you can use the :py:meth:`set_torque`, :py:meth:`set_position`, and :py:meth:`set_velocity` methods by bracket indexing the ActuatorGroup object witht he CAN ID as the key, or
     you can use the AcutorGroups corresponding method with the motor id as the first argument.
 
-    To get data from the actuators, a similar approach can be used. In this case the :py:meth:`get_data`, :py:meth:`get_torque`, :py:meth:`get_position`, and :py:meth:`get_velocity` methods are available. A :py:meth:`get_temperature` method is also available for the Cybergears, and will always return 0 for the TMotors.
+    To get data from the actuators, a similar approach can be used. In this case the :py:meth:`get_data`, :py:meth:`get_torque`, :py:meth:`get_position`, and :py:meth:`get_velocity` methods are available. A :py:meth:`get_temperature` method is also available for the Robstrides, and will always return 0 for the TMotors.
 
-    Please see the :py:class:`~epicpower.actuation2.TMotor` and :py:class:`~epicpower.actuation2.CyberGear` classes for more information on the methods available for each actuator and specific relevant details.
+    Please see the :py:class:`~epicpower.actuation.TMotor` and :py:class:`~epicpower.actuation.Robstride` classes for more information on the methods available for each actuator and specific relevant details.
 
     You can also create an ActuatorGroup from a dictionary, where the key is the CAN ID and the value is the actuator type.
 
@@ -69,24 +70,25 @@ class ActuatorGroup():
         .. code-block:: python
 
 
-            from epicpower.actuation import ActuatorGroup, TMotor, CyberGear
+            from epicpower.actuation import ActuatorGroup, TMotor, Robstride
 
             ### Instantiation ---
-            actuators = ActuatorGroup([TMotor(0x01, 'AK80-9'), CyberGear(0x02)])
+            actuators = ActuatorGroup([TMotor(1, 'AK80-9'), Robstride(2, 'Cybergear'), Robstride(3, 'RS02')])
             # OR
             actuators = ActuatorGroup.from_dict({
-                0x1: 'AK80-9',
-                0x2: 'CyberGear'
+                1: 'AK80-9',
+                2: 'CyberGear',
+                3: 'RS02'
             })
 
             ### Control ---
-            actuators.set_torque(0x1, 0.5)
-            actuators.set_position(0x2, 0, 0.5, 0.1, 0.1, degrees=True)
+            actuators.set_torque(1, 0.5)
+            actuators.set_position(2, 0, 0.5, 0.1, 0.1, degrees=True)
 
             ### Data ---
-            print(actuators.get_torque(0x1))
-            print(actuators.get_position(0x2))
-            print(actuators.get_temperature(0x2))
+            print(actuators.get_torque(1))
+            print(actuators.get_position(2))
+            print(actuators.get_temperature(3))
 
     Args:
         actuators (list[Actuator]): A list of the actuators to control
@@ -189,13 +191,14 @@ class ActuatorGroup():
         """
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
-            self.actuators[can_id].data.initialize = False
+            self.actuators[can_id].data.responding = False
             self.actuators[can_id].data.last_command_time = time.perf_counter()
             self.actuators[can_id]._enable()
             return -1
 
         self.actuators[can_id].data.last_command_time = time.perf_counter()
         self.actuators[can_id].set_torque(torque)
+        self.actuators[can_id].data.responding = True
         return 1
 
     @_guard_connection
@@ -211,13 +214,14 @@ class ActuatorGroup():
         """
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
-            self.actuators[can_id].data.initialize = False
+            self.actuators[can_id].data.responding = False
             self.actuators[can_id].data.last_command_time = time.perf_counter()
             self.actuators[can_id]._enable()
             return -1
 
         self.actuators[can_id].data.last_command_time = time.perf_counter()
         self.actuators[can_id].set_position(position, kp, kd, degrees)
+        self.actuators[can_id].data.responding = True
         return 1
 
     @_guard_connection
@@ -232,14 +236,18 @@ class ActuatorGroup():
         """
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
-            self.actuators[can_id].data.initialize = False
+            self.actuators[can_id].data.responding = False
             self.actuators[can_id].data.last_command_time = time.perf_counter()
             self.actuators[can_id]._enable()
             return -1
 
         self.actuators[can_id].data.last_command_time = time.perf_counter()
         self.actuators[can_id].set_velocity(velocity, kd, degrees)
+        self.actuators[can_id].data.responding = True
         return 1
+
+    def is_connected(self, can_id: int) -> bool:
+        return self.actuators[can_id].data.responding
 
     def zero_encoder(self, can_id: int) -> None:
         """Zeros the encoder of the actuator with the given CAN ID.
@@ -326,7 +334,7 @@ class ActuatorGroup():
         """
 
         tmotor_types = t_motors()
-        cybergear_types = cybergears()
+        robstride_types = robstrides()
         act_list = []
         for a in actuators.keys():
             if a in invert:
@@ -336,8 +344,8 @@ class ActuatorGroup():
             if actuators[a] in tmotor_types:
                 act_list.append(TMotor(a, actuators[a], invert=inv))
                 # motor = TMotor(a, actuators[a])
-            elif actuators[a] in cybergear_types:
-                act_list.append(CyberGear(a, invert=inv))
+            elif actuators[a] in robstride_types:
+                act_list.append(Robstride(a, actuators[a], invert=inv))
             else:
                 raise ValueError(f"Invalid actuator type: {actuators[a]}")
 
@@ -382,3 +390,21 @@ class ActuatorGroup():
                 self.bus.shutdown()
         os.write(sys.stdout.fileno(), b"Shutdown finished\n")
         sys.exit(0)
+        
+        
+        
+if __name__ == '__main__':
+    acts = ActuatorGroup([Robstride(2, 'Cybergear'), Robstride(1, 'RS02'), TMotor(3, 'AK80-9')])
+    import time
+    while True:
+        res1 = acts.set_torque(1, 0.0)
+        res2 = acts.set_torque(2, 0.0)
+        res3 = acts.set_torque(3, 0.0)
+        print(acts.is_connected(1), acts.is_connected(2), acts.is_connected(3))
+        time.sleep(0.005)
+        
+        
+
+    
+    
+    

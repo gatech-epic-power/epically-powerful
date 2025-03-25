@@ -133,7 +133,7 @@ def _pack_zero_encoder_message(target_id: int) -> can.Message:
     Returns:
         can.Message: CAN message containing the appropriate data for the desired command.
     """
-    can.Message(arbitration_id=target_id, data=ZERO_MOTOR_POSITION, is_extended_id=False)
+    return can.Message(arbitration_id=target_id, data=ZERO_MOTOR_POSITION, is_extended_id=False)
 
 def _pack_enter_motor_message(target_id: int) -> can.Message:
     """Packs the appropriate data fields into the expected CAN message
@@ -145,7 +145,7 @@ def _pack_enter_motor_message(target_id: int) -> can.Message:
     Returns:
         can.Message: CAN message containing the appropriate data for the desired command.
     """
-    can.Message(arbitration_id=target_id, data=ENTER_MOTOR_MODE, is_extended_id=False)
+    return can.Message(arbitration_id=target_id, data=ENTER_MOTOR_MODE, is_extended_id=False)
 
 def _pack_exit_motor_message(target_id: int) -> can.Message:
     """Packs the appropriate data fields into the expected CAN message
@@ -157,4 +157,4 @@ def _pack_exit_motor_message(target_id: int) -> can.Message:
     Returns:
         can.Message: CAN message containing the appropriate data for the desired command.
     """
-    can.Message(arbitration_id=target_id, data=EXIT_MOTOR_MODE, is_extended_id=False)
+    return can.Message(arbitration_id=target_id, data=EXIT_MOTOR_MODE, is_extended_id=False)
