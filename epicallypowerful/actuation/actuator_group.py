@@ -116,7 +116,7 @@ class ActuatorGroup():
             actuator._bus = self.bus
             self.actuators[actuator.can_id] = actuator
             self.notifier.add_listener(actuator)
-        
+
         self._actuators_enabled = False
         self._priming_reconnection = False
         self._reconnection_start_time = 0
@@ -140,20 +140,22 @@ class ActuatorGroup():
                     else:
                         self._priming_reconnection = True
                         self._reconnection_start_time = time.perf_counter()
-                        print(f'Actuator detected')
+                        print(f'\nActuator detected')
                     return
                 if self._priming_reconnection == True:
-                    print(f'Preparing to reconnect to actuators - Operating loop frequency will likely be unstable.')
+                    print(f'\rPreparing to reconnect to actuators - Operating loop frequency will likely be unstable.', end="")
                     if time.perf_counter() - self._reconnection_start_time >= 0.5:
                         self._priming_reconnection = False
                         self.enable_actuators()
-                        print(f'Reestablished connection to actuators')
+                        print(f'\nReestablished connection to actuators')
                     return
 
                 try:
                     res = func(self, *args, **kw)
                 except CanOperationError as e:
                     self._actuators_enabled = False
+                    for ids, acts in self.actuators.items():
+                        acts.data.responding = False
                     print(f'\rNo actuators detected or actuators not enabled, please check all connections/emergency stop.', end="")
                     return
                 return res
@@ -390,9 +392,9 @@ class ActuatorGroup():
                 self.bus.shutdown()
         os.write(sys.stdout.fileno(), b"Shutdown finished\n")
         sys.exit(0)
-        
-        
-        
+
+
+
 if __name__ == '__main__':
     acts = ActuatorGroup([Robstride(2, 'Cybergear'), Robstride(1, 'RS02'), TMotor(3, 'AK80-9')])
     import time
@@ -402,9 +404,9 @@ if __name__ == '__main__':
         res3 = acts.set_torque(3, 0.0)
         print(acts.is_connected(1), acts.is_connected(2), acts.is_connected(3))
         time.sleep(0.005)
-        
-        
 
-    
-    
-    
+
+
+
+
+
