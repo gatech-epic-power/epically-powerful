@@ -48,7 +48,7 @@ def _load_can_drivers() -> None:
         os.system('sudo /sbin/ip link set can0 down')
         os.system('sudo /sbin/ip link set can0 txqueuelen 1000 up type can bitrate 1000000')
 
-    elif 'aarch64' in dev_uname.machine.lower() and 'rpi' in dev_uname.release.lower():
+    elif 'aarch64' in dev_uname.machine.lower() and ('rpi' in dev_uname.release.lower() or 'raspi' in dev_uname.release.lower() or 'bcm' in dev_uname.release.lower()):
         os.system('sudo /sbin/ip link set can0 down')
         os.system('sudo /sbin/ip link set can0 txqueuelen 1000 up type can bitrate 1000000')
 
