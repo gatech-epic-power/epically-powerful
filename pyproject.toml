@@ -9,15 +9,16 @@ packages = ["epicallypowerful"]
 requires-python = ">=3.9"
 name = "epicallypowerful"
 version = "0.1.0"
-dynamic=["dependencies"]
+# dynamic=["dependencies"]
 description = "A library for controling actuators and reading sensors for scientific and robotics applications."
 authors = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
 maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
-# dependencies = [
-#     "numpy",
-#     "python-can",
-#     "scipy"
-# ]
+dependencies = [
+    "numpy",
+    "python-can",
+    "scipy"
+]
+
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -29,6 +30,9 @@ classifiers = [
     "Private :: Do Not Upload", # Remove this line to upload to PyPI
 ]
 
+[project.optional-dependencies]
+rpi = ["RPi.GPIO"]
+jetson = ["Jetson.GPIO"]
 
 [project.scripts]
 ep-collect-imu-data = "epicallypowerful.toolbox.cli:collect_imu_data"
