@@ -12,7 +12,7 @@ elif "rpi" in machine_name in machine_name:
     dependencies.append("RPi.GPIO")
 
 setup(
-    name="your_project",
+    name="epicallypowerful",
     version="0.1.0",
     install_requires=dependencies,
 )
