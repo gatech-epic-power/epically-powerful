@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-## Why EpicallyPowerful?!?
+## Why EpicallyPowerful?!!
 
 ## FAQs
 
