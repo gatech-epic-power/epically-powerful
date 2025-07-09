@@ -107,22 +107,6 @@ class timed_loop:
 
 
 if __name__ == "__main__":
-    # print("===Testing LoopTimer at 2Hz for 10 seconds===")
-    # looper = LoopTimer(2, verbose=True)
-    # t0 = time.perf_counter()
-    # while time.perf_counter() - t0 < 10:
-    #     if looper.continue_loop():
-    #         print(time.perf_counter()-t0)
-
-    # print("===timed_loop at 2Hz for 10 seconds in for loop===")
-    # for i in timed_loop(operating_rate=2, total_time=10):
-    #     print(i)
-
-    # print("===timed_loop at 2Hz for 10 seconds in while loop===")
-    # looper = timed_loop(operating_rate=2, total_time=10)
-    # while looper():
-    #     print(looper.prev_iter)
-    
     total_time = 20 # seconds
     test_rate = 200 # Hz
     tolerance = 0.1 # %
