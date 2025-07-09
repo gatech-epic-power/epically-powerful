@@ -65,6 +65,67 @@ class LoopTimer:
     def __call__(self):
         return self.continue_loop()
 
+class TimedLoop():
+    def __init__(self, rate: float, err_tol: float=0.25, verbose: bool=False):
+        """Class for creating a simple timed loop. This object will attempt to enforce a set frequency, using a deadline scheduling approach.
+        Some example of other implementations of this is the ROS1 Rate::sleep function. You can manually call done() to break the loop.
+
+        Args:
+            rate (float): The desired operating frequency in Hz.
+            err_tol (float, optional): The proportion tolerance for which the object will consider the loop "out of rate". Defaults to 0.1.
+            verbose (bool, optional): If True, warnings will be periodically printed to the terminal . Defaults to False.
+        """
+        self.rate = rate
+        self.err_tol = err_tol
+
+        self.verbose = verbose
+        self.period = 1 / rate # Expected cycle time in seconds
+        self.sched_start = time.perf_counter()  # Start time of the loop
+
+        self.error_limit = (1 + err_tol) * self.period  # Error limit for the loop cycle time
+
+        self.is_slow = False  # Flag to indicate if the loop is running late
+        self.true_duration = 0  # Actual time taken for the loop cycle
+        self._avg_rate = rate
+
+        self._real_start = self.sched_start
+        self.done = False  # Flag to indicate if the loop should stop
+
+    def done(self):
+        """Releases the loop timer, allowing the loop to break. Next __call__ will return False"""
+        self.done = True
+
+    def __call__(self):
+        """Checks if the loop should continue based on the current time and the desired rate, sleeping if necessary to maintain the rate.
+        Returns:
+            float | bool: The current time if the loop continues or False if the loop is done
+        """
+        if self.done: return False
+
+        prev_start = self._real_start  # Store the previous start time for avg rate calculation
+
+        desired_end = self.sched_start + self.period
+        current_time = time.perf_counter()
+
+        self.true_duration = current_time - self.sched_start
+
+        self.sched_start = desired_end # Reset the loop such that the next loop attempts to keep the whole schedule on track
+        self.is_slow = self.true_duration > self.error_limit
+
+        # Sleep or return early if the loop is running late
+        if current_time >= desired_end:
+            if self.is_slow : self.sched_start = current_time  # Reset the loop start time to current time if running late
+            return time.perf_counter()
+
+        time.sleep(desired_end - current_time)  
+        # print(f'sleep duraition: {desired_end - current_time:.6f} seconds')
+        if self.verbose and self.is_slow:
+            print(f"WARNING: Loop is running late! Expected {self.period*1000:.3f} ms, actual {self.true_duration*1000:.3f} ms")
+    
+        self._real_start = time.perf_counter()  # Update the real loop start time for average rate calculation
+        self._avg_rate = 0.99*self._avg_rate + 0.01*(1 / (self._real_start - prev_start))
+
+        return time.perf_counter()
 
 class timed_loop:
     """Timed looping module can be used either as the iterator for a for loop
@@ -105,12 +166,12 @@ class timed_loop:
 
 
 if __name__ == "__main__":
-    print("===Testing LoopTimer at 2Hz for 10 seconds===")
-    looper = LoopTimer(2, verbose=True)
-    t0 = time.perf_counter()
-    while time.perf_counter() - t0 < 10:
-        if looper.continue_loop():
-            print(time.perf_counter()-t0)
+    # print("===Testing LoopTimer at 2Hz for 10 seconds===")
+    # looper = LoopTimer(2, verbose=True)
+    # t0 = time.perf_counter()
+    # while time.perf_counter() - t0 < 10:
+    #     if looper.continue_loop():
+    #         print(time.perf_counter()-t0)
 
     # print("===timed_loop at 2Hz for 10 seconds in for loop===")
     # for i in timed_loop(operating_rate=2, total_time=10):
@@ -120,3 +181,21 @@ if __name__ == "__main__":
     # looper = timed_loop(operating_rate=2, total_time=10)
     # while looper():
     #     print(looper.prev_iter)
+
+    print("===Testing TimedLoop at 200Hz for 5 seconds===")
+    looper = TimedLoop(1000, verbose=True)
+    print(looper.period, looper.error_limit)
+    times = []
+    tog = time.perf_counter()
+    while myt := looper():
+        print(looper._avg_rate)
+        times.append(myt)
+        if len(times) > 1000:
+            break
+
+    # Calculate the average loop time
+    times = [times[i] - times[i-1] for i in range(1, len(times))]
+    print(times[0:10])
+    print(f"Average loop time: {sum(times)/len(times)*1000:.6f} ms")
+    print(f"Average loop rate: {1/(sum(times)/len(times)):.2f} Hz")
+    print(f"Total time: {time.perf_counter() - tog:.6f} seconds")
