@@ -11,39 +11,35 @@ cdef inline timespec to_timespec(int64_t ns):
     return ts
 
 cdef class TimedLoop:
-    cdef readonly double rate
-    cdef readonly double tolerance
-    cdef readonly int64_t period_ns  # in nanoseconds
-    cdef readonly int64_t error_limit_ns  # in nanoseconds
+    cdef int64_t period_ns  # in nanoseconds
     cdef timespec now
-    cdef timespec next_tick
+    cdef timespec sched
+    cdef double rate  # in Hz
 
     def __cinit__(self):
-        self.rate = 0.0
-        self.tolerance = 0.0
         self.period_ns = 0
-        self.error_limit_ns = 0
 
-    def __init__(self, double rate, double tolerance=0.01): # rate in Hz, tolerance in % period
+    def __init__(self, double rate): # rate in Hz
         if rate <= 0: raise ValueError("Rate must be greater than 0")
         self.rate = rate
-        self.tolerance = tolerance
         self.period_ns = <int64_t>(1e9 / self.rate)  # Convert rate to period in nanoseconds
-        self.error_limit_ns = <int64_t>(self.tolerance * self.period_ns * 1e9)  # Convert tolerance to nanoseconds
+        reset(self)
 
-    cpdef sleep2(self): # Sleep until the next tick, adjusting for the period and tolerance, using relative time
+    cdef reset(self): # Reset the loop to the current time
         clock_gettime(CLOCK_MONOTONIC, &self.now)
-        cdef timespec until = to_timespec(to_nsec(self.next_tick) - to_nsec(self.now))
-        clock_nanosleep(CLOCK_MONOTONIC, 0, &until, NULL)
-        clock_gettime(CLOCK_MONOTONIC, &self.now)
-        self.next_tick = to_timespec(to_nsec(self.now) + self.period_ns)
+        self.sched = self.now
 
-    cpdef sleep(self): # Sleep until the next tick, adjusting for the period and tolerance, using absolute time
-        # Check if we are delayed by a full period
+    cpdef sleep(self):
+        self.sched = to_timespec(to_nsec(self.sched) + self.period_ns)
         clock_gettime(CLOCK_MONOTONIC, &self.now)
-        if to_nsec(self.now) >= (to_nsec(self.next_tick) + self.period_ns):
-            self.next_tick = self.now
-        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.next_tick, NULL)
-        clock_gettime(CLOCK_MONOTONIC, &self.now)
-        self.next_tick = to_timespec(to_nsec(self.now) + self.period_ns)
+        
+        int64_t now_nsec = to_nsec(self.now)
+        int64_t sched_nsec = to_nsec(self.sched)
+
+        if now_nsec > sched_nsec:
+            if (now_nsec > (sched_nsec + self.period_ns)):
+                # If we're are ahead by a full period, reset the schedule
+                self.reset()
+            return  # No need to sleep, we're slow
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
 
