@@ -24,7 +24,7 @@ def collect_imu_data():
     print(args.channels)
     print(args.remote_sync_channel)
 
-    
+
     outfile = args.output
     duration = args.duration
     serial_ids = args.imu_serial_id
@@ -49,7 +49,7 @@ def collect_imu_data():
             headers.extend([f"{serial_id}_orient_w", f"{serial_id}_orient_x", f"{serial_id}_orient_y", f"{serial_id}_orient_z"])
         if "euler" in channels:
             headers.extend([f"{serial_id}_roll", f"{serial_id}_pitch", f"{serial_id}_yaw"])
-    
+
     if remote_sync_channels != []:
         if rpi_or_jetson() == "rpi":
             import RPi.GPIO as GPIO
@@ -93,3 +93,43 @@ def collect_imu_data():
 
 def motor_control():
     raise NotImplementedError
+
+def install_mscl_python():
+    import os
+    import sys
+    import argparse
+
+    CURRENT_VERSION = "67.1.0"
+
+    parser = argparse.ArgumentParser(description="Install MSCL Python package", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--dir", '-d', type=str, default=None, help="Directory to install MSCL Python package. This will copy the package from the install directory to the specified directory")
+    parser.add_argument("--to-env", '-e', action='store_true', type=bool, default=False, help="Install MSCL Python package to the current Python environment as well as the system-wide Python environment. This is useful if you want to use the MSCL Python package in a virtual environment or a specific Python environment.")
+
+    # Download the MSCL Python package from GitHub Release.
+    pyversion = sys.version_info
+    if pyversion.major != 3 or pyversion.minor < 8:
+        raise RuntimeError("MSCL Python requires Python 3.8 or higher")
+    res = os.system(f"wget https://github.com/LORD-MicroStrain/MSCL/releases/download/v{CURRENT_VERSION}/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb -O /temp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
+    if res != 0:
+        raise RuntimeError("Failed to download MSCL Python package")
+    res = os.system(f"sudo apt install /temp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
+    if res != 0:
+        raise RuntimeError("Failed to install MSCL Python package")
+
+
+    if parser.dir is not None:
+        # Copy the MSCL Python package to the specified directory
+        res = os.system(f"cp -r /usr/local/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/*mscl* {parser.dir}")
+        if res != 0:
+            raise RuntimeError("Failed to copy MSCL Python package to specified directory")
+
+    if parser.to_env:
+        # Find the current python environment's dist-packages directory (or site-packages directory if it is in the path)
+        # Then copy the MSCL Python package to the current python environment's dist-packages directory
+        for location in sys.path:
+            if "dist-packages" in location or "site-packages" in location:
+                res = os.system(f"cp -r /usr/local/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/*mscl* {location}")
+                if res != 0:
+                    raise RuntimeError("Failed to copy MSCL Python package to current Python environment")
+                break
+
