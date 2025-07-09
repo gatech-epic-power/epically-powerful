@@ -43,3 +43,4 @@ cdef class TimedLoop:
             return  # No need to sleep, we're slow
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
 
+    cpdef __call__(self): self.sleep()
