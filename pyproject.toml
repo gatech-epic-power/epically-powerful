@@ -1,4 +1,5 @@
 [build-system]
+
 requires = ["setuptools>=74.1", "cython"]
 build-backend = "setuptools.build_meta"
 
@@ -39,6 +40,7 @@ jetson = ["Jetson.GPIO"]
 
 [project.scripts]
 ep-collect-imu-data = "epicallypowerful.toolbox.cli:collect_imu_data"
+ep-install-mscl = "epicallypowerful.toolbox.cli:install_mscl_python"
 
 
 [project.urls] # Make sure to update these to your project's URLs
