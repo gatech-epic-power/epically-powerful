@@ -8,7 +8,10 @@ frequency clock within the main while loop of your top level script.
 """
 
 import time
+from epicallypowerful.toolbox._clocking import TimedLoopC
 
+def TimedLoop(rate, tolerance=0.1, verbose=True):
+    return TimedLoopC(rate=rate, tolerance=tolerance, verbose=verbose)
 
 class LoopTimer:
     """Class for creating a simple timed loop manager. This object will attempt to enforece a set frequency when used in a looped script.
@@ -65,7 +68,6 @@ class LoopTimer:
     def __call__(self):
         return self.continue_loop()
 
-
 class timed_loop:
     """Timed looping module can be used either as the iterator for a for loop
     or as the conditional of a while loop. This provides less flexibility than
@@ -105,18 +107,21 @@ class timed_loop:
 
 
 if __name__ == "__main__":
-    print("===Testing LoopTimer at 2Hz for 10 seconds===")
-    looper = LoopTimer(2, verbose=True)
-    t0 = time.perf_counter()
-    while time.perf_counter() - t0 < 10:
-        if looper.continue_loop():
-            print(time.perf_counter()-t0)
+    total_time = 20 # seconds
+    test_rate = 200 # Hz
+    tolerance = 0.1 # %
+    frames = total_time * test_rate
 
-    # print("===timed_loop at 2Hz for 10 seconds in for loop===")
-    # for i in timed_loop(operating_rate=2, total_time=10):
-    #     print(i)
-
-    # print("===timed_loop at 2Hz for 10 seconds in while loop===")
-    # looper = timed_loop(operating_rate=2, total_time=10)
-    # while looper():
-    #     print(looper.prev_iter)
+    print(f"===Testing TimedLoop at {test_rate}Hz for {total_time}s (aka {test_rate*total_time} frames)===")
+    looper = TimedLoop(test_rate, tolerance, verbose=False)
+    times = []
+    tog = time.perf_counter()
+    while myt := looper():
+        times.append(myt)
+        if len(times) >= frames: break
+    # Calculate the average loop time
+    times = [times[i] - times[i-1] for i in range(1, len(times))]
+    print(times[0:10])
+    print(f"Average loop time: {sum(times)/len(times)*1000:.6f} ms")
+    print(f"Average loop rate: {1/(sum(times)/len(times)):.3f} Hz")
+    print(f"Total time: {time.perf_counter() - tog:.6f} seconds")
