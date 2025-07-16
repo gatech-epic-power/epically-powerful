@@ -8,7 +8,10 @@ frequency clock within the main while loop of your top level script.
 """
 
 import time
-from epicallypowerful.toolbox._clocking import TimedLoopC
+try:
+    from epicallypowerful.toolbox._clocking import TimedLoopC
+except ImportError:
+    pass
 
 def TimedLoop(rate, tolerance=0.1, verbose=True):
     return TimedLoopC(rate=rate, tolerance=tolerance, verbose=verbose)

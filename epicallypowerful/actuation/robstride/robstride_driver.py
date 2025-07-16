@@ -177,8 +177,6 @@ def parse_param_response(msg: can.Message) -> list:
     elif num_param_bytes == 4:
         return param_index, int.from_bytes(data[4:]), motor_id
 
-
-
 def parse_motion_response(msg: can.Message, actuator_model) -> list:
     # Core information
     temperature = (msg.data[7] | (msg.data[6] << 8))/10.0

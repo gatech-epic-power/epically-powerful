@@ -34,7 +34,7 @@ try:
     mscl_available = True
 except:
     mscl_available = False
-    raise ModuleNotFoundError("MSCL not found, please install MSCL to use the MicroStrain IMUs. Please see https://github.com/LORD-MicroStrain/MSCL or the EPICallyPoWeRful documentation for more information.")
+    # raise ModuleNotFoundError("MSCL not found, please install MSCL to use the MicroStrain IMUs. Please see https://github.com/LORD-MicroStrain/MSCL or the EPICallyPoWeRful documentation for more information.")
 
 # Set constants
 TARE_ON_STARTUP = False
