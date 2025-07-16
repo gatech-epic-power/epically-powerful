@@ -98,38 +98,45 @@ def install_mscl_python():
     import os
     import sys
     import argparse
+    import shutil
+    import glob
 
     CURRENT_VERSION = "67.1.0"
 
     parser = argparse.ArgumentParser(description="Install MSCL Python package", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--dir", '-d', type=str, default=None, help="Directory to install MSCL Python package. This will copy the package from the install directory to the specified directory")
-    parser.add_argument("--to-env", '-e', action='store_true', type=bool, default=False, help="Install MSCL Python package to the current Python environment as well as the system-wide Python environment. This is useful if you want to use the MSCL Python package in a virtual environment or a specific Python environment.")
-
+    parser.add_argument("--to-env", '-E', action='store_true', default=False, help="Install MSCL Python package to the current Python environment as well as the system-wide Python environment. This is useful if you want to use the MSCL Python package in a virtual environment or a specific Python environment.")
+    args = parser.parse_args()
     # Download the MSCL Python package from GitHub Release.
     pyversion = sys.version_info
     if pyversion.major != 3 or pyversion.minor < 8:
         raise RuntimeError("MSCL Python requires Python 3.8 or higher")
-    res = os.system(f"wget https://github.com/LORD-MicroStrain/MSCL/releases/download/v{CURRENT_VERSION}/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb -O /temp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
+    res = os.system(f"wget https://github.com/LORD-MicroStrain/MSCL/releases/download/v{CURRENT_VERSION}/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb -O /tmp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
     if res != 0:
         raise RuntimeError("Failed to download MSCL Python package")
-    res = os.system(f"sudo apt install /temp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
+    res = os.system(f"sudo apt install /tmp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
+    res2 = os.system(f"sudo apt install python3.{pyversion.minor}-dev")
     if res != 0:
         raise RuntimeError("Failed to install MSCL Python package")
 
 
-    if parser.dir is not None:
+    if args.dir is not None:
         # Copy the MSCL Python package to the specified directory
-        res = os.system(f"cp -r /usr/local/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/*mscl* {parser.dir}")
+        res = os.system(f"cp -r /usr/local/python{pyversion.major}.{pyversion.minor}/dist-packages/*mscl* {parser.dir}")
         if res != 0:
             raise RuntimeError("Failed to copy MSCL Python package to specified directory")
 
-    if parser.to_env:
+    if args.to_env:
         # Find the current python environment's dist-packages directory (or site-packages directory if it is in the path)
         # Then copy the MSCL Python package to the current python environment's dist-packages directory
         for location in sys.path:
             if "dist-packages" in location or "site-packages" in location:
-                res = os.system(f"cp -r /usr/local/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/*mscl* {location}")
-                if res != 0:
-                    raise RuntimeError("Failed to copy MSCL Python package to current Python environment")
+                mscl_files = glob.glob(f'{location}/*mscl*')
+                if mscl_files:
+                    for mf in mscl_files: os.remove(mf)
+                # res = os.system(f"cp /usr/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/*mscl* {location}")
+                shutil.copy2(f"/usr/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/_mscl.so", f"{location}/_mscl.so")
+                shutil.copy2(f"/usr/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/mscl.py", f"{location}/mscl.py")
                 break
+    
 
