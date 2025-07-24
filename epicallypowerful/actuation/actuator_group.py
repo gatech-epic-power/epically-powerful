@@ -10,7 +10,7 @@ import signal
 import os
 import sys
 import logging
-from typing_extensions import Self, Union, Optional
+from typing_extensions import Self, Optional
 import platform
 import functools
 from typing import Callable
@@ -97,7 +97,12 @@ class ActuatorGroup():
         enable_on_startup (bool, optional): Whether to attempt to enable the actuators when the object is created. If set False, :py:func:`enable_actuators` needs to be called before any other commands. Defaults to True.
 
     """
-    def __init__(self, actuators: list[Actuator], can_args: Optional[dict] = None, enable_on_startup: bool = True) -> None:
+    def __init__(self,
+        actuators: list[Actuator],
+        can_args: Optional[dict] = None,
+        enable_on_startup: bool = True,
+        exit_manually: bool = False
+    ) -> None:
         _load_can_drivers()
         if can_args is None: can_args = {'bustype': 'socketcan', 'channel': 'can0'}
         self.bus = can.Bus(channel=can_args['channel'], bustype=can_args['bustype'])
@@ -121,8 +126,10 @@ class ActuatorGroup():
         self._priming_reconnection = False
         self._reconnection_start_time = 0
         self.prev_command_time = time.perf_counter()
-
-        signal.signal(signal.SIGINT, self._exit_gracefully)
+        
+        if not exit_manually:
+            signal.signal(signal.SIGINT, self._exit_gracefully)
+            signal.signal(signal.SIGTERM, self._exit_gracefully)
 
         time.sleep(0.1)
         if enable_on_startup: self.enable_actuators()
@@ -389,6 +396,7 @@ class ActuatorGroup():
             except:
                 sys.exit("Failed to disable motors, please ensure power is safely disconnected\n")
             finally:
+                self.notifier.stop()
                 self.bus.shutdown()
         os.write(sys.stdout.fileno(), b"Shutdown finished\n")
         sys.exit(0)

@@ -1,11 +1,11 @@
 import argparse
 
-def rpi_or_jetson():
+def _rpi_or_jetson():
     import platform
     machine_name = platform.uname().release.lower()
     if "tegra" in machine_name:
         return "jetson"
-    elif "rpi" in machine_name:
+    elif "rpi" in machine_name or "bcm" in machine_name or "raspi" in machine_name:
         return "rpi"
 
 
@@ -51,10 +51,10 @@ def collect_imu_data():
             headers.extend([f"{serial_id}_roll", f"{serial_id}_pitch", f"{serial_id}_yaw"])
 
     if remote_sync_channels != []:
-        if rpi_or_jetson() == "rpi":
+        if _rpi_or_jetson() == "rpi":
             import RPi.GPIO as GPIO
             GPIO.setmode(GPIO.BORD)
-        elif rpi_or_jetson() == "jetson":
+        elif _rpi_or_jetson() == "jetson":
             import Jetson.GPIO as GPIO
             GPIO.setmode(GPIO.BOARD)
         else:
