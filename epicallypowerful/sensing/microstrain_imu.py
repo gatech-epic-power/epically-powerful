@@ -24,8 +24,8 @@ machine. THIS VERSION of the file must be imported into the `lib` folder.
 import sys
 import platform
 if platform.platform().lower().startswith("linux"):
-    # sys.path.append(f"/usr/local/lib/python{sys.version_info.major}.{sys.version_info.minor}/dist-packages")
-    sys.path.append(f"/usr/share/python{sys.version_info.major}-mscl")
+    sys.path.append(f"/usr/local/lib/python{sys.version_info.major}.{sys.version_info.minor}/dist-packages")
+    # sys.path.append(f"/usr/share/python{sys.version_info.major}-mscl")
 
 mscl_available = False
 
@@ -34,7 +34,6 @@ try:
     mscl_available = True
 except:
     mscl_available = False
-    raise ModuleNotFoundError("MSCL not found, please install MSCL to use the MicroStrain IMUs. Please see https://github.com/LORD-MicroStrain/MSCL or the EPICallyPoWeRful documentation for more information.")
 
 # Set constants
 TARE_ON_STARTUP = False
@@ -88,14 +87,16 @@ class MicrostrainImus:
 
     def __init__(
         self,
-        imu_ids: List[
-            str],
+        imu_ids: list[str],
         rate: int=IMU_RATE,
         tare_on_startup: bool=TARE_ON_STARTUP,
         timeout: float=0.0002,
         num_retries: int=10,
         verbose: bool=False
     ) -> None:
+        if not mscl_available:
+            raise ModuleNotFoundError("MSCL not found, please install MSCL to use the MicroStrain IMUs. Please see https://github.com/LORD-MicroStrain/MSCL or the included setup script, ep-install-mscl.")
+        
         self.verbose = verbose
         self.timeout = timeout
         self._enable_ports()
@@ -118,9 +119,7 @@ class MicrostrainImus:
                 break
             except Exception:
                 if i == num_retries - 1:
-                    print(
-                        f"Error initializing IMUs after {num_retries} attempts. Check that the IMUs are connected."
-                        )
+                    print(f"Error initializing IMUs after {num_retries} attempts. Check that the IMUs are connected.")
                 else:
                     if verbose:
                         print(f"Retrying initialization...")

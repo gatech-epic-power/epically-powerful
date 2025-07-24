@@ -18,7 +18,7 @@ EXTENSIONS = {
     '|':'.txt',
 }
 
-def write_to_file(fname, buffer, lock):
+def _write_to_file(fname, buffer, lock):
     with lock:
         with open(fname, 'a') as f:
             f.writelines(buffer)
@@ -133,7 +133,7 @@ class DataRecorder():
         self.buffer.append(f'{round(record_time,6)}{self.delimiter}{self.delimiter.join([str(value) for value in input_data])}\n')
         if self.buffer_limit != None: self.buffer_len += 1
         if self.buffer_len == self.buffer_limit:
-            threading.Thread(target=lambda: write_to_file(self.fullpath, self.buffer, self.lock)).start()
+            threading.Thread(target=lambda: _write_to_file(self.fullpath, self.buffer, self.lock)).start()
             self.buffer = []
             self.buffer_len = 0
 
@@ -143,7 +143,7 @@ class DataRecorder():
     def finalize(self):
         """Closes the file handle and ensures all data is written to the file.
         """
-        write_to_file(self.fullpath, self.buffer, self.lock)
+        _write_to_file(self.fullpath, self.buffer, self.lock)
         if self.verbose: print(f'Closing file {self.fullpath}')
 
 
