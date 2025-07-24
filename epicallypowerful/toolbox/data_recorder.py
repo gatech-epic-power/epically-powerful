@@ -133,8 +133,7 @@ class DataRecorder():
         self.buffer.append(f'{round(record_time,6)}{self.delimiter}{self.delimiter.join([str(value) for value in input_data])}\n')
         if self.buffer_limit != None: self.buffer_len += 1
         if self.buffer_len == self.buffer_limit:
-            threading.Thread(target=lambda: write_to_file(self.fullpath, self.buffer)).start()
- 
+            threading.Thread(target=lambda: write_to_file(self.fullpath, self.buffer, self.lock)).start()
             self.buffer = []
             self.buffer_len = 0
 
@@ -144,14 +143,14 @@ class DataRecorder():
     def finalize(self):
         """Closes the file handle and ensures all data is written to the file.
         """
-        write_to_file(self.fullpath, self.buffer)
-        if self.verbose: print(f'Closing file {self.fullpath}')    
+        write_to_file(self.fullpath, self.buffer, self.lock)
+        if self.verbose: print(f'Closing file {self.fullpath}')
 
 
 if __name__ == "__main__":
-    from epicallypowerful.utils.clocking import LoopTimer
-    from epicallypowerful.utils.jetson_performance import jetson_performance
-    from epicallypowerful.utils.clocking import LoopTimer
+    from epicallypowerful.toolbox.clocking import LoopTimer
+    from epicallypowerful.toolbox.jetson_performance import jetson_performance
+    from epicallypowerful.toolbox.clocking import LoopTimer
 
     jetson_performance()
     looper = LoopTimer(300)
