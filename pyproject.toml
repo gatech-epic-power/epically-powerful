@@ -20,7 +20,8 @@ maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {n
 dependencies = [
     "numpy",
     "python-can",
-    "scipy"
+    "scipy",
+    "msgspec"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
