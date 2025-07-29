@@ -12,7 +12,9 @@ Units of below limits:
 """
 
 TMOTOR = 'TMotor'
+TMOTOR_V3 = 'TMotorV3'
 CUBEMARS = 'CubeMars'
+ROBSTRIDE = 'Robstride'
 AK80_9 = 'AK80-9'
 AK80_8 = 'AK80-8'
 AK80_6 = 'AK80-6'
@@ -22,6 +24,15 @@ AK10_9_V2_0 = 'AK10-9-V2.0'
 
 
 MOTOR_PARAMS = { # Listed with increasing
+    'AK80-9-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-65.0, 65.0),
+        'torque_limits': (-18.0, 18.0),
+        'rated_torque_limits': (-9.0, 9.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'super_type': 'TMotorV3'
+    },
     'AK10-9-V2.0': { # 24V/48V operation
         'position_limits': (-12.5, 12.5),
         'velocity_limits': (-50.0, 50.0),
