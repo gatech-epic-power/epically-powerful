@@ -3,9 +3,11 @@ import numpy as np
 
 @dataclass
 class IMUData:
-    """Dataclass for IMU Data."""
+    """Dataclass for IMU data. This includes fields for 
+    measurements from both MicroStrain and MPU9250 units.
+    """
 
-    # Orientation (Rotation matrix)
+    # Orientation (Rotation matrix) [MICROSTRAIN ONLY]
     m11: float = 0.0
     m12: float = 0.0
     m13: float = 0.0
@@ -16,7 +18,7 @@ class IMUData:
     m32: float = 0.0
     m33: float = 0.0
 
-    # Orientation (inv. ref. rotation matrix (for reorientation)).
+    # Orientation (inv. ref. rotation matrix (for reorientation)) [MICROSTRAIN ONLY].
     # Multiply this rotation matrix by the raw rotation matrix
     # to get `zeroed` orientation values (e.g. zeroed_mat = ref_mat * raw_mat)
     ref_m11: float = 0.0
@@ -29,7 +31,7 @@ class IMUData:
     ref_m32: float = 0.0
     ref_m33: float = 0.0
 
-    # Orientation (Quaternion)
+    # Orientation (Quaternion) [MICROSTRAIN ONLY]
     orientx: float = 0.0
     orienty: float = 0.0
     orientz: float = 0.0
@@ -40,25 +42,28 @@ class IMUData:
     ef_orientz: float = 0.0
     ef_orientw: float = 1.0
 
-    # Orientation (Euler)
+    # Orientation (Euler) [MICROSTRAIN ONLY]
     pitch: float = 0.0
     roll: float = 0.0
     yaw: float = 0.0
 
-    # Gyro
+    # Gyro [MICROSTRAIN & MPU9250]
     gyrox: float = 0.0
     gyroy: float = 0.0
     gyroz: float = 0.0
 
-    # Linear acceleration
+    # Linear acceleration [MICROSTRAIN & MPU9250]
     accx: float = 0.0
     accy: float = 0.0
     accz: float = 0.0
 
-    # Magnetometer readings (raw)
+    # Magnetometer readings (raw) [MICROSTRAIN & MPU9250]
     magx: float = 0.0
     magy: float = 0.0
     magz: float = 0.0
+
+    # Temperature readings [MPU9250 ONLY]
+    temp: float = 0.0
 
     timestamp: float = 0.0
 
