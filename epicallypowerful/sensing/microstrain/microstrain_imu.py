@@ -54,7 +54,7 @@ class MicrostrainImus:
         .. code-block:: python
 
 
-            from epicpower.sensing import MicroStrainIMUs
+            from epicpower.sensing import MicroStrainImus
             
             ### Instantiation
             LEFT_THIGH = '154143'
