@@ -180,7 +180,13 @@ class TMotor(can.Listener, Actuator):
         Returns:
             MotorData: Data from the actuator. Contains up-to-date information from the actuator as of the last time a message was sent to the actuator.
         """
-        return self.data
+
+        data = self.data
+        data.current_position *= self.invert
+        data.current_velocity *= self.invert
+        data.current_torque *= self.invert
+
+        return data
 
     def get_torque(self) -> float:
         """Returns the current torque of the motor in Newton-meters. Functionally equivalent to or ``get_data().current_torque``.
