@@ -42,8 +42,8 @@ G_CONSTANT = 9.80665 # [m/s^2]
 PI = 3.1415265
 
 
-class MicrostrainImus:
-    """Class for receiving data from Microstrain IMUs. Getting data from each IMU is as simple as calling :py:meth:`get_data` with the respective serial identifier as the argument.
+class MicroStrainIMUs:
+    """Class for receiving data from MicroStrain IMUs. Getting data from each IMU is as simple as calling :py:meth:`get_data` with the respective serial identifier as the argument.
     The microstrain IMUs typically need no special configuration or calibration. The serial number used to identify the IMUs is typically found on top of the IMU, and is the last 6 digits following the period.
     
     In order to use this functionality, the low level MSCL drivers need to be installed. Please see the tutorials on installing this, or directly consult the MSCL documentation (https://github.com/LORD-MicroStrain/MSCL).
@@ -60,7 +60,7 @@ class MicrostrainImus:
             LEFT_THIGH = '154143'
             LEFT_SHANK = '133930'
 
-            imus = MicrostrainImus([LEFT_THIGH, LEFT_SHANK])
+            imus = MicroStrainIMUs([LEFT_THIGH, LEFT_SHANK])
 
             ### Data
             # Complete Data
@@ -489,7 +489,7 @@ def main(imu_ids: List[str], rate=IMU_RATE, tare_on_startup=False) -> None:
     Returns:
         None
     """
-    imus = MicrostrainImus(
+    imus = MicroStrainIMUs(
         imu_ids=imu_ids,
         rate=rate,
         tare_on_startup=tare_on_startup,

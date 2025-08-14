@@ -61,7 +61,7 @@ MULTIPLEXER_ACTIONS = {0: 0x01,
                         7: 0x80,
                     }
 
-class MPU9250Imus:
+class MPU9250IMUs:
     """Class for interfacing with the MPU9250 IMU using I2C communication, leveraging the TCA9548A multiplexer for communicating with multiple units at the same time.
 
     This class draws from the following resources:
@@ -75,14 +75,14 @@ class MPU9250Imus:
     Example (single sensor):
         .. code-block:: python
 
-            from epicpower.sensing import MPU9250Imus
+            from epicpower.sensing import MPU9250IMUs
 
             [FINISH]
 
     Example (multiple sensors with I2C multiplexer):
         .. code-block:: python
 
-            from epicpower.sensing import MPU9250Imus
+            from epicpower.sensing import MPU9250IMUs
 
             [FINISH]
 
@@ -469,7 +469,7 @@ if __name__ == "__main__":
     components = ['acc','gyro']
     verbose = True
 
-    mpu9250_imus = MPU9250Imus(bus=bus,
+    mpu9250_imus = MPU9250IMUs(bus=bus,
                                 imu_ids=imu_ids,
                                 use_multiplexer=use_multiplexer,
                                 components=components,
