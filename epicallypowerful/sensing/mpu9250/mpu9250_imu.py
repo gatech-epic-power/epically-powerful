@@ -109,13 +109,16 @@ class MPU9250Imus:
         self.imus = {}
         
         # Determine whether to use multiplexer based on number of IMU indices detected
-        if len(imu_ids.keys()) == 1: # Initialize without multiplexer
+        if len(imu_ids.keys()) == 1 and not use_multiplexer: # Initialize without multiplexer
             if verbose:
                 print("Using only one IMU index defaults to not instantiating multiplexer.")
                 print("If you have configured a multiplexer with a single IMU, consider using just the IMU without the multiplexer.")
                 print("(You can still use a single IMU with the multiplexer, just set `use_multiplexer` to True.)")
         else: # Initialize with multiplexer
             use_multiplexer = True
+
+            if verbose:
+                print("Using multiplexer...")
 
         # Initialize all MPU9250 units
         for channel,idx in imu_ids.items():
@@ -460,11 +463,11 @@ if __name__ == "__main__":
 
     loop = LoopTimer(operating_rate=300, verbose=True)
 
-    # imu_ids = {0: 0x68, 1: 0x68}
+    # imu_ids = {0: 0x68, 1: 0x68, 2: 0x68, 3: 0x68, 4: 0x68, 5: 0x68}
     imu_ids = {0: 0x68}
-    use_multiplexer = False
+    use_multiplexer = True
     components = ['acc','gyro']
-    verbose = False
+    verbose = True
 
     mpu9250_imus = MPU9250Imus(bus=bus,
                                 imu_ids=imu_ids,
