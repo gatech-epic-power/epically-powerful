@@ -111,7 +111,7 @@ class MicroStrainIMUs:
 
                 # Set reference rotation matrices to identity or current rotation matrix
                 if tare_on_startup:
-                    self.tare_imu()
+                    self.tare()
                 else:
                     for imu_id in imu_ids:
                         self._imu_ref_rot_matrices[imu_id] = R.from_matrix(np.eye(3))
@@ -296,7 +296,7 @@ class MicroStrainIMUs:
                         acceleration.
             raw (bool): whether to provide IMU values relative to a zeroed
                         (static) reference frame obtained by calling
-                        `self.tare_imus()`. Default: True (providing raw values).
+                        `self.tares()`. Default: True (providing raw values).
 
         Returns:
             imu_data: IMUData dataclass object with orientation, angular
@@ -444,7 +444,7 @@ class MicroStrainIMUs:
         return imu_data
 
 
-    def tare_imu(self, imu_id=None, zeroing_time=0.25) -> None:
+    def tare(self, imu_id=None, zeroing_time=0.25) -> None:
         """Manually tare MSCL Inertial Nodes.
 
         Args:
@@ -508,6 +508,6 @@ def main(imu_ids: List[str], rate=IMU_RATE, tare_on_startup=False) -> None:
 
 
 if __name__ == "__main__":
-    IMU_IDS = ['154138'] # , '133930']
+    IMU_IDS = ['154137','134959','154134','154138','154135'] # , '133930']
     main(imu_ids=IMU_IDS)
 

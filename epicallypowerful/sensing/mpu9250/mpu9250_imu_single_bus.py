@@ -92,7 +92,7 @@ class MPU9250IMUs:
     def __init__(
         self,
         bus: int,
-        imu_ids: dict[int,dict[str,hex]],
+        imu_ids: dict[int,hex],
         use_multiplexer=False,
         components=['acc','gyro'],
         verbose: bool=False
@@ -102,14 +102,7 @@ class MPU9250IMUs:
         elif not isinstance(imu_ids,dict):
             raise Exception ('`imu_ids` must be in the form of dict(int channel, hex imu_id).')
 
-        if not isinstance(bus,list):
-            bus = [bus]
-
-        self.bus = {}
-        
-        for b in bus:
-            self.bus[b] = smbus.SMBus(b)
-
+        self.bus = smbus.SMBus(bus) # Initialize I2C bus
         self.imu_ids = imu_ids
         self.use_multiplexer = use_multiplexer
         self.components = components
@@ -117,7 +110,7 @@ class MPU9250IMUs:
         self.imus = {}
         
         # Determine whether to use multiplexer based on number of IMU indices detected
-        if not use_multiplexer: # Initialize without multiplexer
+        if len(imu_ids.keys()) == 1 and not use_multiplexer: # Initialize without multiplexer
             if verbose:
                 print("Using only one IMU index defaults to not instantiating multiplexer.")
                 print("If you have configured a multiplexer with a single IMU, consider using just the IMU without the multiplexer.")
@@ -130,34 +123,22 @@ class MPU9250IMUs:
                 print("Using multiplexer...")
 
         # Initialize all MPU9250 units
-        for imu_id in self.imu_ids.keys():
-            bus_id = self.imu_ids[imu_id]['bus']
-            channel = self.imu_ids[imu_id]['channel']
-            address = self.imu_ids[imu_id]['address']
-        # for bus_id in self.bus.keys():
-        #     for channel,idx in imu_ids[bus_id].items():
+        for channel,idx in imu_ids.items():
             if not use_multiplexer:
                 # self._check_connected_imu(device_address=idx)
-                self.startup_config_vals = self._set_up_connected_imu(
-                                                                    bus_id=bus_id,
-                                                                    device_address=address,
-                                                                    components=self.components,
-                                                                    )
+                self.startup_config_vals = self._set_up_connected_imu(device_address=idx, components=self.components)
             else:
                 if channel in range(0,8):
                     if channel is not self.prev_channel:
-                        self.bus[bus_id].write_byte_data(MULTIPLEXER_ADDR, 0x04, MULTIPLEXER_ACTIONS[channel])
+                        self.bus.write_byte_data(MULTIPLEXER_ADDR, 0x04, MULTIPLEXER_ACTIONS[channel])
                         self.prev_channel = channel
                     
                     # self._check_connected_imu(device_address=idx) # TODO: implement
-                    self.startup_config_vals = self._set_up_connected_imu(bus_id=bus_id,
-                                                                        device_address=address,
-                                                                        components=self.components,
-                                                                        )
+                    self.startup_config_vals = self._set_up_connected_imu(device_address=idx, components=self.components)
                 else:
                     raise Exception('Need channel in range (0,7) for multiplexer.')
 
-            self.imus[imu_id] = IMUData()
+            self.imus[channel] = IMUData()
 
 
     def _check_connected_imu(self, device_address: hex):
@@ -166,7 +147,6 @@ class MPU9250IMUs:
 
 
     def _set_up_connected_imu(self,
-                                bus_id: int,
                                 device_address: hex,
                                 components: list[str]
     ) -> dict[float]:
@@ -174,8 +154,7 @@ class MPU9250IMUs:
         magnetometer coefficients.
 
         Args:
-            bus_id (int): I2C bus on the device.
-            device_address (hex): address of the MPU9250 IMU.
+            device_address (hex): address of the MPU9250 IMU
             components (list of strings): list of MPU9250 sensing components to get.
                                             Could include `acc`, `gyro`, or `mag`. For 
                                             example, `components = ['acc','gyro','mag']` 
@@ -188,17 +167,13 @@ class MPU9250IMUs:
         """
         startup_config_vals = {}
 
-        # Start accelerometer and gyro
         if any([c for c in components if (('acc' in c) or ('gyro' in c))]):
-            accel_range, gyro_range = self._set_up_MPU6050(bus_id=bus_id,
-                                                            address=device_address,
-                                                            )
+            accel_range, gyro_range = self._set_up_MPU6050(address=device_address) # Start accelerometer and gyro
             startup_config_vals['accel_range'] = accel_range
             startup_config_vals['gyro_range'] = gyro_range
 
-        # Start magnetometer
         if any([c for c in components if 'mag' in c]):
-            mag_coeffx, mag_coeffy, mag_coeffz, = self._set_up_AK8963(bus_id=bus_id)
+            mag_coeffx, mag_coeffy, mag_coeffz, = self._set_up_AK8963() # Start magnetometer
             startup_config_vals['mag_coeffx'] = mag_coeffx
             startup_config_vals['mag_coeffy'] = mag_coeffy
             startup_config_vals['mag_coeffz'] = mag_coeffz
@@ -207,7 +182,6 @@ class MPU9250IMUs:
     
 
     def _set_up_MPU6050(self,
-                        bus_id: int=1,
                         address=MPU6050_ADDR,
                         sample_rate_divisor=0,
                         accel_idx=0,
@@ -217,7 +191,6 @@ class MPU9250IMUs:
         """Set up MPU6050 integrated accelerometer and gyroscope on MPU9250.
 
         Args:
-            bus_id (int): I2C bus on the device. Default: 1.
             address (hex): address of the MPU6050 unit. Default set outside this function.
             sample_rate_divisor (int): divisor term to lower possible sampling rate. 
                                 Equation: sampling_rate = 8 kHz/(1+sample_rate_divisor).
@@ -244,48 +217,47 @@ class MPU9250IMUs:
                                                             collected for each sensor.
         """
         # Reset all integrated sensors
-        self.bus[bus_id].write_byte_data(address, PWR_MGMT_1, 0x80)
+        self.bus.write_byte_data(address, PWR_MGMT_1, 0x80)
         time.sleep(sleep_time)
-        self.bus[bus_id].write_byte_data(address, PWR_MGMT_1, 0x00)
+        self.bus.write_byte_data(address, PWR_MGMT_1, 0x00)
         time.sleep(sleep_time)
 
         # Set power management and crystal settings
-        self.bus[bus_id].write_byte_data(address, PWR_MGMT_1, 0x01)
+        self.bus.write_byte_data(address, PWR_MGMT_1, 0x01)
         time.sleep(sleep_time)
 
         # Set sample rate (stability) --> only do if you don't want to collect at default: 8 kHz
-        self.bus[bus_id].write_byte_data(address, SMPLRT_DIV, sample_rate_divisor)
+        self.bus.write_byte_data(address, SMPLRT_DIV, sample_rate_divisor)
         time.sleep(sleep_time)
 
         # Write to configuration register
-        self.bus[bus_id].write_byte_data(address, CONFIG, 0)
+        self.bus.write_byte_data(address, CONFIG, 0)
         time.sleep(sleep_time)
 
         # Write to accel configuration register
         accel_config_sel = [0b00000,0b01000,0b10000,0b11000] # byte registers
         accel_config_vals = [2.0,4.0,8.0,16.0] # +/- val. range [g] (1 g = 9.81 m*s^-2)
-        self.bus[bus_id].write_byte_data(address, ACCEL_CONFIG, int(accel_config_sel[accel_idx]))
+        self.bus.write_byte_data(address, ACCEL_CONFIG, int(accel_config_sel[accel_idx]))
         time.sleep(sleep_time)
 
         # Write to gyro configuration register
         gyro_config_sel = [0b00000,0b01000,0b10000,0b11000] # byte registers
         gyro_config_vals = [250.0,500.0,1000.0,2000.0] # +/- val. range [deg/s]
-        self.bus[bus_id].write_byte_data(address, GYRO_CONFIG, int(gyro_config_sel[gyro_idx]))
+        self.bus.write_byte_data(address, GYRO_CONFIG, int(gyro_config_sel[gyro_idx]))
         time.sleep(sleep_time)
         
         # Interrupt register (related to overflow of data [FIFO])
-        self.bus[bus_id].write_byte_data(address,INT_PIN_CFG,0x22)
+        self.bus.write_byte_data(address,INT_PIN_CFG,0x22)
         time.sleep(sleep_time)
 
         # Enable the AK8963 magnetometer in pass-through mode
-        self.bus[bus_id].write_byte_data(address, INT_ENABLE, 1)
+        self.bus.write_byte_data(address, INT_ENABLE, 1)
         time.sleep(sleep_time)
 
         return accel_config_vals[accel_idx], gyro_config_vals[gyro_idx]
 
 
     def _set_up_AK8963(self,
-                        bus_id: int=1,
                         bit_resolution=0b0001, # Select 16-bit res.
                         sample_rate=0b0110,    # Select 100 Hz sampling rate
                         sleep_time=SLEEP_TIME,
@@ -293,7 +265,6 @@ class MPU9250IMUs:
         """Set up AK8963 integrated magnetometer on MPU9250.
 
         Args:
-            bus_id (int): I2C bus on the device. Default: 1.
             bit_resolution (binary): bit resolution at which to sample data.
                                     Default: 0b0001 (16-bit).
             sample_rate (binary): rate at which to sample. Default: 0b0110 (100 Hz).
@@ -305,52 +276,49 @@ class MPU9250IMUs:
             [coeffx, coeffy, coeffz] (list of floats): coefficients for each DOF
         """
         # Initialize magnetometer mode
-        self.bus[bus_id].write_byte_data(AK8963_ADDR,AK8963_CNTL,0x00)
+        self.bus.write_byte_data(AK8963_ADDR,AK8963_CNTL,0x00)
         time.sleep(sleep_time)
-        self.bus[bus_id].write_byte_data(AK8963_ADDR,AK8963_CNTL,0x0F)
+        self.bus.write_byte_data(AK8963_ADDR,AK8963_CNTL,0x0F)
         time.sleep(sleep_time)
         
         # Read coefficient data from circuit address
-        coeff_data = self.bus[bus_id].read_i2c_block_data(AK8963_ADDR,AK8963_ASAX,3)
+        coeff_data = self.bus.read_i2c_block_data(AK8963_ADDR,AK8963_ASAX,3)
         coeffx = (0.5 * (coeff_data[0] - 128)) / 256.0 + 1.0
         coeffy = (0.5 * (coeff_data[1] - 128)) / 256.0 + 1.0
         coeffz = (0.5 * (coeff_data[2] - 128)) / 256.0 + 1.0
         time.sleep(sleep_time)
         
         # Reinitialize magnetometer
-        self.bus[bus_id].write_byte_data(AK8963_ADDR,AK8963_CNTL,0x00)
+        self.bus.write_byte_data(AK8963_ADDR,AK8963_CNTL,0x00)
         time.sleep(sleep_time)
 
         # Set magnetometer resolution and frequency of communication
         AK8963_mode = (bit_resolution << 4) + sample_rate # bit conversion
-        self.bus[bus_id].write_byte_data(AK8963_ADDR,AK8963_CNTL,AK8963_mode)
+        self.bus.write_byte_data(AK8963_ADDR,AK8963_CNTL,AK8963_mode)
         time.sleep(sleep_time)
 
         return coeffx,coeffy,coeffz
 
 
-    def get_data(self,
-                imu_id: int,
-    ) -> IMUData:
+    def get_data(self, channel=0) -> IMUData:
         """Get acceleration, gyroscope, and magnetometer 
         data from MPU9250.
 
         Args:
-            imu_id (int): IMU ID address.
+            channel (int): channel of the multiplexer from which to 
+                            get IMU readings. If using only one IMU directly 
+                            connected to the device, use default of 0.
 
         Returns:
             imu_data (IMUData): IMU data of the current sensor.
         """
         imu_data = IMUData()
-        bus_id = self.imu_ids[imu_id]['bus']
-        channel = self.imu_ids[imu_id]['channel']
-        address = self.imu_ids[imu_id]['address']
 
         # If using multiplexer, switch to proper channel
         if use_multiplexer:
             if channel in range(0,8):
                 if channel is not self.prev_channel:
-                    self.bus[bus_id].write_byte_data(MULTIPLEXER_ADDR, 0x04, MULTIPLEXER_ACTIONS[channel])
+                    self.bus.write_byte_data(MULTIPLEXER_ADDR, 0x04, MULTIPLEXER_ACTIONS[channel])
                     self.prev_channel = channel
             else:
                 raise Exception('Need channel in range (0,7) for multiplexer.')
@@ -364,10 +332,9 @@ class MPU9250IMUs:
             imu_data.gyroy,
             imu_data.gyroz
             ) = self.get_MPU6050_data(
-                                    bus_id=bus_id,
                                     accel_range=self.startup_config_vals['accel_range'],
                                     gyro_range=self.startup_config_vals['gyro_range'],
-                                    address=address,
+                                    address=self.imu_ids[channel],
                                     )
 
         # Get magnetometer data
@@ -375,18 +342,15 @@ class MPU9250IMUs:
             (imu_data.magx,
             imu_data.magy,
             imu_data.magz
-            ) = self.get_AK8963_data(bus_id=bus_id,
-                                    mag_coeffs=[self.startup_config_vals['mag_coeffx'], startup_config_vals['mag_coeffy'], startup_config_vals['mag_coeffz']],
-                                    )
+            ) = self.get_AK8963_data(mag_coeffs=[self.startup_config_vals['mag_coeffx'], startup_config_vals['mag_coeffy'], startup_config_vals['mag_coeffz']])
 
         # Update IMU data class dictionary
-        self.imus[imu_id] = imu_data
+        self.imus[channel] = imu_data
 
         return imu_data
 
 
     def get_MPU6050_data(self,
-                            bus_id: int,
                             accel_range: float,
                             gyro_range: float,
                             address: hex=MPU6050_ADDR,
@@ -394,7 +358,6 @@ class MPU9250IMUs:
         """Convert raw binary accelerometer and gyroscope readings to floats.
 
         Args:
-            bus_id (int): I2C bus on the device.
             accel_range (float): +/- range of acceleration being 
                                 read from MPU6050. Units are 
                                 g's (1 g = 9.81 m*s^-2).
@@ -406,32 +369,14 @@ class MPU9250IMUs:
             acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z (floats): acceleration and gyroscope values
         """
         # Get raw acceleration bits
-        raw_acc_x = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=ACCEL_XOUT_H,
-                                        )
-        raw_acc_y = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=ACCEL_YOUT_H,
-                                        )
-        raw_acc_z = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=ACCEL_ZOUT_H,
-                                        )
+        raw_acc_x = self._read_raw_bits(address=address, register=ACCEL_XOUT_H)
+        raw_acc_y = self._read_raw_bits(address=address, register=ACCEL_YOUT_H)
+        raw_acc_z = self._read_raw_bits(address=address, register=ACCEL_ZOUT_H)
         
         # Get raw gyroscope bits
-        raw_gyro_x = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=GYRO_XOUT_H,
-                                        )
-        raw_gyro_y = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=GYRO_YOUT_H,
-                                        )
-        raw_gyro_z = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=GYRO_ZOUT_H,
-                                        )
+        raw_gyro_x = self._read_raw_bits(address=address, register=GYRO_XOUT_H)
+        raw_gyro_y = self._read_raw_bits(address=address, register=GYRO_YOUT_H)
+        raw_gyro_z = self._read_raw_bits(address=address, register=GYRO_ZOUT_H)
 
         # Convert from bits to g's (accel.) and deg/s (gyro), then 
         # from those base units to m*s^-2 and rad/s respectively
@@ -447,14 +392,12 @@ class MPU9250IMUs:
 
 
     def get_AK8963_data(self,
-                        bus_id: int=1,
                         address=AK8963_ADDR,
                         mag_coeffs=[],
     ) -> tuple:
         """Convert raw binary magnetometer readings to floats.
 
         Args:
-            bus_id (int): I2C bus on the device. Default: 1.
             address (hex): address of AK8963 sensor. Should always be default 
                             AK8963_ADDR value (defined outside function).
             mag_coeffs (list of floats): coefficients set from AK8963. Units are 
@@ -468,21 +411,12 @@ class MPU9250IMUs:
         try_lim = 500
 
         while num_tries < try_lim:
-            raw_mag_x = self._read_raw_bits(bus_id=bus_id,
-                                            address=address,
-                                            register=HXH,
-                                            )
-            raw_mag_y = self._read_raw_bits(bus_id=bus_id,
-                                            address=address,
-                                            register=HYH,
-                                            )
-            raw_mag_z = self._read_raw_bits(bus_id=bus_id,
-                                            address=address,
-                                            register=HZH,
-                                            )
+            raw_mag_x = self._read_raw_bits(address=address, register=HXH)
+            raw_mag_y = self._read_raw_bits(address=address, register=HYH)
+            raw_mag_z = self._read_raw_bits(address=address, register=HZH)
 
             # the next line is needed for AK8963
-            if (self.bus[bus_id].read_byte_data(address,AK8963_ST2)) & 0x08!=0x08:
+            if (bus.read_byte_data(address,AK8963_ST2)) & 0x08!=0x08:
                 break
 
             num_tries += 1
@@ -496,7 +430,6 @@ class MPU9250IMUs:
 
 
     def _read_raw_bits(self,
-                        bus_id: int,
                         address: hex,
                         register: hex,
     ) -> int:
@@ -504,7 +437,6 @@ class MPU9250IMUs:
         on the MPU9250 board.
 
         Args:
-            bus_id (int): I2C bus on the device.
             address (hex): address of the subcircuit being read from.
             register (hex): register from which to pull specific data.
 
@@ -514,12 +446,12 @@ class MPU9250IMUs:
         """
         if address == MPU6050_ADDR or address == MPU6050_ADDR_AD0_HIGH:
             # Read accel and gyro values
-            high = self.bus[bus_id].read_byte_data(address, register)
-            low = self.bus[bus_id].read_byte_data(address, register+1)
+            high = self.bus.read_byte_data(address, register)
+            low = self.bus.read_byte_data(address, register+1)
         elif address == AK8963_ADDR:            
             # read magnetometer values
-            high = self.bus[bus_id].read_byte_data(address, register)
-            low = self.bus[bus_id].read_byte_data(address, register-1)
+            high = self.bus.read_byte_data(address, register)
+            low = self.bus.read_byte_data(address, register-1)
 
         # Combine high and low for unsigned bit value
         value = ((high << 8) | low)
@@ -543,8 +475,7 @@ if __name__ == "__main__":
     import platform
     machine_name = platform.uname().release.lower()
     if "tegra" in machine_name:
-        # bus = [1,7]
-        bus = [7]
+        bus = 1
     elif "rpi" in machine_name or "bcm" in machine_name or "raspi" in machine_name:
         bus = 1
     else:
@@ -553,46 +484,8 @@ if __name__ == "__main__":
     loop = LoopTimer(operating_rate=200, verbose=True)
 
     # imu_ids = {0: 0x68, 1: 0x68, 2: 0x68, 3: 0x68, 4: 0x68, 5: 0x68}
-    # imu_ids = {1: 0x68, 1: 0x69, 2: 0x68, 2: 0x69, 4: 0x68, 4: 0x69}
-    # imu_ids = {
-    #             bus[0]:
-    #                 {
-    #                     1: 0x68,
-    #                     1: 0x69,
-    #                 },
-    #             bus[1]:
-    #                 {
-    #                     1: 0x68,
-    #                     1: 0x69,
-    #                 },
-    #         }
-    imu_ids = {
-                0:
-                    {
-                        'bus': bus[0],
-                        'channel': 1,
-                        'address': 0x68,
-                    },
-                # 1:
-                #     {
-                #         'bus': bus[0],
-                #         'channel': 1,
-                #         'address': 0x69,
-                #     },
-                # 2:
-                #     {
-                #         'bus': bus[1],
-                #         'channel': 1,
-                #         'address': 0x68,
-                #     },
-                # 3:
-                #     {
-                #         'bus': bus[1],
-                #         'channel': 1,
-                #         'address': 0x69,
-                #     },
-            }
-
+    imu_ids = {1: 0x68, 1: 0x69} # , 2: 0x69, 2: 0x68} # , 4: 0x69, 4: 0x68}
+    # imu_ids = {1: 0x69}
     use_multiplexer = False
     components = ['acc','gyro']
     verbose = True
@@ -614,8 +507,8 @@ if __name__ == "__main__":
             # t_diff_array.append(t_diff)
             # mean_diff = sum(t_diff_array)/len(t_diff_array)
             
-            for imu_id in imu_ids.keys():
-                imu_data = mpu9250_imus.get_data(imu_id=imu_id)
+            for channel in imu_ids.keys():
+                imu_data = mpu9250_imus.get_data(channel=channel)
             
                 # print(f"IMU {channel} [{1/t_diff:0.2f} Hz, mean: {1/mean_diff:0.2f} Hz]: acc_x: {imu_data.accx:0.3f}, acc_y: {imu_data.accy:0.3f}, acc_z: {imu_data.accz:0.3f}, gyro_x: {imu_data.gyrox:0.3f}, gyro_y: {imu_data.gyroy:0.3f}, gyro_z: {imu_data.gyroz:0.3f}")
 
