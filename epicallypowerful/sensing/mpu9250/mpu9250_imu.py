@@ -544,7 +544,7 @@ if __name__ == "__main__":
     machine_name = platform.uname().release.lower()
     if "tegra" in machine_name:
         # bus = [1,7]
-        bus = [7]
+        bus = [1,7]
     elif "rpi" in machine_name or "bcm" in machine_name or "raspi" in machine_name:
         bus = 1
     else:
@@ -573,12 +573,12 @@ if __name__ == "__main__":
                         'channel': 1,
                         'address': 0x68,
                     },
-                # 1:
-                #     {
-                #         'bus': bus[0],
-                #         'channel': 1,
-                #         'address': 0x69,
-                #     },
+                1:
+                    {
+                        'bus': bus[0],
+                        'channel': 1,
+                        'address': 0x69,
+                    },
                 # 2:
                 #     {
                 #         'bus': bus[1],
@@ -593,12 +593,32 @@ if __name__ == "__main__":
                 #     },
             }
 
+    imu_ids2 = {
+                0:
+                    {
+                        'bus': bus[1],
+                        'channel': 1,
+                        'address': 0x68,
+                    },
+                1:
+                    {
+                        'bus': bus[1],
+                        'channel': 1,
+                        'address': 0x69,
+                    },
+                }
     use_multiplexer = False
     components = ['acc','gyro']
     verbose = True
 
-    mpu9250_imus = MPU9250IMUs(bus=bus,
+    mpu9250_imus = MPU9250IMUs(bus=bus[0],
                                 imu_ids=imu_ids,
+                                use_multiplexer=use_multiplexer,
+                                components=components,
+                                verbose=verbose)
+
+    mpu9250_imus2 = MPU9250IMUs(bus=bus[1],
+                                imu_ids=imu_ids2,
                                 use_multiplexer=use_multiplexer,
                                 components=components,
                                 verbose=verbose)
@@ -613,9 +633,15 @@ if __name__ == "__main__":
             # t_diff_array.pop(0)
             # t_diff_array.append(t_diff)
             # mean_diff = sum(t_diff_array)/len(t_diff_array)
+
+            imu_data0 = mpu9250_imus.get_data(imu_id=0)
+            imu_data1 = mpu9250_imus.get_data(imu_id=1)
+            imu_data2 = mpu9250_imus2.get_data(imu_id=0)
+            imu_data3 = mpu9250_imus2.get_data(imu_id=1)
+
             
-            for imu_id in imu_ids.keys():
-                imu_data = mpu9250_imus.get_data(imu_id=imu_id)
+            # for imu_id in imu_ids.keys():
+            #     imu_data = mpu9250_imus.get_data(imu_id=imu_id)
             
                 # print(f"IMU {channel} [{1/t_diff:0.2f} Hz, mean: {1/mean_diff:0.2f} Hz]: acc_x: {imu_data.accx:0.3f}, acc_y: {imu_data.accy:0.3f}, acc_z: {imu_data.accz:0.3f}, gyro_x: {imu_data.gyrox:0.3f}, gyro_y: {imu_data.gyroy:0.3f}, gyro_z: {imu_data.gyroz:0.3f}")
 
