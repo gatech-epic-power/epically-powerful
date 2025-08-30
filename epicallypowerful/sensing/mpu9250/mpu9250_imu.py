@@ -5,7 +5,10 @@ and reading from Microstrain IMUs using the MSCL package.
 
 """
 
+import os
+import sys
 import time
+import threading
 from typing import Dict
 import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
 from epicallypowerful.toolbox import LoopTimer
@@ -52,15 +55,16 @@ SLEEP_TIME = 0.1 # [s]
 
 # Set PCA9548A (variant of TCA9548A) multiplexer register, channels and actions
 MULTIPLEXER_ADDR = 0x70
-MULTIPLEXER_ACTIONS = {0: 0x01,
-                        1: 0x02,
-                        2: 0x04,
-                        3: 0x08,
-                        4: 0x10,
-                        5: 0x20,
-                        6: 0x40,
-                        7: 0x80,
-                    }
+MULTIPLEXER_ACTIONS = {
+    0: 0x01,
+    1: 0x02,
+    2: 0x04,
+    3: 0x08,
+    4: 0x10,
+    5: 0x20,
+    6: 0x40,
+    7: 0x80,
+}
 
 class MPU9250IMUs:
     """Class for interfacing with the MPU9250 IMU using I2C communication, leveraging the TCA9548A multiplexer for communicating with multiple units at the same time.
@@ -108,7 +112,10 @@ class MPU9250IMUs:
         self.bus = {}
         
         for b in bus:
-            self.bus[b] = smbus.SMBus(b)
+            # self.bus[b] = smbus.SMBus(b)
+
+            # Threading approach
+            self.bus[b] = threading.Thread(target=smbus.SMBus, name=b).start()
 
         self.imu_ids = imu_ids
         self.use_multiplexer = use_multiplexer
@@ -165,10 +172,11 @@ class MPU9250IMUs:
         raise NotImplementedError
 
 
-    def _set_up_connected_imu(self,
-                                bus_id: int,
-                                device_address: hex,
-                                components: list[str]
+    def _set_up_connected_imu(
+        self,
+        bus_id: int,
+        device_address: hex,
+        components: list[str]
     ) -> dict[float]:
         """Get +/- ranges of acceleration and gyro, as well as 
         magnetometer coefficients.
@@ -206,13 +214,14 @@ class MPU9250IMUs:
         return startup_config_vals
     
 
-    def _set_up_MPU6050(self,
-                        bus_id: int=1,
-                        address=MPU6050_ADDR,
-                        sample_rate_divisor=0,
-                        accel_idx=0,
-                        gyro_idx=0,
-                        sleep_time=SLEEP_TIME,
+    def _set_up_MPU6050(
+        self,
+        bus_id: int=1,
+        address=MPU6050_ADDR,
+        sample_rate_divisor=0,
+        accel_idx=0,
+        gyro_idx=0,
+        sleep_time=SLEEP_TIME,
     ) -> tuple[float]:
         """Set up MPU6050 integrated accelerometer and gyroscope on MPU9250.
 
@@ -284,11 +293,12 @@ class MPU9250IMUs:
         return accel_config_vals[accel_idx], gyro_config_vals[gyro_idx]
 
 
-    def _set_up_AK8963(self,
-                        bus_id: int=1,
-                        bit_resolution=0b0001, # Select 16-bit res.
-                        sample_rate=0b0110,    # Select 100 Hz sampling rate
-                        sleep_time=SLEEP_TIME,
+    def _set_up_AK8963(
+        self,
+        bus_id: int=1,
+        bit_resolution=0b0001, # Select 16-bit res.
+        sample_rate=0b0110,    # Select 100 Hz sampling rate
+        sleep_time=SLEEP_TIME,
     ) -> tuple:
         """Set up AK8963 integrated magnetometer on MPU9250.
 
@@ -329,9 +339,7 @@ class MPU9250IMUs:
         return coeffx,coeffy,coeffz
 
 
-    def get_data(self,
-                imu_id: int,
-    ) -> IMUData:
+    def get_data(self, imu_id: int) -> IMUData:
         """Get acceleration, gyroscope, and magnetometer 
         data from MPU9250.
 
@@ -364,20 +372,21 @@ class MPU9250IMUs:
             imu_data.gyroy,
             imu_data.gyroz
             ) = self.get_MPU6050_data(
-                                    bus_id=bus_id,
-                                    accel_range=self.startup_config_vals['accel_range'],
-                                    gyro_range=self.startup_config_vals['gyro_range'],
-                                    address=address,
-                                    )
+                bus_id=bus_id,
+                accel_range=self.startup_config_vals['accel_range'],
+                gyro_range=self.startup_config_vals['gyro_range'],
+                address=address,
+            )
 
         # Get magnetometer data
         if any([c for c in self.components if 'mag' in c]):
             (imu_data.magx,
             imu_data.magy,
             imu_data.magz
-            ) = self.get_AK8963_data(bus_id=bus_id,
-                                    mag_coeffs=[self.startup_config_vals['mag_coeffx'], startup_config_vals['mag_coeffy'], startup_config_vals['mag_coeffz']],
-                                    )
+            ) = self.get_AK8963_data(
+                bus_id=bus_id,
+                mag_coeffs=[self.startup_config_vals['mag_coeffx'], startup_config_vals['mag_coeffy'], startup_config_vals['mag_coeffz']],
+            )
 
         # Update IMU data class dictionary
         self.imus[imu_id] = imu_data
@@ -385,12 +394,13 @@ class MPU9250IMUs:
         return imu_data
 
 
-    def get_MPU6050_data(self,
-                            bus_id: int,
-                            accel_range: float,
-                            gyro_range: float,
-                            address: hex=MPU6050_ADDR,
-        ) -> tuple[float]:
+    def get_MPU6050_data(
+        self,
+        bus_id: int,
+        accel_range: float,
+        gyro_range: float,
+        address: hex=MPU6050_ADDR,
+    ) -> tuple[float]:
         """Convert raw binary accelerometer and gyroscope readings to floats.
 
         Args:
@@ -406,32 +416,38 @@ class MPU9250IMUs:
             acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z (floats): acceleration and gyroscope values
         """
         # Get raw acceleration bits
-        raw_acc_x = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=ACCEL_XOUT_H,
-                                        )
-        raw_acc_y = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=ACCEL_YOUT_H,
-                                        )
-        raw_acc_z = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=ACCEL_ZOUT_H,
-                                        )
+        raw_acc_x = self._read_raw_bits(
+            bus_id=bus_id,
+            address=address,
+            register=ACCEL_XOUT_H,
+        )
+        raw_acc_y = self._read_raw_bits(
+            bus_id=bus_id,
+            address=address,
+            register=ACCEL_YOUT_H,
+        )
+        raw_acc_z = self._read_raw_bits(
+            bus_id=bus_id,
+            address=address,
+            register=ACCEL_ZOUT_H,
+        )
         
         # Get raw gyroscope bits
-        raw_gyro_x = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=GYRO_XOUT_H,
-                                        )
-        raw_gyro_y = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=GYRO_YOUT_H,
-                                        )
-        raw_gyro_z = self._read_raw_bits(bus_id=bus_id,
-                                        address=address,
-                                        register=GYRO_ZOUT_H,
-                                        )
+        raw_gyro_x = self._read_raw_bits(
+            bus_id=bus_id,
+            address=address,
+            register=GYRO_XOUT_H,
+        )
+        raw_gyro_y = self._read_raw_bits(
+            bus_id=bus_id,
+            address=address,
+            register=GYRO_YOUT_H,
+        )
+        raw_gyro_z = self._read_raw_bits(
+            bus_id=bus_id,
+            address=address,
+            register=GYRO_ZOUT_H,
+        )
 
         # Convert from bits to g's (accel.) and deg/s (gyro), then 
         # from those base units to m*s^-2 and rad/s respectively
@@ -446,10 +462,11 @@ class MPU9250IMUs:
         return acc_x,acc_y,acc_z,gyro_x,gyro_y,gyro_z
 
 
-    def get_AK8963_data(self,
-                        bus_id: int=1,
-                        address=AK8963_ADDR,
-                        mag_coeffs=[],
+    def get_AK8963_data(
+        self,
+        bus_id: int=1,
+        address=AK8963_ADDR,
+        mag_coeffs=[],
     ) -> tuple:
         """Convert raw binary magnetometer readings to floats.
 
@@ -495,10 +512,11 @@ class MPU9250IMUs:
         return mag_x,mag_y,mag_z
 
 
-    def _read_raw_bits(self,
-                        bus_id: int,
-                        address: hex,
-                        register: hex,
+    def _read_raw_bits(
+        self,
+        bus_id: int,
+        address: hex,
+        register: hex,
     ) -> int:
         """Method of reading raw data from different subcircuits 
         on the MPU9250 board.
@@ -529,6 +547,31 @@ class MPU9250IMUs:
             value -= 65536
 
         return value
+
+
+def exit_gracefully(self) -> None:
+    """Exit MPU-9250 communication across all connected 
+    I2C buses gracefully. Handle multithreading as present.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    raise NotImplementedError
+
+    os.write(sys.stdout.fileno(), b"Exiting gracefully\n")
+
+    try:
+        for b in self.bus.keys():
+            self.bus[b].join()
+    except:
+        sys.exit("Failed to kill threads for I2C buses.\n")
+
+    os.write(sys.stdout.fileno(), b"Shutdown finished.\n")
+    sys.exit(0)
+
 
 
 if __name__ == "__main__":
@@ -567,61 +610,74 @@ if __name__ == "__main__":
     #                 },
     #         }
     imu_ids = {
-                0:
-                    {
-                        'bus': bus[0],
-                        'channel': 1,
-                        'address': 0x68,
-                    },
-                1:
-                    {
-                        'bus': bus[0],
-                        'channel': 1,
-                        'address': 0x69,
-                    },
-                # 2:
-                #     {
-                #         'bus': bus[1],
-                #         'channel': 1,
-                #         'address': 0x68,
-                #     },
-                # 3:
-                #     {
-                #         'bus': bus[1],
-                #         'channel': 1,
-                #         'address': 0x69,
-                #     },
-            }
+        0:
+            {
+                'bus': bus[0],
+                'channel': 1,
+                'address': 0x68,
+            },
+        1:
+            {
+                'bus': bus[0],
+                'channel': 1,
+                'address': 0x69,
+            },
+        2:
+            {
+                'bus': bus[1],
+                'channel': 1,
+                'address': 0x68,
+            },
+        3:
+            {
+                'bus': bus[1],
+                'channel': 1,
+                'address': 0x69,
+            },
+    }
 
-    imu_ids2 = {
-                0:
-                    {
-                        'bus': bus[1],
-                        'channel': 1,
-                        'address': 0x68,
-                    },
-                1:
-                    {
-                        'bus': bus[1],
-                        'channel': 1,
-                        'address': 0x69,
-                    },
-                }
+    # imu_ids2 = {
+    #     0:
+    #         {
+    #             'bus': bus[1],
+    #             'channel': 1,
+    #             'address': 0x68,
+    #         },
+    #     1:
+    #         {
+    #             'bus': bus[1],
+    #             'channel': 1,
+    #             'address': 0x69,
+    #         },
+    # }
     use_multiplexer = False
     components = ['acc','gyro']
     verbose = True
 
-    mpu9250_imus = MPU9250IMUs(bus=bus[0],
-                                imu_ids=imu_ids,
-                                use_multiplexer=use_multiplexer,
-                                components=components,
-                                verbose=verbose)
+    # mpu9250_imus = MPU9250IMUs(
+    #     bus=bus[0],
+    #     imu_ids=imu_ids,
+    #     use_multiplexer=use_multiplexer,
+    #     components=components,
+    #     verbose=verbose,
+    # )
 
-    mpu9250_imus2 = MPU9250IMUs(bus=bus[1],
-                                imu_ids=imu_ids2,
-                                use_multiplexer=use_multiplexer,
-                                components=components,
-                                verbose=verbose)
+    # mpu9250_imus2 = MPU9250IMUs(
+    #     bus=bus[1],
+    #     imu_ids=imu_ids2,
+    #     use_multiplexer=use_multiplexer,
+    #     components=components,
+    #     verbose=verbose,
+    # )
+
+    mpu9250_imus = MPU9250IMUs(
+        bus=bus,
+        imu_ids=imu_ids,
+        use_multiplexer=use_multiplexer,
+        components=components,
+        verbose=verbose,
+    )
+
     t_diff_array = [0] * 200
     t_old = time.perf_counter()
     t_new = time.perf_counter()
@@ -636,8 +692,8 @@ if __name__ == "__main__":
 
             imu_data0 = mpu9250_imus.get_data(imu_id=0)
             imu_data1 = mpu9250_imus.get_data(imu_id=1)
-            imu_data2 = mpu9250_imus2.get_data(imu_id=0)
-            imu_data3 = mpu9250_imus2.get_data(imu_id=1)
+            # imu_data2 = mpu9250_imus2.get_data(imu_id=0)
+            # imu_data3 = mpu9250_imus2.get_data(imu_id=1)
 
             
             # for imu_id in imu_ids.keys():
@@ -647,3 +703,4 @@ if __name__ == "__main__":
 
             # t_old = t_new
 
+    mpu9250_imus.exit_gracefully()
