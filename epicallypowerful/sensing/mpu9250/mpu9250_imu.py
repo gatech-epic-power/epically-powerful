@@ -174,6 +174,13 @@ class MPU9250IMUs:
 
             self.imus[imu_id] = IMUData()
 
+        # Start all threads to read from IMUs continuously
+        # self.start(200)
+
+
+    def retrieve_data(self,idx: int):
+        return self.imus[idx]
+
 
     def _check_connected_imu(self, device_address: hex):
         """Check if IMU address is visible through I2C."""
@@ -361,7 +368,7 @@ class MPU9250IMUs:
         address = self.imu_ids[imu_id]['address']
 
         # If using multiplexer, switch to proper channel
-        if use_multiplexer:
+        if self.use_multiplexer:
             if channel in range(0,8):
                 if channel is not self.prev_channel:
                     bus.write_byte_data(MULTIPLEXER_ADDR, 0x04, MULTIPLEXER_ACTIONS[channel])
@@ -400,6 +407,9 @@ class MPU9250IMUs:
 
         # Update IMU data class dictionary
         self.imus[imu_id] = imu_data
+
+        # TROUBLESHOOTING
+        print(f"{imu_id}: acc_x: {imu_data.accx}, acc_y: {imu_data.accy}, acc_z: {imu_data.accz}")
 
         return imu_data
 
@@ -563,42 +573,63 @@ class MPU9250IMUs:
 
 
     def _get_data(self, imu_id):
+        # TODO: just add `with self._lock:` logic to main self.get_data() function?
         with self._lock:
             self.imus[imu_id] = self.get_data(imu_id=imu_id)
 
 
     def start(self, sample_rate) -> None:
-        prev_bus=-1
+        """Start a new thread for each I2C bus in use.
+        First sort all IMU IDs into lists by I2C bus, then start
+        a new thread that iterates through all IMU IDs on that bus.
+        """
+        bus_first_dict = {}
 
+        # Create dict with bus IDs as keys and lists of all IMU 
+        # index numbers as values
         for i in self.imu_ids.keys():
-            if self.imu_ids['bus'] is not prev_bus:
-                self._start_thread(
-                    target=self._get_data,
-                    sample_rate=sample_rate,
-                    imu_id=i,
-                )
+            bus_id = self.imu_ids[i]['bus']
+
+            if bus_id not in bus_first_dict.keys():
+                bus_first_dict[bus_id] = []
+            else:
+                bus_first_dict[bus_id].append(i)
+
+        # Iterate through all bus IDs and start a thread to 
+        # continuously read from all IMUs on that bus
+        for b in bus_first_dict.keys():
+            self._start_thread(
+                target=self._get_data,
+                sample_rate=sample_rate,
+                imu_ids=bus_first_dict[b],
+            )
         pass
 
 
-    def _start_thread(self, target, imu_id, sample_rate) -> None:
+    def _start_thread(self, target, imu_ids: list, sample_rate: float) -> None:
+        if not isinstance(imu_ids,list):
+            imu_ids = [imu_ids]
+
         thread = threading.Thread(
             target=self._run_continuously,
-            args=(target, imu_id, sample_rate),
+            args=(target, imu_ids, sample_rate),
         )
         thread.daemon = True
         thread.start()
         self._threads.append(thread)
 
 
-    def _run_continuously(self, task, imu_id, sample_rate) -> None:
-        # TODO: GET ALL IMU_IDS WITH EACH GET_DATA CALL PER BUS
+    def _run_continuously(self, task, imu_ids, sample_rate) -> None:
         while not self._stop_event.is_set():
-            task(imu_id)
+            for imu_id in imu_ids:
+                task(imu_id)
+
             time.sleep(1/sample_rate) # TODO: CHECK THIS LOGIC
 
 
     def stop(self):
         self._stop_event.set()
+
         for thread in self._threads:
             thread.join()
 
@@ -641,75 +672,63 @@ if __name__ == "__main__":
     machine_name = platform.uname().release.lower()
     if "tegra" in machine_name:
         # bus = [1,7]
-        bus = [1,7]
+        bus_ids = [1,7]
     elif "rpi" in machine_name or "bcm" in machine_name or "raspi" in machine_name:
-        bus = 1
+        bus_ids = 1
     else:
-        bus = 1
+        bus_ids = 1
 
     loop = LoopTimer(operating_rate=200, verbose=True)
 
     # imu_ids = {0: 0x68, 1: 0x68, 2: 0x68, 3: 0x68, 4: 0x68, 5: 0x68}
     # imu_ids = {1: 0x68, 1: 0x69, 2: 0x68, 2: 0x69, 4: 0x68, 4: 0x69}
     # imu_ids = {
-    #             bus[0]:
-    #                 {
-    #                     1: 0x68,
-    #                     1: 0x69,
-    #                 },
-    #             bus[1]:
-    #                 {
-    #                     1: 0x68,
-    #                     1: 0x69,
-    #                 },
-    #         }
-    imu_ids = {
-        0:
-            {
-                'bus': bus[0],
-                'channel': 1,
-                'address': 0x68,
-            },
-        1:
-            {
-                'bus': bus[0],
-                'channel': 1,
-                'address': 0x69,
-            },
-        2:
-            {
-                'bus': bus[1],
-                'channel': 1,
-                'address': 0x68,
-            },
-        3:
-            {
-                'bus': bus[1],
-                'channel': 1,
-                'address': 0x69,
-            },
-    }
-
-    # imu_ids2 = {
     #     0:
     #         {
-    #             'bus': bus[1],
+    #             'bus': bus_ids[0],
     #             'channel': 1,
     #             'address': 0x68,
     #         },
     #     1:
     #         {
-    #             'bus': bus[1],
+    #             'bus': bus_ids[0],
+    #             'channel': 1,
+    #             'address': 0x69,
+    #         },
+    #     2:
+    #         {
+    #             'bus': bus_ids[1],
+    #             'channel': 1,
+    #             'address': 0x68,
+    #         },
+    #     3:
+    #         {
+    #             'bus': bus_ids[1],
     #             'channel': 1,
     #             'address': 0x69,
     #         },
     # }
+
+    imu_ids = {
+        0:
+            {
+                'bus': bus_ids[0],
+                'channel': 1,
+                'address': 0x68,
+            },
+        1:
+            {
+                'bus': bus_ids[1],
+                'channel': 1,
+                'address': 0x68,
+            },
+    }
     use_multiplexer = False
     components = ['acc','gyro']
     verbose = True
 
     # mpu9250_imus = MPU9250IMUs(
-    #     bus=bus[0],
+    #     bus_ids=bus_ids[0],
     #     imu_ids=imu_ids,
     #     use_multiplexer=use_multiplexer,
     #     components=components,
@@ -717,7 +736,7 @@ if __name__ == "__main__":
     # )
 
     # mpu9250_imus2 = MPU9250IMUs(
-    #     bus=bus[1],
+    #     bus_ids=bus_ids[1],
     #     imu_ids=imu_ids2,
     #     use_multiplexer=use_multiplexer,
     #     components=components,
@@ -725,16 +744,18 @@ if __name__ == "__main__":
     # )
 
     mpu9250_imus = MPU9250IMUs(
-        bus=bus,
+        bus_ids=bus_ids,
         imu_ids=imu_ids,
         use_multiplexer=use_multiplexer,
         components=components,
         verbose=verbose,
     )
 
-    t_diff_array = [0] * 200
-    t_old = time.perf_counter()
-    t_new = time.perf_counter()
+    # t_diff_array = [0] * 200
+    # t_old = time.perf_counter()
+    # t_new = time.perf_counter()
+
+    mpu9250_imus.start(200)
 
     while True:
         if loop.continue_loop():
@@ -744,8 +765,11 @@ if __name__ == "__main__":
             # t_diff_array.append(t_diff)
             # mean_diff = sum(t_diff_array)/len(t_diff_array)
 
-            imu_data0 = mpu9250_imus.get_data(imu_id=0)
-            imu_data1 = mpu9250_imus.get_data(imu_id=1)
+            imu_data0 = mpu9250_imus.retrieve_data(0)
+            imu_data1 = mpu9250_imus.retrieve_data(1)
+            print(f"acc_x: {imu_data0.accx:0.3f}, acc_y: {imu_data0.accy:0.3f}, acc_z: {imu_data0.accz:0.3f}")
+            print(f"acc_x: {imu_data1.accx:0.3f}, acc_y: {imu_data1.accy:0.3f}, acc_z: {imu_data1.accz:0.3f}")
+            # imu_data1 = mpu9250_imus.get_data(imu_id=1)
             # imu_data2 = mpu9250_imus2.get_data(imu_id=0)
             # imu_data3 = mpu9250_imus2.get_data(imu_id=1)
 
