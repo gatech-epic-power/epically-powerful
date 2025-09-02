@@ -562,9 +562,9 @@ if __name__ == "__main__":
     if "tegra" in machine_name:
         bus_ids = [1,7]
     elif "rpi" in machine_name or "bcm" in machine_name or "raspi" in machine_name:
-        bus_ids = 1
+        bus_ids = [1,4]
     else:
-        bus_ids = 1
+        bus_ids = [1]
 
     imu_ids = {
         0:
@@ -615,13 +615,13 @@ if __name__ == "__main__":
         verbose=verbose,
     )
 
-    loop = LoopTimer(operating_rate=150, verbose=True)
+    loop = LoopTimer(operating_rate=290, verbose=True)
     
     while True:
         if loop.continue_loop():
             # Get data
             for imu_id in imu_ids.keys():
                 imu_data = mpu9250_imus.get_data(imu_id=imu_id)
-                print(f"{imu_id}: acc_x: {imu_data.accx:0.2f}, acc_y: {imu_data.accy:0.2f}, acc_z: {imu_data.accz:0.2f}, gyro_x: {imu_data.gyrox:0.2f}, gyro_y: {imu_data.gyroy:0.2f}, gyro_z: {imu_data.gyroz:0.2f}")
+                # print(f"{imu_id}: acc_x: {imu_data.accx:0.2f}, acc_y: {imu_data.accy:0.2f}, acc_z: {imu_data.accz:0.2f}, gyro_x: {imu_data.gyrox:0.2f}, gyro_y: {imu_data.gyroy:0.2f}, gyro_z: {imu_data.gyroz:0.2f}")
 
     mpu9250_imus.exit_gracefully()
