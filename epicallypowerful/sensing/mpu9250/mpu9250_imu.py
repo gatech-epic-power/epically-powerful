@@ -98,7 +98,6 @@ class MPU9250IMUs:
 
     def __init__(
         self,
-        bus_ids: int | list,
         imu_ids: dict[int, dict[int, str, hex]],
         components=['acc','gyro'],
         sample_rate=200, # [Hz]
@@ -109,20 +108,13 @@ class MPU9250IMUs:
         elif not isinstance(imu_ids,dict):
             raise Exception ('`imu_ids` must be in the form of dict(int, dict(int bus_id, int channel, hex imu_id).')
 
-        if not isinstance(bus_ids,list):
-            bus_ids = [bus_ids]
-
-        self.bus = {}
-        
-        for b in bus_ids:
-            self.bus[b] = smbus.SMBus(b)
-
         # Initialize all IMU-specific class attributes
         self.imu_ids = imu_ids
         self.components = components
         self.verbose = verbose
         self.imus = {}
         self.prev_channel = -1
+        self.bus = {}
 
         # Initialize all MPU9250 units
         for imu_id in self.imu_ids.keys():
@@ -130,6 +122,10 @@ class MPU9250IMUs:
             bus_id = self.imu_ids[imu_id]['bus']
             channel = self.imu_ids[imu_id]['channel']
             address = self.imu_ids[imu_id]['address']
+
+            # Initialize I2C bus if it hasn't been initialized yet
+            if bus_id not in self.bus.keys():
+                self.bus[bus_id] = smbus.SMBus(bus_id)
 
             # If channel is in range for multiplexion (not default -1 value) 
             # and no channel-switching command has already been sent on current bus, 
@@ -609,13 +605,12 @@ if __name__ == "__main__":
     verbose = True
 
     mpu9250_imus = MPU9250IMUs(
-        bus_ids=bus_ids,
         imu_ids=imu_ids,
         components=components,
         verbose=verbose,
     )
 
-    loop = LoopTimer(operating_rate=290, verbose=True)
+    loop = LoopTimer(operating_rate=160, verbose=True)
     
     while True:
         if loop.continue_loop():
