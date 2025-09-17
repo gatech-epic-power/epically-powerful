@@ -61,7 +61,7 @@ MICROSTRAIN_IMU_CHANNELS = [
 all_imu_features = []
 
 for imu_id in MICROSTRAIN_IMU_IDS:
-    all_imu_features.extend([imu_id+channel for channel in MICROSTRAIN_IMU_CHANNELS])
+    all_imu_features.extend([imu_id+'_'+channel for channel in MICROSTRAIN_IMU_CHANNELS])
 
 # Instantiate instance of MicroStrain IMU manager
 microstrain_imus = MicroStrainIMUs(
@@ -96,7 +96,7 @@ INSOLE_CHANNELS = [
 all_insole_features = []
 
 for insole in INSOLE_LOCATIONS:
-    all_insole_features.extend([insole+channel for channel in INSOLE_CHANNELS])
+    all_insole_features.extend([insole+'_'+channel for channel in INSOLE_CHANNELS])
 
 # Initialize instance of XSENSOR listener (assumes that 
 # xscore-producer is running in another process)
@@ -125,15 +125,16 @@ while True:
 
         for imu_id in MICROSTRAIN_IMU_IDS:
             raw_imu_data = microstrain_imus.get_data(imu_id=imu_id)
-            # print(raw_imu_data)
 
             for channel in MICROSTRAIN_IMU_CHANNELS:
-              data.extend(getattr(raw_imu_data, channel, 0))
+              data.extend([getattr(raw_imu_data, channel, 0)])
 
         # Iterate through all connected XSENSOR insoles
         for insole in INSOLE_LOCATIONS:
             raw_insole_data = xsensor_insoles.get_data(insole)
-            data.extend(raw_insole_data)
+
+            for channel in INSOLE_CHANNELS:
+                data.extend([getattr(raw_insole_data, channel, 0)])
 
         # Log data to file
         recorder.save(data)
