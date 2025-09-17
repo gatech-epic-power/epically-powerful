@@ -12,9 +12,10 @@ import time
 import platform
 import argparse
 from typing import Dict
+import numpy as np
 import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
 from epicallypowerful.toolbox import LoopTimer
-from epicallypowerful.sensing.mpu9250 import MPU9250IMUs
+from epicallypowerful.sensing.mpu9250.mpu9250_imu import MPU9250IMUs
 
 
 # Get default I2C bus depending on which device is currently being used
@@ -29,26 +30,25 @@ else:
 
 
 def calibrate_accelerometer(
-    imu_handler: MPU9250IMUs(),
-    loop_timer: LoopTimer(),
+    imu_handler: MPU9250IMUs,
+    loop_timer: LoopTimer,
     time_to_calibrate: float=2.5,
     write_to_file: bool=True,
     verbose: bool=False,
-) -> tuple(float):
+) -> tuple[float]:
     
     return accel_coeffs
 
 
 def calibrate_gyroscope(
-    imu_handler: MPU9250IMUs(),
-    loop_timer: LoopTimer(),
+    imu_handler: MPU9250IMUs,
+    loop_timer: LoopTimer,
     time_to_calibrate: float=2.5,
     write_to_file: bool=True,
     verbose: bool=False,
-) -> tuple(float):
+) -> tuple[float]:
     input("Press [ENTER] to calibrate gyroscope. Keep IMU still...")
     gyro_data = []
-    gyro_coeffs = [0.0, 0.0, 0.0]
     t_start = time.perf_counter()
 
     while time.perf_counter() - t_start <= time_to_calibrate:
@@ -56,26 +56,29 @@ def calibrate_gyroscope(
             imu_data = imu_handler.get_data(imu_id=0)
             gyro_data.append([imu_data.gyrox, imu_data.gyroy, imu_data.gyroz])
 
-    
+    if verbose:
+        print(f"gyro_data size for calibration: {len(gyro_data)} samples")
+
+    gyro_coeffs = np.mean(np.array(gyro_data), 0).tolist()
 
     if verbose:
-        print(f"Calibration complete! gyro_coeffs: {gyro_coeffs:0.2f}")
+        print(f"Calibration complete! gyro_coeffs: ({gyro_coeffs[0]:0.2f}, {gyro_coeffs[1]:0.2f}, {gyro_coeffs[2]:0.2f})")
 
     return gyro_coeffs
 
 
 def calibrate_magnetometer(
-    imu_handler: MPU9250IMUs(),
-    loop_timer: LoopTimer(),
+    imu_handler: MPU9250IMUs,
+    loop_timer: LoopTimer,
     time_to_calibrate: float=2.5,
     write_to_file: bool=True,
     verbose: bool=False,
-) -> tuple(float):
+) -> tuple[float]:
 
     return mag_coeffs
 
 
-def store_coefficients() -> None:
+# def store_coefficients() -> None:
 
 
 def split_strings(arg):
@@ -110,10 +113,17 @@ parser.add_argument(
 
 parser.add_argument(
     "--address",
-    type=int | hex,
-    default=0x68,
-    help="I2C address of MPU9250 sensor (e.g., --address 68). Defaults to 0x68",
+    type=int,
+    default=68,
+    help="I2C address of MPU9250 sensor (e.g., --address 0x68). Defaults to 0x68",
 )
+
+# parser.add_argument(
+#     '--address',
+#     type=lambda x: hex(int(x,0)),
+#     default=0x68,
+#     help="I2C address of MPU9250 sensor (e.g., --address 0x68). Defaults to 0x68",
+# )
 
 parser.add_argument(
     "--rate",
@@ -133,20 +143,23 @@ if __name__ == "__main__":
     """
 
     args = parser.parse_args()
+    bus = args.i2c_bus
+    channel = args.channel
+    address = args.address
 
-    if isinstance(args.address, int):
-        address = hex(args.address)
-    else:
-        address = args.address
+    # if isinstance(args.address, int):
+    #     address = hex(args.address)
+    # else:
+    #     address = args.address
 
-    print(f"Initializing MPU9250 IMU at I2C bus {args.i2c_bus} on channel {args.channel} with address {args.address}")
+    print(f"Initializing MPU9250 IMU at I2C bus {bus} on channel {channel} with address {address}")
 
     imu_id = {
         0:
             {
-                'bus': args.i2c_bus,
-                'channel': args.channel,
-                'address': address,
+                'bus': bus,
+                'channel': channel,
+                'address': 0x69,
             },
     }
 

@@ -128,7 +128,7 @@ class MPU9250IMUs:
             # If channel is in range for multiplexion (not default -1 value) 
             # and no channel-switching command has already been sent on current bus, 
             # send multiplexer channel switch command
-            if channel in range(0,8):
+            if channel in range(0, 8):
                 if channel is not self.prev_channel:
                     self.bus[bus_id].write_byte_data(
                         i2c_addr=MULTIPLEXER_ADDR,
