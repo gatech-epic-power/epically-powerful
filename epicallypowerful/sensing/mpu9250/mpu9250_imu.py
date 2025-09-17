@@ -1,14 +1,12 @@
 """epically-powerful module for managing IMUs.
 
 This module contains the classes and commands for initializing
-and reading from Microstrain IMUs using the MSCL package.
-
+and reading from MPU9250 IMUs.
 """
 
 import os
 import sys
 import time
-import threading
 from typing import Dict
 import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
 from epicallypowerful.toolbox import LoopTimer

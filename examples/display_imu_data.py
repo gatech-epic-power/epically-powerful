@@ -32,20 +32,19 @@ clocking_loop = LoopTimer(LOOP_RATE)
 ##################################################################
 
 # Set MicroStrain IMU IDs
-# IMU_01 = str(input("Enter the last six digits of the plugged-in Microstrain IMU's serial number (e.g. 154136): "))
-MICROSTRAIN_IMU_IDS = ['154138']
+# IMU_01 = str(input("Enter the last six digits of the plugged-in Microstrain IMU's serial number (e.g. 154136): 134959MICROSTRAIN_IMU_IDS = ['156125']
 
 # Change IMU operation options (each one has a default)
 MICROSTRAIN_IMU_RATE = LOOP_RATE # Set collection rate of IMUs
 TARE_ON_STARTUP = False # Zero orientation on startup?
 
-# Instantiate instance of Microstrain IMU manager
-microstrain_imus = MicroStrainIMUs(
-    imu_ids=MICROSTRAIN_IMU_IDS,
-    rate=MICROSTRAIN_IMU_RATE,
-    tare_on_startup=TARE_ON_STARTUP,
-    verbose=False,
-)
+# Instantiate instance of MicroStrain IMU manager
+# microstrain_imus = MicroStrainIMUs(
+#     imu_ids=MICROSTRAIN_IMU_IDS,
+#     rate=MICROSTRAIN_IMU_RATE,
+#     tare_on_startup=TARE_ON_STARTUP,
+#     verbose=False,
+# )
 
 ##################################################################
 # MICROSTRAIN IMUS
@@ -55,9 +54,9 @@ microstrain_imus = MicroStrainIMUs(
 # IMU_01 = str(input("Enter the last six digits of the plugged-in Microstrain IMU's serial number (e.g. 154136): "))
 MPU9250_IMU_IDS = {
     0: {
-        'bus': 7,        # 7 is the default I2C bus on the Jetson
+        'bus': 1,        # 7 is the default I2C bus on the Jetson
         'channel': -1,   # channel is only used with a multiplexer. If not using one, keep as -1
-        'address': 0x68, # I2C address of the MPU9250. Can be either this or 0x69
+        'address': 0x69, # I2C address of the MPU9250. Can be either this or 0x69
     }
 }
 
@@ -79,12 +78,12 @@ mpu9250_imus = MPU9250IMUs(
 while True:
     if clocking_loop.continue_loop():
         # Iterate through all connected IMUs
-        for imu_id in MICROSTRAIN_IMU_IDS:
-            # Orientation, angular velocity, linear acceleration
-            # print(f'ID: {imu_id} | orient. (w,x,y,z): {imus.get_data(imu_id).orientw:.2f}, {imus.get_data(imu_id).orientx:.2f},{imus.get_data(imu_id).orienty:.2f},{imus.get_data(imu_id).orientz:.2f},\t | ang. vel. (r,p,y):  ({imus.get_data(imu_id).gyrox:.2f}, {imus.get_data(imu_id).gyroy:.2f}, {imus.get_data(imu_id).gyroz:.2f}),\t | lin. accel. (x,y,z): ({imus.get_data(imu_id).accx:.2f}, {imus.get_data(imu_id).accy:.2f}, {imus.get_data(imu_id).accz:.2f})')
+        # for imu_id in MICROSTRAIN_IMU_IDS:
+        #     # Orientation, angular velocity, linear acceleration
+        #     # print(f'ID: {imu_id} | orient. (w,x,y,z): {imus.get_data(imu_id).orientw:.2f}, {imus.get_data(imu_id).orientx:.2f},{imus.get_data(imu_id).orienty:.2f},{imus.get_data(imu_id).orientz:.2f},\t | ang. vel. (r,p,y):  ({imus.get_data(imu_id).gyrox:.2f}, {imus.get_data(imu_id).gyroy:.2f}, {imus.get_data(imu_id).gyroz:.2f}),\t | lin. accel. (x,y,z): ({imus.get_data(imu_id).accx:.2f}, {imus.get_data(imu_id).accy:.2f}, {imus.get_data(imu_id).accz:.2f})')
 
-            # Acceleration in x, y, z direction
-            print(f"ID: {imu_id} | ({microstrain_imus.get_data(imu_id).accx:.2f}, {microstrain_imus.get_data(imu_id).accy:.2f}, {microstrain_imus.get_data(imu_id).accz:.2f})")
+        #     # Acceleration in x, y, z direction
+        #     print(f"ID: {imu_id} | ({microstrain_imus.get_data(imu_id).accx:.2f}, {microstrain_imus.get_data(imu_id).accy:.2f}, {microstrain_imus.get_data(imu_id).accz:.2f})")
 
             # Gyroscopic angular velocity in x, y, z direction
             # print(f"ID: {imu_id}\t| ({microstrain_imus.get_data(imu_id).gyrox:.2f}, {microstrain_imus.get_data(imu_id).gyroy:.2f}, {microstrain_imus.get_data(imu_id).gyroz:.2f})")
