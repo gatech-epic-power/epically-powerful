@@ -32,7 +32,8 @@ clocking_loop = LoopTimer(LOOP_RATE)
 ##################################################################
 
 # Set MicroStrain IMU IDs
-# IMU_01 = str(input("Enter the last six digits of the plugged-in Microstrain IMU's serial number (e.g. 154136): 134959MICROSTRAIN_IMU_IDS = ['156125']
+# IMU_01 = str(input("Enter the last six digits of the plugged-in Microstrain IMU's serial number (e.g. 154136)"))
+MICROSTRAIN_IMU_IDS = ['193821']
 
 # Change IMU operation options (each one has a default)
 MICROSTRAIN_IMU_RATE = LOOP_RATE # Set collection rate of IMUs
@@ -61,7 +62,7 @@ MPU9250_IMU_IDS = {
 }
 
 # Change IMU operation options (each one has a default)
-COMPONENTS = ['acc','gyro'] # Which components to sample. Can be `acc`, `gyro`, or `mag`
+COMPONENTS = ['acc', 'gyro'] # Which components to sample. Can be `acc`, `gyro`, or `mag`
 
 # Instantiate instance of MPU9250 IMU manager
 mpu9250_imus = MPU9250IMUs(

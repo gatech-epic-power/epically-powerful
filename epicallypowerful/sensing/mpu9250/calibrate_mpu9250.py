@@ -115,15 +115,8 @@ parser.add_argument(
     "--address",
     type=int,
     default=68,
-    help="I2C address of MPU9250 sensor (e.g., --address 0x68). Defaults to 0x68",
+    help="I2C address of MPU9250 sensor (e.g., --address 68). Defaults to 68",
 )
-
-# parser.add_argument(
-#     '--address',
-#     type=lambda x: hex(int(x,0)),
-#     default=0x68,
-#     help="I2C address of MPU9250 sensor (e.g., --address 0x68). Defaults to 0x68",
-# )
 
 parser.add_argument(
     "--rate",
@@ -134,23 +127,10 @@ parser.add_argument(
 
 
 if __name__ == "__main__":
-    """
-    Possible args:
-    --components [accelerometer (acc), gyroscope (gyro), magnetometer (mag)] (comma-separated)
-    --bus_id [int] (default: 7 for NVIDIA Jetson Orin Nano and 1 for Raspberry Pi)
-    --channel [int] (default: -1)
-    --address [int or hex] (default: 68, which is converted to 0x68)
-    """
-
     args = parser.parse_args()
     bus = args.i2c_bus
     channel = args.channel
     address = args.address
-
-    # if isinstance(args.address, int):
-    #     address = hex(args.address)
-    # else:
-    #     address = args.address
 
     print(f"Initializing MPU9250 IMU at I2C bus {bus} on channel {channel} with address {address}")
 
