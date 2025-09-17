@@ -111,7 +111,7 @@ trial_name = 'test.csv'
 features_to_record = []
 features_to_record.extend(all_imu_features)
 features_to_record.extend(all_insole_features)
-data_recorder = DataRecorder(save_dir+trial_name, features_to_record, buffer_limit=None)
+data_recorder = DataRecorder(save_dir+trial_name, features_to_record, buffer_limit=100)
 
 ##################################################################
 # MAIN CONTROLLER LOOP
@@ -129,6 +129,9 @@ while True:
             for channel in MICROSTRAIN_IMU_CHANNELS:
               data.extend([getattr(raw_imu_data, channel, 0)])
 
+            # Print out raw linear acceleration for current sensor
+            print(f"{imu_id} | ({raw_imu_data.accx:.2f}, {raw_imu_data.accy:.2f}, {raw_imu_data.accz:.2f})")
+
         # Iterate through all connected XSENSOR insoles
         for insole in INSOLE_LOCATIONS:
             raw_insole_data = xsensor_insoles.get_data(insole)
@@ -137,7 +140,7 @@ while True:
                 data.extend([getattr(raw_insole_data, channel, 0)])
 
         # Log data to file
-        recorder.save(data)
+        data_recorder.save(data)
 
 # Finish recording and save data
-recorder.finalize()
+data_recorder.finalize()
