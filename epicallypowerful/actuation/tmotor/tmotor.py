@@ -48,7 +48,7 @@ class TMotor(can.Listener, Actuator):
     Attributes:
         data (MotorData): Data from the actuator. Contains up-to-date information from the actuator as of the last time a message was sent to the actuator.
     """
-    def __init__(self, can_id: int, motor_type: str, invert: bool=False):
+    def __init__(self, can_id: int, motor_type: str, invert: bool=False, servo: bool=False):
         self.can_id = can_id
         self.motor_type = motor_type
         if invert: self.invert = -1
@@ -66,6 +66,8 @@ class TMotor(can.Listener, Actuator):
         self._priming_reconnection = False
         self._reconnection_start_time = 0
         self.prev_command_time = 0
+        
+        self.servo = servo
 
     def on_message_received(self, msg: can.Message) -> None:
         """Interprets the message received from the CAN bus
