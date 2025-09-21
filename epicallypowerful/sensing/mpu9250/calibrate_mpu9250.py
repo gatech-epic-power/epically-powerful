@@ -11,11 +11,12 @@ import sys
 import time
 import platform
 import argparse
+import json
 from typing import Dict
 import numpy as np
-import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
-from epicallypowerful.toolbox import LoopTimer
-from epicallypowerful.sensing.mpu9250.mpu9250_imu import MPU9250IMUs
+# import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
+# from epicallypowerful.toolbox import LoopTimer
+# from epicallypowerful.sensing.mpu9250.mpu9250_imu import MPU9250IMUs
 
 
 # Get default I2C bus depending on which device is currently being used
@@ -33,18 +34,16 @@ def calibrate_accelerometer(
     imu_handler: MPU9250IMUs,
     loop_timer: LoopTimer,
     time_to_calibrate: float=2.5,
-    write_to_file: bool=True,
     verbose: bool=False,
 ) -> tuple[float]:
     
-    return accel_coeffs
+    return acc_coeffs
 
 
 def calibrate_gyroscope(
     imu_handler: MPU9250IMUs,
     loop_timer: LoopTimer,
     time_to_calibrate: float=2.5,
-    write_to_file: bool=True,
     verbose: bool=False,
 ) -> tuple[float]:
     input("Press [ENTER] to calibrate gyroscope. Keep IMU still...")
@@ -71,7 +70,6 @@ def calibrate_magnetometer(
     imu_handler: MPU9250IMUs,
     loop_timer: LoopTimer,
     time_to_calibrate: float=2.5,
-    write_to_file: bool=True,
     verbose: bool=False,
 ) -> tuple[float]:
 
@@ -93,7 +91,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--components",
     type=split_strings,
-    default=["acc", "gyro", "mag"],
+    default="acc,gyro,mag",
     help="Which channels to calibrate on the sensor, comma-separated without spaces (e.g., --components acc,gyro)",
 )
 
@@ -127,22 +125,38 @@ parser.add_argument(
 
 
 if __name__ == "__main__":
+    # Pull in command-line arguments for which IMU to calibrate and how to do so
     args = parser.parse_args()
     bus = args.i2c_bus
     channel = args.channel
     address = args.address
-
+    components = args.components
     print(f"Initializing MPU9250 IMU at I2C bus {bus} on channel {channel} with address {address}")
 
+    # Set up dictionary for IMU currently being calibrated
+    # TODO: decide whether to add functionality for calibrating multiple IMUs in sequence
     imu_id = {
         0:
             {
                 'bus': bus,
                 'channel': channel,
-                'address': 0x69,
+                'address': address,
+                'acc': [],
+                'gyro': [],
+                'mag': [],
             },
     }
 
+    # Look for existing calibration for current IMU in JSON file
+    calibration_filename = f"mpu9250_calibration.json"
+    
+    if os.path.isfile(calibration_filename):
+        with open(calibration_filename, "r") as f:
+            calibration_dict = json.load(f)
+    else:
+        calibration_dict = imu_id
+
+    # Create instance of MPU9250 IMUs object to initialize connected IMU
     mpu9250_imus = MPU9250IMUs(
         imu_ids=imu_id,
         components=args.components,
@@ -150,33 +164,73 @@ if __name__ == "__main__":
     )
 
     for component in args.components:
+        calibrate_component = False
+        imu_calibration_exists = True
+        print(f"Checking calibration component {component}...")
+
+        # Get user confirmation on whether to overwrite existing calibration (if one already exists)
+        for idx in calibration_dict.keys():
+            # Check all IMUs in dict to see whether they are connected in 
+            # the configuration to be the IMU currently bein calibrated
+            if calibration_dict[idx]['bus'] == bus and calibration_dict[idx]['channel'] == channel and calibration_dict[idx]['address'] == address:
+                if calibration_dict[idx][component]:
+                    imu_calibration_exists = True
+                    user_input = input(f"Overwrite existing {component} calibration for IMU (bus: {bus}, channel: {channel}, address: {address})? Enter [y/n], then press [ENTER] to continue")
+
+                    if user_input == 'y':
+                        calibrate_component = True
+                    else:
+                        print(f"Skipping {component} calibration for IMU (bus: {bus}, channel: {channel}, address: {address})...")
+        
+        if not imu_calibration_exists:
+            calibrate_component = True
+
+        if not calibrate_component:
+            continue
+
         if component == "acc":
-            accel_coeffs = calibrate_accelerometer(
+            # TROUBLESHOOTING
+            print("Getting acceleration calibration!")
+
+            imu_id[0]['acc'] = calibrate_accelerometer(
                 imu_handler=mpu9250_imus,
                 loop_timer=LoopTimer(operating_rate=args.rate, verbose=True),
                 time_to_calibrate=2.5,
-                write_to_file=True,
                 verbose=True,
             )
 
         elif component == "gyro":
-            gyro_coeffs = calibrate_gyroscope(
+            # TROUBLESHOOTING
+            print("Getting gyroscope calibration!")
+            
+            imu_id[0]['gyro'] = calibrate_gyroscope(
                 imu_handler=mpu9250_imus,
                 loop_timer=LoopTimer(operating_rate=args.rate, verbose=True),
                 time_to_calibrate=2.5,
-                write_to_file=True,
                 verbose=True,
             )
 
         elif component == "mag":
-            mag_coeffs = calibrate_magnetometer(
+            # TROUBLESHOOTING
+            print("Getting magnetometer calibration!")
+            
+            imu_id[0]['mag'] = calibrate_magnetometer(
                 imu_handler=mpu9250_imus,
                 loop_timer=LoopTimer(operating_rate=args.rate, verbose=True),
                 time_to_calibrate=2.5,
-                write_to_file=True,
                 verbose=True,
             )
+        else:
+            print(f"Component {component} not of type `acc`, `gyro`, or `mag`. Skipping...")
 
+        # Iterate through calibration dict, updating calibration components where necessary
+        for idx in calibration_dict.keys():
+            # Index IMUs in calibration dict by bus, channel, and address configuration
+            if calibration_dict[idx]['bus'] == bus and calibration_dict[idx]['channel'] == channel and calibration_dict[idx]['address'] == address:
+                calibration_dict[idx][component] = imu_id[0][component]
 
+    # Save calibration dictionary to same JSON file
+    calibration_dict_str = json.dumps(calibration_dict, indent=4)
 
-
+    with open(calibration_filename, "w") as f:
+        f.write(calibration_dict_str)
