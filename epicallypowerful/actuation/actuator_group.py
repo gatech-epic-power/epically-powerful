@@ -1,5 +1,6 @@
 from epicallypowerful.actuation.actuator_abc import Actuator
 from epicallypowerful.actuation.tmotor import TMotor
+from epicallypowerful.actuation.tmotor import TMotorServo
 from epicallypowerful.actuation.robstride import Robstride
 from epicallypowerful.actuation.cybergear import Cybergear
 from epicallypowerful.actuation.motor_data import MotorData, t_motors, cybergears, robstrides
@@ -62,15 +63,17 @@ class ActuatorGroup():
 
     To get data from the actuators, a similar approach can be used. In this case the :py:meth:`get_data`, :py:meth:`get_torque`, :py:meth:`get_position`, and :py:meth:`get_velocity` methods are available. A :py:meth:`get_temperature` method is also available for the Robstrides, and will always return 0 for the TMotors.
 
-    Please see the :py:class:`~epicpower.actuation.TMotor` and :py:class:`~epicpower.actuation.Robstride` classes for more information on the methods available for each actuator and specific relevant details.
+    Please see the :py:class:`~epicallypowerful.actuation.TMotor` and :py:class:`~epicallypowerful.actuation.Robstride` classes for more information on the methods available for each actuator and specific relevant details.
 
     You can also create an ActuatorGroup from a dictionary, where the key is the CAN ID and the value is the actuator type.
 
+    For a list of all supported actuator types, you can import and use the :py:func:`epicallypowerful.actuation.available_actuator_types` function.
+    
     Example:
         .. code-block:: python
 
 
-            from epicpower.actuation import ActuatorGroup, TMotor, Robstride
+            from epicallypowerful.actuation import ActuatorGroup, TMotor, Robstride
 
             ### Instantiation ---
             actuators = ActuatorGroup([TMotor(1, 'AK80-9'), Robstride(2, 'Cybergear'), Robstride(3, 'RS02')])
@@ -324,6 +327,8 @@ class ActuatorGroup():
     @classmethod
     def from_dict(cls: Self, actuators: dict[int, str], invert: list=[], enable_on_startup:bool = True, can_args: dict[str,str]=None) -> Self:
         """Creates an ActuatorGroup from a dictionary where the key is the CAN ID and the value is the actuator type.
+        For TMotors, you can append "-servo" to the actuator type to create a TMotorServo instead of a TMotor. This controls the device in "servo mode"
+        which can allow for higher output torques as direct current control can be used. Please see the :py:class:`~epicallypowerful.actuation.TMotorServo` class for more information.
 
         Example:
             .. code-block:: python
@@ -346,14 +351,23 @@ class ActuatorGroup():
         robstride_types = robstrides()
         act_list = []
         for a in actuators.keys():
+            if "-servo" in actuators[a].lower():
+                servomode = True
+                actuators[a] = actuators[a].replace("-servo", "")
+            else:
+                servomode = False
             if a in invert:
                 inv = True
             else:
                 inv = False
             if actuators[a] in tmotor_types:
-                act_list.append(TMotor(a, actuators[a], invert=inv))
-                # motor = TMotor(a, actuators[a])
+                if (servomode):
+                    act_list.append(TMotorServo(a, actuators[a], invert=inv))
+                else:
+                    act_list.append(TMotor(a, actuators[a], invert=inv))
             elif actuators[a] in robstride_types:
+                if servomode:
+                    raise ValueError(f"Robstride motors do not support servo mode: {actuators[a]}")
                 act_list.append(Robstride(a, actuators[a], invert=inv))
             else:
                 raise ValueError(f"Invalid actuator type: {actuators[a]}")

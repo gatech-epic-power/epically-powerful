@@ -7,14 +7,14 @@ class Cybergear(Robstride):
     
     **NOTE: The Cybergear class is simply an inherited version of the Robstride class, which automatically passes the `motor_type` argument as "Cybergear". In general, this is provided as a convenience function and will potentially be deprecated to ensure consitency between the Cybergear and other Robstride motors.
 
-    The CyberGears can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+    The CyberGgars can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
 
     Example:
         .. code-block:: python
 
 
-            from epicpower.actuation2 import CyberGear, ActuatorGroup
-            motor = CyberGear(0x01)
+            from epicpower.actuation2 import Cybergear, ActuatorGroup
+            motor = Cybergear(0x01)
             group = ActuatorGroup([motor])
 
             motor.set_torque(0.5)

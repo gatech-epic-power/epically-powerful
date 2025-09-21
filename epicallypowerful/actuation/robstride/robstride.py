@@ -9,17 +9,17 @@ import functools
 import epicallypowerful.actuation.robstride.robstride_driver as rsd
 
 class Robstride(can.Listener, Actuator):
-    """Class for controlling an individual CyberGear Micromotor. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
+    """Class for controlling an individual Robstride Micromotor. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
     Alternatively, the bus can be set manually after initialization, however this is not recommended.
 
-    The CyberGears can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+    The Robstrides can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
 
     Example:
         .. code-block:: python
 
 
-            from epicpower.actuation2 import CyberGear, ActuatorGroup
-            motor = CyberGear(0x01)
+            from epicpower.actuation2 import Robstride, ActuatorGroup
+            motor = Robstride(0x01)
             group = ActuatorGroup([motor])
 
             motor.set_torque(0.5)
@@ -30,7 +30,7 @@ class Robstride(can.Listener, Actuator):
 
     Args:
         can_id (int): CAN ID of the motor. This should be unique for each motor in the system, and can be set up with the RLink software.
-        motor_type (str, optional): A string representing the type of motor. TThis is not necessary as there is only one type of motor. Defaults to "cybergear".
+        motor_type (str, optional): A string representing the type of motor.
         invert (bool, optional): Whether to invert the motor direction. Defaults to False.
     """
     def __init__(self, can_id: int, motor_type: str, invert: bool=False):

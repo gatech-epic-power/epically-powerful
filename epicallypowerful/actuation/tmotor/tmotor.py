@@ -66,7 +66,7 @@ class TMotor(can.Listener, Actuator):
         self._priming_reconnection = False
         self._reconnection_start_time = 0
         self.prev_command_time = 0
-
+        
     def on_message_received(self, msg: can.Message) -> None:
         """Interprets the message received from the CAN bus
 
@@ -75,7 +75,6 @@ class TMotor(can.Listener, Actuator):
         Args:
             msg (can.Message): the most recent message received on the bus
         """
-        # print("message received")
         if msg.arbitration_id != 0 and msg.arbitration_id != self.can_id: return # ignore messages not for the host (0x0) or the motor (can_id)
         
         motor_id = msg.data[0]
