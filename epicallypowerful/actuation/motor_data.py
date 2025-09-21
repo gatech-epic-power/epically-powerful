@@ -40,6 +40,8 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-3.0, 3.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
+        'pole_pairs': 14,
+        'gear_ratio': 6,
         'super_type': 'TMotor',
     },
     'AK70-10': { # 24V/48V operation
@@ -49,6 +51,8 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-10.0, 10.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
+        'pole_pairs': 21,
+        'gear_ratio': 10,
         'super_type': 'TMotor',
     },
     'AK80-6': { # 48V operation
@@ -58,6 +62,8 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-6.0, 6.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
+        'pole_pairs': 21,
+        'gear_ratio': 6,
         'super_type': 'TMotor',
     },
     'AK80-8': { # 48V operation
@@ -67,6 +73,8 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-10.0, 10.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
+        'pole_pairs': 21,
+        'gear_ratio': 8,
         'super_type': 'TMotor',
     },
     'AK80-9': { # 48V operation
@@ -76,6 +84,8 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-9.0, 9.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
+        'pole_pairs': 21,
+        'gear_ratio': 9,
         'super_type': 'TMotor',
     },
     'AK80-64': { # 24V/48V operation
@@ -85,6 +95,8 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-48.0, 48.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
+        'pole_pairs': 21,
+        'gear_ratio': 64,
         'super_type': 'TMotor',
     },
     'Cybergear': {

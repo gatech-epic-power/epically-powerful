@@ -203,6 +203,13 @@ class TMotorServo(can.Listener, Actuator):
         self.prev_command_time = 0
 
     def on_message_received(self, msg: can.Message):
+        """Handles a received CAN message.
+
+        :meta private:
+        
+        Args:
+            msg (can.Message): The received CAN message.
+        """
         if msg.arbitration_id == ((0x29 << 8) | (self.can_id)):
             [pos, vel, cur, temp, err] = read_servo_message(msg)
             self.data.current_position = pos * self.invert
@@ -216,12 +223,25 @@ class TMotorServo(can.Listener, Actuator):
         return self.data.last_command_time - self.data.timestamp
     
     def set_torque(self, torque: float):
+        """Sets the torque of the motor as a direct current value. Range is -60A to 60A.
+
+        Args:
+            torque (float): The current to set the motor to in Amperes.
+        """
         torque = torque * self.invert
         msg = make_current_loop_message(self.can_id, torque)
         self._bus.send(msg)
         self.data.commanded_torque = torque
     
     def set_position(self, position, kp: float, kd: float, degrees = False):
+        """Sets the position of the motor in position control mode. Range is -36000 to 36000 degrees.
+
+        Args:
+            position (float): The position to set the motor to.
+            kp (float): Dummy variable for compatibility, not used in servo mode. To adjust these gains, use the RLink software.
+            kd (float): Dummy variable for compatibility, not used in servo mode. To adjust these gains, use the RLink software.
+            degrees (bool, optional): Whether the position is in degrees. Defaults to False.
+        """
         position = position * self.invert
         if not degrees:
             position = position * RAD2DEG
@@ -229,6 +249,13 @@ class TMotorServo(can.Listener, Actuator):
         self._bus.send(msg)
 
     def set_velocity(self, velocity, kp: float, degrees = False):
+        """Sets the velocity of the motor in velocity control mode. Range varies per motor.
+
+        Args:
+            velocity (float): The velocity to set the motor to.
+            kp (float): Dummy variable for compatibility, not used in servo mode. To adjust these gains, use the RLink software.
+            degrees (bool, optional): Whether the velocity is in degrees per second. Defaults to False.
+        """
         velocity = velocity * self.invert
         if not degrees:
             velocity = velocity * RAD2DEG
@@ -238,30 +265,69 @@ class TMotorServo(can.Listener, Actuator):
         self._bus.send(msg)
 
     def get_data(self) -> MotorData:
+        """Returns the current motor data.
+
+        Returns:
+            MotorData: The current data of the motor.
+        """
         return self.data
     
     def get_torque(self):
+        """Returns the measured current value of the motor. In servo mode, this value is signed in "braking/assisting" convention, and does not indicate the actual clockwise/counterclockwise direction of torque.
+
+        Returns:
+            float: The measured current of the motor (Amps).
+        """
         return self.data.current_torque
     
     def get_position(self, degrees = False):
+        """Returns the current position of the motor.
+
+        Args:
+            degrees (bool, optional): Whether to return the position in degrees. Defaults to False.
+
+        Returns:
+            float: The current position of the motor.
+        """
         return self.data.current_position if not degrees else self.data.current_position * 180.0 / 3.14159265359
     
     def get_velocity(self, degrees = False):
+        """Returns the current velocity of the motor.
+
+        Args:
+            degrees (bool, optional): Whether to return the velocity in degrees per second. Defaults to False.
+
+        Returns:
+            float: The current velocity of the motor.
+        """
         return self.data.current_velocity if not degrees else self.data.current_velocity * 180.0 / 3.14159265359
     
     def get_temperature(self):
+        """Returns the current temperature of the motor.
+
+        Returns:
+            float: The current temperature of the motor in degrees Celsius.
+        """
         return self.data.temperature
     
     def zero_encoder(self):
+        """Zeros the encoder position to the current position.
+        """
         self._bus.send(make_set_origin_mode_message(self.can_id, 1))
 
     def _enable(self):
+        """Enables the motor by sending a current loop message with zero current.
+        """
         self._bus.send(make_current_loop_message(self.can_id, 0))
     
     def _disable(self):
+        """Disables the motor by sending a current brake message with zero current.
+        """
         self._bus.send(make_current_brake_message(self.can_id, 0))
 
     def _set_zero_torque(self):
+        """Sets the motor torque to zero.
+        """
         self.set_torque(0)
 
 if __name__ == "__main__":

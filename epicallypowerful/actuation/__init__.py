@@ -7,6 +7,7 @@ import epicallypowerful.actuation.motor_data
 
 from .actuator_group import ActuatorGroup
 from .tmotor import TMotor
+from .tmotor import TMotorServo
 from .cybergear import Cybergear
 from .robstride import Robstride
 from .motor_data import MotorData
