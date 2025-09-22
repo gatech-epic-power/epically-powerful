@@ -47,7 +47,17 @@ print(actuators.get_temperature(RIGHT))
 
 ## T Motors
 ```{eval-rst}
-.. autoclass:: epicallypowerful.actuation.TMotor
+.. autoclass:: epicallypowerful.actuation.tmotor.TMotor
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :member-order: bysource
+
+```
+
+## Robstride Motors
+```{eval-rst}
+.. autoclass:: epicallypowerful.actuation.robstride.Robstride
     :show-inheritance:
     :members:
     :undoc-members:
@@ -57,7 +67,7 @@ print(actuators.get_temperature(RIGHT))
 
 ## CyberGear Motors
 ```{eval-rst}
-.. autoclass:: epicallypowerful.actuation.CyberGear
+.. autoclass:: epicallypowerful.actuation.cybergear.Cybergear
     :show-inheritance:
     :members:
     :undoc-members:

@@ -32,8 +32,9 @@ def collect_imu_data():
     remote_sync_channels = args.remote_sync_channel
 
     from epicallypowerful.sensing.microstrain_imu import MicrostrainImus
-    from epicallypowerful.toolbox.clocking import timed_loop
+    from epicallypowerful.toolbox.clocking import timed_loop, TimedLoop
     from epicallypowerful.toolbox.data_recorder import DataRecorder
+    import time
 
     imus = MicrostrainImus(serial_ids)
 
@@ -66,7 +67,9 @@ def collect_imu_data():
     recorder = DataRecorder(outfile, headers, delimiter=",", overwrite=False, buffer_limit=duration*200) # Data is collected at 200Hz, and data is not saved until file is manually closed
 
     print(f"Collecting data for {duration} seconds")
-    for _ in timed_loop(200, duration):
+    loop = TimedLoop(200)
+    t0 = time.perf_counter()
+    while loop.sleep():
         row_data = []
         for serial_id in serial_ids:
             data = imus.get_data(serial_id)
@@ -84,6 +87,8 @@ def collect_imu_data():
             for c in remote_sync_channels:
                 row_data.append(GPIO.input(c))
         recorder.save(row_data)
+        if time.perf_counter() - t0 > duration:
+            break
 
     # Finalize the data saving
     print("Saving data, do not power off device...")

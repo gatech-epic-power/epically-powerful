@@ -1,11 +1,6 @@
 (ReviewingBasics)=
 # Reviewing the Basics
 
-```{toctree}
-:glob:
-
-part_picker/*
-```
 
 Epically Powerful incorporates several tools that it will help to have familiarity with. Before jumping in to EP, it is important to understand these tools as well as what EP is intended and not intended to do. This will help you know where to look for solutions when troubleshooting, when to read the EP documentation, when to Google, and when to open a GitHub issue to report any possible bugs to our team. Before using EP, here are the main things you should be familiar with that will help things move along smoothly.  We will provide a quick overview:
 
