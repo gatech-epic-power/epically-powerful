@@ -7,7 +7,7 @@ import math
 import epicallypowerful.actuation.robstride.robstride_driver as rsd
 
 class Robstride(can.Listener, Actuator):
-    """Class for controlling an individual Robstride Micromotor. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
+    """Class for controlling an individual Robstride acutator. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
     Alternatively, the bus can be set manually after initialization, however this is not recommended.
 
     The Robstrides can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
