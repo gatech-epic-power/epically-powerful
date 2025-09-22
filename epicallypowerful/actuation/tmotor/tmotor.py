@@ -3,6 +3,7 @@ import time
 from epicallypowerful.actuation.motor_data import MotorData
 from epicallypowerful.actuation.actuator_abc import Actuator
 import epicallypowerful.actuation.tmotor.tmotor_driver as tmd
+from epicallypowerful.actuation.torque_monitor import RMSTorqueMonitor
 import logging
 import math
 
@@ -61,7 +62,9 @@ class TMotor(can.Listener, Actuator):
             kp=0, kd=0, timestamp=-1,
             running_torque=(), rms_torque=0, rms_time_prev=0
         )
-        
+        self.torque_monitor = RMSTorqueMonitor(limit=self.data.rated_torque_limits[0], window=20.0)
+        self._over_limit = False
+
         self._connection_established = False
         self._priming_reconnection = False
         self._reconnection_start_time = 0
@@ -88,6 +91,9 @@ class TMotor(can.Listener, Actuator):
         self.data.current_torque = torque
         self.data.timestamp = time.perf_counter()
 
+        rms_torque, over_limit = self.torque_monitor.update(self.data.current_torque)
+        self.data.rms_torque = rms_torque
+        self._over_limit = over_limit
         return
 
     def call_response_latency(self) -> float:
