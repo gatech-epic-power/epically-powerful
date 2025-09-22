@@ -2,8 +2,8 @@
 # Mechatronics
 
 The mechatronic system to run motors with your computer can be broken down into three main components: 
-1.  **Computer:** Jetson (which requires 19V/1-3.5A) or RasPi (TODO)
-2.  **Actuator:** T-Motor AK-series actuator (which requires 20/24V, depending on the model), CyberGear Micromotor (TODO), or Robstride actuator (TODO)
+1.  **Computer:** Jetson (which requires 19V/1-3.5A) or RasPi (5V)
+2.  **Actuator:** T-Motor AK-series actuator (which requires 20/24V, depending on the model), CyberGear Micromotor (~24V), or Robstride actuator (~24V)
 3.  **Batteries:** Either a uniform power source (powers both computer and actuators) or two separate power sources
 
 ## Power System
@@ -45,6 +45,10 @@ If you're using a...
 ### Power - Actuator Connections
 :::{tip}  If you order the recommended fuse holders, we recommend trimming the included red wire because it is significantly less flexible that the generic 12-gauge red/black wire.
 :::
+
+First, you will need to check which XT30 connector your actuator uses. For older models of the TMotor AK-Series, this is a standard XT30 connector. However, the V3 devices along with the Robstride and Cybergear devices use an XT30 2+2 design, where the CAN bus wiring is directly integreated with the power connector
+
+
 
 **You will need:**
 - 12 gauge black and red wire

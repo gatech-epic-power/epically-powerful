@@ -1,11 +1,11 @@
 (PartPicker)=
 # Part Picker
 
-```{toctree}
+<!-- ```{toctree}
 :glob:
 
 part_picker/*
-```
+``` -->
 
 ## Computer
 The computer will act as the 'brain' for the device.  The computer will run a linux OS and is where you will write and run your controllers.
@@ -124,35 +124,21 @@ Raspberry Pis operate on 5V while Jetsons operate on 9-19V.  We have included po
 ## Actuators
 All of the listed actuators are commercially-available quasi-direct drive actuators that have been incorporated into epicallypowerful.
 
-HYPERLINK: [actuator_image]('res/CompatibleActuators_Docs.png')
+<!-- Alternate colors for image -->
 
-<script>
-    // Wait until the page is fully loaded
-    window.onload = function() {
-        const darkModeImage = "../res/CompatibleActuators_Docs_dark.png";
-        const lightModeImage = "../res/CompatibleActuators_Docs_light.png";
+```{eval-rst}
+.. image:: ../res/CompatibleActuators_Docs_light.png
+   :align: center
+   :width: 300
+   :class: only-light
+```
 
-        // Get the current theme from the body class (Furo applies .dark and .light)
-        const bodyClass = document.body.classList;
-
-        // Find the image elements
-        const image = document.querySelector('img');
-
-        // Set the image source based on the theme
-        if (bodyClass.contains('dark')) {
-            image.src = darkModeImage;
-        } else if (bodyClass.contains('light')) {
-            image.src = lightModeImage;
-        }
-    };
-</script>
-
-<!-- Image Element (This will be dynamically updated) -->
-<img src="" alt="actuator_image" height="400">
-
-![school_NEU](../res/CompatibleActuators_Docs_light.png){height="300"}
-
-
+```{eval-rst}
+.. image:: ../res/CompatibleActuators_Docs_dark.png
+   :align: center
+   :width: 300
+   :class: only-dark
+```
 
 ### *Choice 1: CubeMars T-Motor AK-Series Actuators*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
@@ -169,16 +155,14 @@ T-Motor has a variety of AK-Series actuators available.  We recommend specifical
 The Cybergear Micromotor is a single actuator that is unique due to it's low weight and affordability.
 
 **Order:**
-- Actuator(s)
-- CAN cable kit (TODO???)
-- XT30 2+2 connectors
+- Actuator(s) [AliExpress Link](https://www.aliexpress.us/item/3256808812951670.html?spm=a2g0o.detail.pcDetailTopMoreOtherSeller.1.73f4fR9zfR9z0n&gps-id=pcDetailTopMoreOtherSeller&scm=1007.40050.354490.0&scm_id=1007.40050.354490.0&scm-url=1007.40050.354490.0&pvid=f84137df-6f73-4ef1-bef1-ba7027f6ccef&_t=gps-id:pcDetailTopMoreOtherSeller,scm-url:1007.40050.354490.0,pvid:f84137df-6f73-4ef1-bef1-ba7027f6ccef,tpp_buckets:668%232846%238108%231977&isseo=y&pdp_ext_f=%7B%22order%22%3A%222%22%2C%22eval%22%3A%221%22%2C%22sceneId%22%3A%2230050%22%7D&pdp_npi=4%40dis%21USD%21182.17%21176.71%21%21%211306.82%211267.62%21%402103209b17478429518991337edbd4%2112000047517314407%21rec%21US%21%21ABX&utparam-url=scene%3ApcDetailTopMoreOtherSeller%7Cquery_from%3A)
+- XT30 2+2 connectors [AliExpress Link](https://www.aliexpress.us/item/3256803525553337.html?gatewayAdapt=glo2usa4itemAdapt)
 
 ### *Choice 3: RobStride Actuators*
 
 **Order:**
 - Actuator(s)
-- CAN cable kit (TODO???)
-- XT30 2+2 connectors
+- XT30 2+2 connectors [AliExpress Link](https://www.aliexpress.us/item/3256803525553337.html?gatewayAdapt=glo2usa4itemAdapt)
 
 ### *Requirements for All Actuator Choices*
 

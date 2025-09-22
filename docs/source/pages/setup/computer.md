@@ -61,9 +61,9 @@ If you do not use the Microstrain IMUs in your application, you can skip this.
 
 The low level interface library for communicating with the microstrain IMUs are currently unavailable through pip or anaconda, and must be installed manually. please see the specific guide for installing [here](MSCLInstall).
 
-### Installing epicallypowerful
-Now you are all ready to get up and running with epicallypowerful! To install, activate your virtual environment (if you're using one), and then use one of the methods below.
-1) Clone the git repository, navigate into that directory using your terminal, and run 
+### Installing EpicallyPowerful
+Now you are all ready to get up and running with EpicallyPowerful! To install, activate your virtual environment (if you're using one), and then use one of the methods below.
+1) Clone the [git repository](https://github.com/gatech-epic-power/epically-powerful), navigate into that directory using your terminal, and run 
    
    ```bash
    $ pip install -e .
@@ -87,13 +87,7 @@ Now you are all ready to get up and running with epicallypowerful! To install, a
 (JetsonSetup)=
 ## Jetson Orin Nano
 
-1.  To set up the OS on the Jetson, follow the instructions on the NVIDIA website to flash a microSD card: https://developer.nvidia.com/embedded/learn/get-started-jetson-orin-nano-devkit#intro. We recommend a card with at least 32 GB. 
-
-    :::{important} 
-    These instructions by default recommend Jetpack 6.0. However, this requires using the SDK manager for the first time you flash an SD card, which requires a separate Ubuntu computer. If you do not have access to one, or want to immediately flash an SD card through the instructions linked above, download the older version of Jetpack (5.1.2) and use that as the image to flash.  Check out older versions of jetpack [here]('https://developer.nvidia.com/embedded/jetpack-archive').
-    :::
-
-    ![school_GT](/res/Jetpack.png){height="150"}
+1.  To set up the OS on the Jetson, follow the instructions on the NVIDIA website to flash a microSD card: <https://developer.nvidia.com/embedded/learn/get-started-jetson-orin-nano-devkit#intro>. We recommend a card with at least 32 GB. More extensive documentation is included [on Nvidia's website](https://www.jetson-ai-lab.com/initial_setup_jon.html)
  
 2.  To enable actuator communication, solder the 4 CAN communication pin holes in the Jetson's carrier board with 90° male-to-male pins.
 
@@ -105,7 +99,7 @@ Now you are all ready to get up and running with epicallypowerful! To install, a
       Be careful of the fan cable that is plugged into the carrier board!
       :::
 
-      ![school_GT](/res/Jetson1.png){height="300"}
+      ![jetson_fan_remove](/res/Jetson1.png){height="300"}
      
     - Now, solder four 90-degree pins (like those soldered into the adjacent holes) into the holes indicated on the carrier board.
 
@@ -113,9 +107,9 @@ Now you are all ready to get up and running with epicallypowerful! To install, a
       Be extremely careful not to damage the carrier board by applying too much heat with the soldering iron! If you do, there is a possibility that CAN communication will not work as intended.
       :::
 
-      ![school_GT](/res/Jetson2.png){height="300"}
+      ![jetson_can_pins](/res/Jetson2.png){height="300"}
      
     - The final product should look like the image below (with soldered pins indicated). To check if the soldering was successful, attempt to run motor communication with the newly soldered pins (see the diagram in Section: More About the Components).
     TODO!!!^ Above
      
-      ![school_GT](/res/Jetson3.png){height="300"}
+      ![jetson_can_pin_done](/res/Jetson3.png){height="300"}

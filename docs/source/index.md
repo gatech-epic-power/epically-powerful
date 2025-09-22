@@ -13,8 +13,8 @@ Our goal is to lower the barriers to designing custom wearable and other robotic
 
 ### Key Features
 
+- **Versatile Software Package:** Includes code to control systems with common electrical actuators and IMUs, as well as basic control structuring and data recording.
 - **Comprehensive Documentation:** Step-by-step instructions for setting up microcontrollers, actuators, sensors, power systems, and communication networks.
-- **Versatile Software Package:** Includes code to control systems with TMotor AK Series actuators and common sensors like force-sensitive resistors and IMUs.
 - **Built-in Controllers:** Access impedance, bang-bang, and other example/stock controllers, along with a dynamic visualization interface.
 - **Resourceful Tools:** Recommended materials lists, design guidelines, startup guides, and video tutorials for seamless hardware and software integration.
 
@@ -34,7 +34,7 @@ We invite interaction and collaboration in further developing Epically Powerful 
 
 ### Publications Powered by Epically Powerful
 
-JK Leestma, S Mathur, M Anderton, GS Sawicki, and AJ Young, [Dynamic duo: Design and validation of an autonomous frontal and sagittal actuating hip exoskeleton for step placement modulation during perturbed locomotion]('https://doi.org/10.1109/lra.2024.3371290'), Robotics and Automation Letters, 2024.
+JK Leestma, S Mathur, M Anderton, GS Sawicki, and AJ Young, [Dynamic duo: Design and validation of an autonomous frontal and sagittal actuating hip exoskeleton for step placement modulation during perturbed locomotion](https://doi.org/10.1109/lra.2024.3371290), Robotics and Automation Letters, 2024.
 
 
 ::::{toctree}

@@ -75,7 +75,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-
 # PyBuilder
 .pybuilder/
 target/
@@ -179,3 +178,7 @@ pyrightconfig.json
 
 _clocking.c
 _clocking.*.so
+
+.DS_Store
+*.DS_Store
+docs/_build.zip
