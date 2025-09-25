@@ -14,9 +14,11 @@ import argparse
 import json
 from typing import Dict
 import numpy as np
-# import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
-# from epicallypowerful.toolbox import LoopTimer
-# from epicallypowerful.sensing.mpu9250.mpu9250_imu import MPU9250IMUs
+from numpy.typing import NDArray
+from scipy.optimize import curve_fit
+import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
+from epicallypowerful.toolbox import LoopTimer
+from epicallypowerful.sensing.mpu9250.mpu9250_imu import MPU9250IMUs
 
 
 # Get default I2C bus depending on which device is currently being used
@@ -30,14 +32,65 @@ else:
     DEFAULT_I2C_BUS = 0
 
 
+def get_linear_output(
+    data: NDArray[np.float64],
+    m: float,
+    b: float,
+) -> NDArray[np.float64]:
+    return (data * m) + b
+
+
 def calibrate_accelerometer(
     imu_handler: MPU9250IMUs,
     loop_timer: LoopTimer,
     time_to_calibrate: float=2.5,
     verbose: bool=False,
-) -> tuple[float]:
-    
-    return acc_coeffs
+) -> list[list[float]]:
+    acc_offset_coeffs = [[], [], []]
+    directions_to_calibrate = ['face-up', 'face-down', 'perpendicular to gravity']
+    axes_to_calibrate = ['x', 'y', 'z']
+
+    for a, axis_to_cal in enumerate(axes_to_calibrate):
+        axis_offsets = [[], [], []]
+
+        for d, dir_to_cal in enumerate(directions_to_calibrate):
+            input(f"Hold IMU {dir_to_cal} to calibrate accelerometer axis {axis_to_cal}, then press [ENTER]...")
+            acc_data = []
+            t_start = time.perf_counter()
+
+            while time.perf_counter() - t_start <= time_to_calibrate:
+                if loop_timer.continue_loop():
+                    imu_data = imu_handler.get_data(imu_id=0)
+                    acc_data.append([imu_data.accx, imu_data.accy, imu_data.accz])
+
+            axis_offsets[d] = np.array(acc_data)[:, a]
+
+        optimized_params, _ = curve_fit(
+            f=get_linear_output,
+            xdata=np.append(
+                np.append(
+                    axis_offsets[0],
+                    axis_offsets[1],
+                ),
+                axis_offsets[2],
+            ),
+            ydata=np.append(
+                np.append(
+                    1.0*np.ones(np.shape(axis_offsets[0])),
+                    -1.0*np.ones(np.shape(axis_offsets[1])),
+                ),
+                0.0*np.ones(np.shape(axis_offsets[2])),
+            ),
+            maxfev=10000,
+        )
+
+        acc_offset_coeffs[a] = optimized_params.tolist()
+
+
+    if verbose:
+        print(f"Calibration complete! acc_offset_coeffs: ({acc_offset_coeffs[0]:0.2f}, {acc_offset_coeffs[1]:0.2f}, {acc_offset_coeffs[2]:0.2f})")
+
+    return acc_offset_coeffs
 
 
 def calibrate_gyroscope(
@@ -46,7 +99,7 @@ def calibrate_gyroscope(
     time_to_calibrate: float=2.5,
     verbose: bool=False,
 ) -> tuple[float]:
-    input("Press [ENTER] to calibrate gyroscope. Keep IMU still...")
+    input("Keep IMU still, then press [ENTER] to calibrate gyroscope...")
     gyro_data = []
     t_start = time.perf_counter()
 
@@ -72,11 +125,14 @@ def calibrate_magnetometer(
     time_to_calibrate: float=2.5,
     verbose: bool=False,
 ) -> tuple[float]:
+    mag_coeffs = []
+    
+    
+
+    if verbose:
+        print(f"Magnetometer calibration complete! mag_coeffs: ({}, {}, {})")
 
     return mag_coeffs
-
-
-# def store_coefficients() -> None:
 
 
 def split_strings(arg):
@@ -129,8 +185,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     bus = args.i2c_bus
     channel = args.channel
-    address = args.address
+    address = int('0x'+str(args.address), 0) # Convert multi-digit address into hex, then int
     components = args.components
+    print(f"components: {components}")
     print(f"Initializing MPU9250 IMU at I2C bus {bus} on channel {channel} with address {address}")
 
     # Set up dictionary for IMU currently being calibrated
@@ -159,7 +216,7 @@ if __name__ == "__main__":
     # Create instance of MPU9250 IMUs object to initialize connected IMU
     mpu9250_imus = MPU9250IMUs(
         imu_ids=imu_id,
-        components=args.components,
+        components=components,
         verbose=True,
     )
 
@@ -172,15 +229,19 @@ if __name__ == "__main__":
         for idx in calibration_dict.keys():
             # Check all IMUs in dict to see whether they are connected in 
             # the configuration to be the IMU currently bein calibrated
+            
             if calibration_dict[idx]['bus'] == bus and calibration_dict[idx]['channel'] == channel and calibration_dict[idx]['address'] == address:
-                if calibration_dict[idx][component]:
+
+                if len(calibration_dict[idx][component]) > 0:
                     imu_calibration_exists = True
-                    user_input = input(f"Overwrite existing {component} calibration for IMU (bus: {bus}, channel: {channel}, address: {address})? Enter [y/n], then press [ENTER] to continue")
+                    user_input = input(f"Overwrite existing {component} calibration for IMU (bus: {bus}, channel: {channel}, address: {address})? Enter [y/n], then press [ENTER] to continue: ")
 
                     if user_input == 'y':
                         calibrate_component = True
                     else:
                         print(f"Skipping {component} calibration for IMU (bus: {bus}, channel: {channel}, address: {address})...")
+                else:
+                    calibrate_component = True
         
         if not imu_calibration_exists:
             calibrate_component = True
@@ -195,7 +256,7 @@ if __name__ == "__main__":
             imu_id[0]['acc'] = calibrate_accelerometer(
                 imu_handler=mpu9250_imus,
                 loop_timer=LoopTimer(operating_rate=args.rate, verbose=True),
-                time_to_calibrate=2.5,
+                time_to_calibrate=0.5,
                 verbose=True,
             )
 

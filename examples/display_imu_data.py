@@ -57,7 +57,7 @@ MPU9250_IMU_IDS = {
     0: {
         'bus': 1,        # 7 is the default I2C bus on the Jetson
         'channel': -1,   # channel is only used with a multiplexer. If not using one, keep as -1
-        'address': 0x69, # I2C address of the MPU9250. Can be either this or 0x69
+        'address': 0x69, # I2C address of the MPU9250. Can be either this or 0x68
     }
 }
 
