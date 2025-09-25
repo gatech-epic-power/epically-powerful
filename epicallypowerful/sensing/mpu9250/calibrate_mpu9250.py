@@ -44,6 +44,22 @@ def get_linear_output(
     return (data * m) + b
 
 
+def remove_outliers(
+    data: NDArray[np.float64],
+    std_scaler: float,
+) -> NDArray[np.float64]:
+    inlier_data = data
+    data_diff = np.append(
+        np.zeros(1),
+        np.diff(data),
+    )
+
+    outlier_idxs = np.abs(data_diff) > np.abs(np.mean(data_diff)) + (std_scaler * np.std(data_diff))
+    inlier_data[outlier_idxs] = np.nan
+
+    return inlier_data
+
+
 def calibrate_accelerometer(
     imu_handler: MPU9250IMUs,
     loop_timer: LoopTimer,
@@ -72,7 +88,7 @@ def calibrate_accelerometer(
 
 
             axis_offsets[d] = np.array(acc_data)[:, a]
-        
+
         optimized_params, _ = curve_fit(
             f=get_linear_output,
             xdata=np.array(axis_offsets).flatten(),
@@ -128,12 +144,40 @@ def calibrate_magnetometer(
     time_to_calibrate: float=2.5,
     verbose: bool=False,
 ) -> tuple[float]:
+    raise NotImplementedError("This function has not been tested due to Linux kernel issues with the AK8693 I2C device on the MPU9250 IMU (https://forums.raspberrypi.com/viewtopic.php?t=388295). This issue may be resolved in a future Linux release, at which point this code will be made functional again.")
+    
     mag_coeffs = []
-    
-    
+    axis_offsets = [[], [], []]
+    axes_to_calibrate = ['x', 'y', 'z']
 
-    # if verbose:
-    #     print(f"Magnetometer calibration complete! mag_coeffs: ({}, {}, {})")
+    for a, axis_to_cal in enumerate(axes_to_calibrate):
+        input(f"Start rotating IMU about {axis_to_cal} axis, then press [ENTER] and keep rotating to calibrate...")
+        mag_data = []
+        t_start = time.perf_counter()
+
+        while time.perf_counter() - t_start <= time_to_calibrate:
+            if loop_timer.continue_loop():
+                imu_data = imu_handler.get_data(imu_id=0)
+                mag_data.append([imu_data.accx, imu_data.magy, imu_data.magz])
+
+                # Show progress of calibration
+                print(f"Calibrating: {round(((time.perf_counter() - t_start)/time_to_calibrate) * 100)}%\r", end="")
+
+        off_axis_idxs = np.arange(len(axes_to_calibrate))
+        off_axis_data = np.array(mag_data)[:, off_axis_idxs != a] # m x 2 array for axes about which the IMU was not just rotated (e.g., if rotating about z axis, return x, y axis data)
+        offset_pair = []
+
+        for i in range(off_axis_data.shape[1]):
+            off_axis_data[:, i] = remove_outliers(
+                data=off_axis_data[:, i],
+                std_scaler=3,
+            )
+            offset_pair.append((np.nanmax(off_axis_data[:, i]) + np.nanmin(off_axis_data[:, i]))/2.0)
+
+        mag_coeffs.append([offset_pair])
+
+    if verbose:
+        print(f"Magnetometer calibration complete! mag_coeffs: ({mag_coeffs[0]}, {mag_coeffs[1]}, {mag_coeffs[2]})")
 
     return mag_coeffs
 
@@ -196,7 +240,7 @@ if __name__ == "__main__":
     # Set up dictionary for IMU currently being calibrated
     # TODO: decide whether to add functionality for calibrating multiple IMUs in sequence
     imu_id = {
-        0:
+        f"{bus}_{channel}_{address}":
             {
                 'bus': bus,
                 'channel': channel,
@@ -219,7 +263,7 @@ if __name__ == "__main__":
     # Create instance of MPU9250 IMUs object to initialize connected IMU
     mpu9250_imus = MPU9250IMUs(
         imu_ids=imu_id,
-        components=components,
+        components=['acc', 'gyro'],
         verbose=True,
     )
 
@@ -258,7 +302,7 @@ if __name__ == "__main__":
 
             imu_id[0]['acc'] = calibrate_accelerometer(
                 imu_handler=mpu9250_imus,
-                loop_timer=LoopTimer(operating_rate=args.rate, verbose=True),
+                loop_timer=LoopTimer(operating_rate=args.rate, verbose=False),
                 time_to_calibrate=2.5,
                 verbose=True,
             )

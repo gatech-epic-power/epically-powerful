@@ -293,28 +293,28 @@ class MPU9250IMUs:
             [coeffx, coeffy, coeffz] (list of floats): coefficients for each DOF
         """
         # Initialize magnetometer mode
-        bus.write_byte_data(AK8963_ADDR,AK8963_CNTL,0x00)
+        bus.write_byte_data(AK8963_ADDR,AK8963_CNTL, 0x00)
         time.sleep(sleep_time)
-        bus.write_byte_data(AK8963_ADDR,AK8963_CNTL,0x0F)
+        bus.write_byte_data(AK8963_ADDR,AK8963_CNTL, 0x0F)
         time.sleep(sleep_time)
         
         # Read coefficient data from circuit address
-        coeff_data = bus.read_i2c_block_data(AK8963_ADDR,AK8963_ASAX,3)
+        coeff_data = bus.read_i2c_block_data(AK8963_ADDR,AK8963_ASAX, 3)
         coeffx = (0.5 * (coeff_data[0] - 128)) / 256.0 + 1.0
         coeffy = (0.5 * (coeff_data[1] - 128)) / 256.0 + 1.0
         coeffz = (0.5 * (coeff_data[2] - 128)) / 256.0 + 1.0
         time.sleep(sleep_time)
         
         # Reinitialize magnetometer
-        bus.write_byte_data(AK8963_ADDR,AK8963_CNTL,0x00)
+        bus.write_byte_data(AK8963_ADDR, AK8963_CNTL, 0x00)
         time.sleep(sleep_time)
 
         # Set magnetometer resolution and frequency of communication
         AK8963_mode = (bit_resolution << 4) + sample_rate
-        bus.write_byte_data(AK8963_ADDR,AK8963_CNTL,AK8963_mode)
+        bus.write_byte_data(AK8963_ADDR, AK8963_CNTL, AK8963_mode)
         time.sleep(sleep_time)
 
-        return coeffx,coeffy,coeffz
+        return coeffx, coeffy, coeffz
 
 
     def get_data(self, imu_id: int) -> IMUData:
