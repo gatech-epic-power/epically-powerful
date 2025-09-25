@@ -1,4 +1,5 @@
-# Test curve-fitting
+"""Test curve fitting with scipy.optimize. Use case is to provide """
+
 import numpy as np
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
@@ -7,33 +8,41 @@ def my_model_function(x, m, b):
     # Your mathematical expression involving x and parameters
     return m*x + b
 
-# x_data = np.array([1, 2, 3, 4, 5])
-# y_data = np.array([2.1, 3.9, 6.2, 8.1, 10.3])
-x_data = np.array([
+measured_data = np.array([
     [1.01, 1.2, 0.9, 0.85, 0.95],
     [-0.9, -0.89, -1.15, -1, -1.2],
     [0.01, 0.2, -0.15, 0.1, -0.05],
-]).transpose()
+]).transpose().flatten()
 
-y_data = np.array([
+ref_data = np.array([
     [1, 1, 1, 1, 1],
     [-1, -1, -1, -1, -1],
     [0, 0, 0, 0, 0],
-]).transpose()
+]).transpose().flatten()
 
-
-# Initial guess for parameters (optional but recommended for complex models)
-initial_guess = [1.0, 0.5]
+# Initial guess for params (optional but rec. for complex models)
+initial_guess = [1.0, 0.1]
 
 # Perform the fit
-params, covariance = curve_fit(my_model_function, x_data, y_data, p0=initial_guess)
+params, covariance = curve_fit(
+    f=my_model_function,
+    xdata=measured_data,
+    ydata=ref_data,
+    p0=initial_guess,
+)
 
 m_fit, b_fit = params
 
-y_fit = my_model_function(x_data, m_fit, b_fit)
+fit_data = my_model_function(measured_data, m_fit, b_fit)
 
-print(y_fit)
+print(f"y = m*x + b: m = {m_fit}, b = {b_fit}")
+print(f"fit_data: {fit_data}")
 
-plt.plot(x_data, y_data)
-plt.plot(x_data, y_fit)
+plt.scatter(measured_data, ref_data, color='k')
+plt.axhline(y=-1, xmin=-1, xmax=1, color='r', linestyle=':', linewidth=1)
+plt.axhline(y=0, xmin=-1, xmax=1, color='r', linestyle=':', linewidth=1)
+plt.axhline(y=1, xmin=-1, xmax=1, color='r', linestyle=':', linewidth=1)
+plt.plot(measured_data, fit_data)
+plt.xlabel('measured')
+plt.ylabel('reference')
 plt.show()

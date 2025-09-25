@@ -32,6 +32,10 @@ else:
     DEFAULT_I2C_BUS = 0
 
 
+# Specify constants
+G = 9.80665 # [m*s^-2]
+
+
 def get_linear_output(
     data: NDArray[np.float64],
     m: float,
@@ -54,7 +58,7 @@ def calibrate_accelerometer(
         axis_offsets = [[], [], []]
 
         for d, dir_to_cal in enumerate(directions_to_calibrate):
-            input(f"Hold IMU {dir_to_cal} to calibrate accelerometer axis {axis_to_cal}, then press [ENTER]...")
+            input(f"Hold IMU accelerometer {axis_to_cal} axis {dir_to_cal}, then press [ENTER]...")
             acc_data = []
             t_start = time.perf_counter()
 
@@ -63,24 +67,20 @@ def calibrate_accelerometer(
                     imu_data = imu_handler.get_data(imu_id=0)
                     acc_data.append([imu_data.accx, imu_data.accy, imu_data.accz])
 
-            axis_offsets[d] = np.array(acc_data)[:, a]
+                    # Show progress of calibration
+                    print(f"Calibrating: {round(((time.perf_counter() - t_start)/time_to_calibrate) * 100)}%\r", end="")
 
+
+            axis_offsets[d] = np.array(acc_data)[:, a]
+        
         optimized_params, _ = curve_fit(
             f=get_linear_output,
-            xdata=np.append(
-                np.append(
-                    axis_offsets[0],
-                    axis_offsets[1],
-                ),
-                axis_offsets[2],
-            ),
-            ydata=np.append(
-                np.append(
-                    1.0*np.ones(np.shape(axis_offsets[0])),
-                    -1.0*np.ones(np.shape(axis_offsets[1])),
-                ),
-                0.0*np.ones(np.shape(axis_offsets[2])),
-            ),
+            xdata=np.array(axis_offsets).flatten(),
+            ydata=np.concatenate([
+                np.ones(np.shape(axis_offsets[0])),  # +1 g
+                -np.ones(np.shape(axis_offsets[1])), # -1 g
+                np.zeros(np.shape(axis_offsets[2])), # 0 g
+            ]),
             maxfev=10000,
         )
 
@@ -108,6 +108,9 @@ def calibrate_gyroscope(
             imu_data = imu_handler.get_data(imu_id=0)
             gyro_data.append([imu_data.gyrox, imu_data.gyroy, imu_data.gyroz])
 
+            # Show progress of calibration
+            print(f"Calibrating: {round(((time.perf_counter() - t_start)/time_to_calibrate) * 100)}%\r", end="")
+
     if verbose:
         print(f"gyro_data size for calibration: {len(gyro_data)} samples")
 
@@ -129,8 +132,8 @@ def calibrate_magnetometer(
     
     
 
-    if verbose:
-        print(f"Magnetometer calibration complete! mag_coeffs: ({}, {}, {})")
+    # if verbose:
+    #     print(f"Magnetometer calibration complete! mag_coeffs: ({}, {}, {})")
 
     return mag_coeffs
 
@@ -205,7 +208,7 @@ if __name__ == "__main__":
     }
 
     # Look for existing calibration for current IMU in JSON file
-    calibration_filename = f"mpu9250_calibration.json"
+    calibration_filename = f"mpu9250_calibrations.json"
     
     if os.path.isfile(calibration_filename):
         with open(calibration_filename, "r") as f:
@@ -256,7 +259,7 @@ if __name__ == "__main__":
             imu_id[0]['acc'] = calibrate_accelerometer(
                 imu_handler=mpu9250_imus,
                 loop_timer=LoopTimer(operating_rate=args.rate, verbose=True),
-                time_to_calibrate=0.5,
+                time_to_calibrate=2.5,
                 verbose=True,
             )
 
