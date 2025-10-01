@@ -1,5 +1,6 @@
 from epicallypowerful.actuation.actuator_abc import Actuator
 from epicallypowerful.actuation.tmotor import TMotor
+from epicallypowerful.actuation.tmotor import TMotorServo
 from epicallypowerful.actuation.robstride import Robstride
 from epicallypowerful.actuation.cybergear import Cybergear
 from epicallypowerful.actuation.motor_data import MotorData, t_motors, cybergears, robstrides
@@ -10,10 +11,10 @@ import signal
 import os
 import sys
 import logging
-from typing_extensions import Self, Union, Optional
+from typing_extensions import Self, Optional
 import platform
 import functools
-from typing import Callable
+from typing import Callable, Literal
 
 # ~~~~~ Logging Setup ~~~~~ #
 motorlog = logging.getLogger('motorlog')
@@ -62,15 +63,17 @@ class ActuatorGroup():
 
     To get data from the actuators, a similar approach can be used. In this case the :py:meth:`get_data`, :py:meth:`get_torque`, :py:meth:`get_position`, and :py:meth:`get_velocity` methods are available. A :py:meth:`get_temperature` method is also available for the Robstrides, and will always return 0 for the TMotors.
 
-    Please see the :py:class:`~epicpower.actuation.TMotor` and :py:class:`~epicpower.actuation.Robstride` classes for more information on the methods available for each actuator and specific relevant details.
+    Please see the :py:class:`~epicallypowerful.actuation.TMotor` and :py:class:`~epicallypowerful.actuation.Robstride` classes for more information on the methods available for each actuator and specific relevant details.
 
     You can also create an ActuatorGroup from a dictionary, where the key is the CAN ID and the value is the actuator type.
 
+    For a list of all supported actuator types, you can import and use the :py:func:`epicallypowerful.actuation.available_actuator_types` function.
+    
     Example:
         .. code-block:: python
 
 
-            from epicpower.actuation import ActuatorGroup, TMotor, Robstride
+            from epicallypowerful.actuation import ActuatorGroup, TMotor, Robstride
 
             ### Instantiation ---
             actuators = ActuatorGroup([TMotor(1, 'AK80-9'), Robstride(2, 'Cybergear'), Robstride(3, 'RS02')])
@@ -97,7 +100,14 @@ class ActuatorGroup():
         enable_on_startup (bool, optional): Whether to attempt to enable the actuators when the object is created. If set False, :py:func:`enable_actuators` needs to be called before any other commands. Defaults to True.
 
     """
-    def __init__(self, actuators: list[Actuator], can_args: Optional[dict] = None, enable_on_startup: bool = True) -> None:
+    def __init__(self,
+        actuators: list[Actuator],
+        can_args: Optional[dict] = None,
+        enable_on_startup: bool = True,
+        exit_manually: bool = False,
+        torque_limit_mode: Literal['warn', 'throttle', 'disable'] = 'warn',
+        torque_rms_window: float=20.0,
+    ) -> None:
         _load_can_drivers()
         if can_args is None: can_args = {'bustype': 'socketcan', 'channel': 'can0'}
         self.bus = can.Bus(channel=can_args['channel'], bustype=can_args['bustype'])
@@ -116,13 +126,20 @@ class ActuatorGroup():
             actuator._bus = self.bus
             self.actuators[actuator.can_id] = actuator
             self.notifier.add_listener(actuator)
+            self.actuators[actuator.can_id].torque_monitor.window = torque_rms_window
 
+        self._torque_limit_mode = torque_limit_mode
+        if torque_limit_mode not in ['warn', 'throttle', 'disable']:
+            self.bus.shutdown()
+            raise ValueError("torque_limit_mode must be either 'warn', 'throttle', or 'disable'")
         self._actuators_enabled = False
         self._priming_reconnection = False
         self._reconnection_start_time = 0
         self.prev_command_time = time.perf_counter()
-
-        signal.signal(signal.SIGINT, self._exit_gracefully)
+        
+        if not exit_manually:
+            signal.signal(signal.SIGINT, self._exit_gracefully)
+            signal.signal(signal.SIGTERM, self._exit_gracefully)
 
         time.sleep(0.1)
         if enable_on_startup: self.enable_actuators()
@@ -191,6 +208,17 @@ class ActuatorGroup():
             can_id (int): CAN ID of the actuator. This should be set by the appropriate manufacturer software.
             torque (float): Torque to set the actuator to in Newton-meters.
         """
+        if self.actuators[can_id]._over_limit:
+            if self._torque_limit_mode == 'warn':
+                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
+            elif self._torque_limit_mode == 'throttle':
+                self.actuators[can_id].set_torque(0.0)
+                return
+            elif self._torque_limit_mode == 'disable':
+                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
+                self.disable_actuators()
+                return -1
+
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
             self.actuators[can_id].data.responding = False
@@ -214,6 +242,17 @@ class ActuatorGroup():
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the position is in degrees or radians.
         """
+        if self.actuators[can_id]._over_limit:
+            if self._torque_limit_mode == 'warn':
+                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
+            elif self._torque_limit_mode == 'throttle':
+                self.actuators[can_id].set_torque(0.0)
+                return
+            elif self._torque_limit_mode == 'disable':
+                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
+                self.disable_actuators()
+                return -1
+
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
             self.actuators[can_id].data.responding = False
@@ -236,6 +275,17 @@ class ActuatorGroup():
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the velocity is in degrees per second or radians per second.
         """
+        if self.actuators[can_id]._over_limit:
+            if self._torque_limit_mode == 'warn':
+                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
+            elif self._torque_limit_mode == 'throttle':
+                self.actuators[can_id].set_torque(0.0)
+                return
+            elif self._torque_limit_mode == 'disable':
+                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
+                self.disable_actuators()
+                return -1
+
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
             self.actuators[can_id].data.responding = False
@@ -317,6 +367,8 @@ class ActuatorGroup():
     @classmethod
     def from_dict(cls: Self, actuators: dict[int, str], invert: list=[], enable_on_startup:bool = True, can_args: dict[str,str]=None) -> Self:
         """Creates an ActuatorGroup from a dictionary where the key is the CAN ID and the value is the actuator type.
+        For TMotors, you can append "-servo" to the actuator type to create a TMotorServo instead of a TMotor. This controls the device in "servo mode"
+        which can allow for higher output torques as direct current control can be used. Please see the :py:class:`~epicallypowerful.actuation.TMotorServo` class for more information.
 
         Example:
             .. code-block:: python
@@ -339,14 +391,23 @@ class ActuatorGroup():
         robstride_types = robstrides()
         act_list = []
         for a in actuators.keys():
+            if "-servo" in actuators[a].lower():
+                servomode = True
+                actuators[a] = actuators[a].replace("-servo", "")
+            else:
+                servomode = False
             if a in invert:
                 inv = True
             else:
                 inv = False
             if actuators[a] in tmotor_types:
-                act_list.append(TMotor(a, actuators[a], invert=inv))
-                # motor = TMotor(a, actuators[a])
+                if (servomode):
+                    act_list.append(TMotorServo(a, actuators[a], invert=inv))
+                else:
+                    act_list.append(TMotor(a, actuators[a], invert=inv))
             elif actuators[a] in robstride_types:
+                if servomode:
+                    raise ValueError(f"Robstride motors do not support servo mode: {actuators[a]}")
                 act_list.append(Robstride(a, actuators[a], invert=inv))
             else:
                 raise ValueError(f"Invalid actuator type: {actuators[a]}")
@@ -389,6 +450,7 @@ class ActuatorGroup():
             except:
                 sys.exit("Failed to disable motors, please ensure power is safely disconnected\n")
             finally:
+                self.notifier.stop()
                 self.bus.shutdown()
         os.write(sys.stdout.fileno(), b"Shutdown finished\n")
         sys.exit(0)

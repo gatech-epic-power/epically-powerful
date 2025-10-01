@@ -1,9 +1,14 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
+
+requires = ["setuptools>=74.1", "cython"]
 build-backend = "setuptools.build_meta"
+
 
 [tool.setuptools]
 packages = ["epicallypowerful"]
+ext-modules = [
+    {name = "epicallypowerful.toolbox._clocking", sources = ["epicallypowerful/toolbox/_clocking.pyx"]}
+]
 
 [project]
 requires-python = ">=3.9"
@@ -15,7 +20,8 @@ maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {n
 dependencies = [
     "numpy",
     "python-can",
-    "scipy"
+    "scipy",
+    "msgspec"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -35,6 +41,7 @@ jetson = ["Jetson.GPIO"]
 
 [project.scripts]
 ep-collect-imu-data = "epicallypowerful.toolbox.cli:collect_imu_data"
+ep-install-mscl = "epicallypowerful.toolbox.cli:install_mscl_python"
 
 
 [project.urls] # Make sure to update these to your project's URLs

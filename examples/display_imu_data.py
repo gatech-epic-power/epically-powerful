@@ -14,8 +14,8 @@ USER CHANGES:
 # SYSTEM IMPORTS
 ##################################################################
 
-from epicpower.utils import LoopTimer
-from epicpower.sensing import IMUs
+from epicallypowerful.toolbox import LoopTimer
+from epicallypowerful.sensing import MicrostrainImus as IMUs
 
 ##################################################################
 # SET CLOCK SPECIFICATIONS

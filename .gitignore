@@ -1,5 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
+*.swp
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -177,3 +178,4 @@ pyrightconfig.json
 .DS_Store
 *.DS_Store
 docs/_build.zip
+*.deb

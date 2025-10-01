@@ -1,25 +1,23 @@
 import can
 import time
-from can import CanOperationError
 from epicallypowerful.actuation.motor_data import MotorData
 from epicallypowerful.actuation.actuator_abc import Actuator
+from epicallypowerful.actuation.torque_monitor import RMSTorqueMonitor
 import math
-from typing import Callable
-import functools
 import epicallypowerful.actuation.robstride.robstride_driver as rsd
 
 class Robstride(can.Listener, Actuator):
-    """Class for controlling an individual CyberGear Micromotor. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
+    """Class for controlling an individual Robstride acutator. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
     Alternatively, the bus can be set manually after initialization, however this is not recommended.
 
-    The CyberGears can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+    The Robstrides can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
 
     Example:
         .. code-block:: python
 
 
-            from epicpower.actuation2 import CyberGear, ActuatorGroup
-            motor = CyberGear(0x01)
+            from epicpower.actuation2 import Robstride, ActuatorGroup
+            motor = Robstride(0x01)
             group = ActuatorGroup([motor])
 
             motor.set_torque(0.5)
@@ -30,7 +28,7 @@ class Robstride(can.Listener, Actuator):
 
     Args:
         can_id (int): CAN ID of the motor. This should be unique for each motor in the system, and can be set up with the RLink software.
-        motor_type (str, optional): A string representing the type of motor. TThis is not necessary as there is only one type of motor. Defaults to "cybergear".
+        motor_type (str, optional): A string representing the type of motor.
         invert (bool, optional): Whether to invert the motor direction. Defaults to False.
     """
     def __init__(self, can_id: int, motor_type: str, invert: bool=False):
@@ -46,6 +44,8 @@ class Robstride(can.Listener, Actuator):
             kp=0, kd=0, timestamp=-1,
             running_torque=(), rms_torque=0, rms_time_prev=0
         )
+        self.torque_monitor = RMSTorqueMonitor(limit=self.data.rated_torque_limits[0], window=20.0)
+        self._over_limit = False
 
         self._connection_established = False
         self._priming_reconnection = False
@@ -89,6 +89,10 @@ class Robstride(can.Listener, Actuator):
             self.data.current_temperature = temp
             self.data.timestamp = time.perf_counter()
 
+            rms_torque, over_limit = self.torque_monitor.update(self.data.current_torque)
+            self.data.rms_torque = rms_torque
+            self._over_limit = over_limit
+        return
 
     def _ping_actuator(self) -> None:
         self._bus.send(rsd.create_read_device_id_message(self.can_id))
