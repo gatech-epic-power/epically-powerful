@@ -6,6 +6,8 @@ from epicallypowerful.actuation.torque_monitor import RMSTorqueMonitor
 import math
 import epicallypowerful.actuation.robstride.robstride_driver as rsd
 
+RAD2DEG = 180.0 / math.pi
+DEG2RAD = math.pi / 180.0
 class Robstride(can.Listener, Actuator):
     """Class for controlling an individual Robstride acutator. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
     Alternatively, the bus can be set manually after initialization, however this is not recommended.
@@ -16,8 +18,7 @@ class Robstride(can.Listener, Actuator):
         .. code-block:: python
 
 
-
-            from epicpower.actuation2 import Robstride, ActuatorGroup
+            from epicallypowerful.actuation import Robstride, ActuatorGroup
             motor = Robstride(0x01)
             group = ActuatorGroup([motor])
 
@@ -118,6 +119,24 @@ class Robstride(can.Listener, Actuator):
     def call_response_latency(self) -> float:
         return self.data.last_command_time - self.data.timestamp
 
+    def control(self, pos: float, vel: float, torque: float, kp: float, kd: float, degrees: bool = False) -> None:
+        """Sets the control of the motor using full MIT control mode. This uses the built in capability to simultaneously use torque, as well as position and velocity control. It is highly recommended you consult
+
+        Args:
+            pos (float): Position to set the actuator to in radians or degrees depending on the ``degrees`` argument.
+            vel (float): Velocity to set the actuator to in radians or degrees depending on the ``degrees`` argument.
+            torque (float): Torque to set the actuator to in Newton-meters.
+            kp (float): Proportional gain to set the actuator to in Newton-meters per radian or Newton-meters per degree depending on the ``degrees`` argument.
+            kd (float): Derivative gain to set the actuator to in Newton-meters per radian per second or Newton-meters per degree per second depending on the ``degrees`` argument.
+            degrees (bool, optional): Whether the position and velocity are in degrees or radians. Defaults to False.
+        """
+        if degrees:
+            pos *= DEG2RAD
+            vel *= DEG2RAD
+            kp *= RAD2DEG
+            kd *= RAD2DEG
+        return self._send_motion_command(self.can_id, pos, vel, torque, kp, kd)
+
     def set_torque(self, torque: float) -> None:
         """Sets the torque of the motor in Newton-meters. This will saturate if the torque is outside the limits of the motor.
         Positive and negative torques will spin the motor in opposite directions, and this direction will be reversed if the motor is inverted at initialization.
@@ -136,6 +155,10 @@ class Robstride(can.Listener, Actuator):
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the position is in degrees or radians.
         """
+        if degrees:
+            position *= DEG2RAD
+            kp *= RAD2DEG
+            kd *= RAD2DEG
         return self._send_motion_command(self.can_id, position, 0, 0, kp, kd)
 
     def set_velocity(self, velocity: float, kd: float, degrees: bool = False) -> None:
@@ -146,6 +169,9 @@ class Robstride(can.Listener, Actuator):
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the velocity is in degrees per second or radians per second.
         """
+        if degrees:
+            velocity *= DEG2RAD
+            kd *= RAD2DEG
         return self._send_motion_command(self.can_id, 0, velocity, 0, 0, kd)
 
     def zero_encoder(self):
