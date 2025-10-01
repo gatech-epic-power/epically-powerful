@@ -25,6 +25,7 @@ def _uint_to_float(x: int, x_min: int, x_max: int, num_bits: int) -> float:
         span = x_max-x_min
         return float(x*span/((1<<num_bits)-1) + x_min)
 
+
 def _float_to_uint(x: float, x_min: int, x_max: int, num_bits: int) -> int:
         """
         Interpolates a floating point number to an unsigned integer of num_bits length.
@@ -40,9 +41,10 @@ def _float_to_uint(x: float, x_min: int, x_max: int, num_bits: int) -> int:
             int: The unsigned integer representation of the floating point number
         """
         span = x_max-x_min
-        bitratio = float((1<<num_bits)/span)
-        x = _clamp(x,x_min,x_max-(2/bitratio))
+        bitratio = float((1 << num_bits)/span)
+        x = _clamp(x, x_min, x_max-(2/bitratio))
         return _clamp(int((x - x_min)*(bitratio)), 0, int((x_max-x_min)*bitratio))
+
 
 def _clamp(value: float, min_val: float, max_val: float) -> float:
     """clamp a value between a min and max value
@@ -57,6 +59,7 @@ def _clamp(value: float, min_val: float, max_val: float) -> float:
     """
     return min(max_val, max(min_val, value))
 
+
 def _unpack_motor_message(msg: can.Message, motor) -> tuple[int, float, float, float]:
     """takes a can message type as a Motor dataclass defining current
         motor parameters, and unpacks the data to extract the current position,
@@ -66,14 +69,14 @@ def _unpack_motor_message(msg: can.Message, motor) -> tuple[int, float, float, f
             msg (can.Message): CAN message
             motor (Motor): current motor data state
 
-        Returns:
+        Return
             list: the appropriate motor ID, current position, velocity, and accleration
     """
     data = msg.data
 
     # Unpack
     motor_id = data[0]
-    position_uint = data[1] <<8 | data[2]
+    position_uint = data[1] << 8 | data[2]
     velocity_uint = ((data[3] << 8) | (data[4]>>4) <<4 ) >> 4
     torque_uint = (data[4]&0x0F)<<8 | data[5]
 
@@ -81,6 +84,7 @@ def _unpack_motor_message(msg: can.Message, motor) -> tuple[int, float, float, f
     vel = _uint_to_float(velocity_uint, motor.velocity_limits[0], motor.velocity_limits[1], 12)
     torque = _uint_to_float(torque_uint, motor.torque_limits[0], motor.torque_limits[1], 12)
     return motor_id, pos, vel, torque
+
 
 def _pack_motor_message(pos: float, vel: float, kp: float, kd: float, t: float, motor: MotorData, verbose=False) -> can.Message:
     """Packs the appropriate data fields into the expected CAN message
@@ -123,6 +127,7 @@ def _pack_motor_message(pos: float, vel: float, kp: float, kd: float, t: float, 
 
     return msg
 
+
 def _pack_zero_encoder_message(target_id: int) -> can.Message:
     """Packs the appropriate data fields into the expected CAN message
     data format to zero the encoder position.
@@ -134,6 +139,7 @@ def _pack_zero_encoder_message(target_id: int) -> can.Message:
         can.Message: CAN message containing the appropriate data for the desired command.
     """
     return can.Message(arbitration_id=target_id, data=ZERO_MOTOR_POSITION, is_extended_id=False)
+
 
 def _pack_enter_motor_message(target_id: int) -> can.Message:
     """Packs the appropriate data fields into the expected CAN message
@@ -147,6 +153,7 @@ def _pack_enter_motor_message(target_id: int) -> can.Message:
     """
     return can.Message(arbitration_id=target_id, data=ENTER_MOTOR_MODE, is_extended_id=False)
 
+
 def _pack_exit_motor_message(target_id: int) -> can.Message:
     """Packs the appropriate data fields into the expected CAN message
     data format to exit motor mode.
@@ -158,3 +165,5 @@ def _pack_exit_motor_message(target_id: int) -> can.Message:
         can.Message: CAN message containing the appropriate data for the desired command.
     """
     return can.Message(arbitration_id=target_id, data=EXIT_MOTOR_MODE, is_extended_id=False)
+
+

@@ -9,11 +9,13 @@ class Cybergear(Robstride):
 
     The CyberGears can be initialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
 
+
     Example:
         .. code-block:: python
 
 
             from epicpower.actuation2 import CyberGear, ActuatorGroup
+
             motor = Cybergear(0x01)
             group = ActuatorGroup([motor])
 
