@@ -23,3 +23,10 @@ body, h1, h2, h3, h4, h5, h6  {
 .wy-nav-content {
     max-width: 1200px !important;
 }
+
+.wy-table-responsive table td {
+    white-space: normal !important;
+}
+.wy-table-responsive {
+    overflow: visible !important;
+}

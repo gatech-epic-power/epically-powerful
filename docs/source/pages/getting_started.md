@@ -5,7 +5,7 @@ EpicallyPowerful assumes a basic familiarity with some concepts like Python, ele
 
 ## Quickstart
 1) Set up your [Raspberry Pi](RPiSetup)
-2) Install EpicallyPowerful Python package
+2) Install EpicallyPowerful Python package. In newer versions of ubuntu, you will likely need some form of virtual environment ([see here](PythonEnvs)).
    ```console
    $ pip install epicallypowerful
    ```

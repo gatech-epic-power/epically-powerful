@@ -41,7 +41,6 @@ JK Leestma, S Mathur, M Anderton, GS Sawicki, and AJ Young, [Dynamic duo: Design
     :hidden:
     :maxdepth: 1
 
-    Reviewing the Basics</pages/reviewing_the_basics.md>
     Getting Started</pages/getting_started.md>
     Setup</pages/setup.md>
     Tutorial</pages/tutorials.md>

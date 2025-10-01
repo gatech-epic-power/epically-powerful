@@ -37,12 +37,12 @@ class LoopTimer:
         .. code-block:: python
 
             
-            from epicpower.utils.clocking import LoopTimer
+            from epicpower.toolbox.clocking import LoopTimer
             looper = LoopTimer(operating_rate=200)
 
             while True:
                 if looper.continue_loop():
-                    # do something every 5ms
+                    # do something approximately every 5ms
                     pass
 
     Args:

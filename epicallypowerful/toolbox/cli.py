@@ -48,6 +48,8 @@ def collect_microstrain_imu_data():
         help="GPIO pins to use for remote sync channels. Use this argument multiple times to specify multiple channels",
     )
 
+def collect_imu_data():
+    parser = _build_collect_imu_parser()
     args = parser.parse_args()
     print(f"output name: {args.output}")
     print(f"MicroStrain serial IDs: {args.imu_serial_id}") # This is a list

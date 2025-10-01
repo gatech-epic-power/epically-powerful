@@ -5,6 +5,9 @@ The low level driver library for the Microstrain IMUs is maintained by Microstra
 
 ## epicallypoweful Install Helper
 Epicallypowerful comes with a helper script that will attempt to automatically install the mscl dependency. Once you've installed epicallypowerful, run `ep-install-mscl`. By default, this will grab the version of MSCL that corresponds with your hardware and python version and attempt to install it into your base python environment. Additionally, if you are using a virtual environment or conda environment, you can run it with the `-E` flag, which will attempt to install it into your virtual environment, or you can use `-d` to manually specify a directory to copy the files into. After this, you will have access to the all the Microstrain IMU functionality.
+```console
+$ ep-install-mscl -E
+```
 
 ## Manual
 1) First, you need to download the installer. This is a .deb file hosted on the release page of the mscl github (https://github.com/LORD-MicroStrain/MSCL/releases). We recommend going one release back, as the library is only built for python 3.13 or 2.7 in the lastest builds. 
