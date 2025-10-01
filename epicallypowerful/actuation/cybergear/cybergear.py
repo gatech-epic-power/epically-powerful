@@ -5,15 +5,17 @@ class Cybergear(Robstride):
     """Class for controlling an individual CyberGear Micromotor. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
     Alternatively, the bus can be set manually after initialization, however this is not recommended.
     
-    **NOTE: The Cybergear class is simply an inherited version of the Robstride class, which automatically passes the `motor_type` argument as "Cybergear". In general, this is provided as a convenience function and will potentially be deprecated to ensure consitency between the Cybergear and other Robstride motors.
+    **NOTE: The Cybergear class is simply an inherited version of the Robstride class, which automatically passes the `motor_type` argument as "Cybergear". In general, this is provided as a convenience function and will potentially be deprecated to ensure consistency between the Cybergear and other Robstride motors.
 
-    The CyberGgars can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+    The CyberGears can be initialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+
 
     Example:
         .. code-block:: python
 
 
-            from epicpower.actuation2 import Cybergear, ActuatorGroup
+            from epicpower.actuation2 import CyberGear, ActuatorGroup
+
             motor = Cybergear(0x01)
             group = ActuatorGroup([motor])
 
