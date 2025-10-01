@@ -12,15 +12,15 @@ The computer will act as the 'brain' for the device.  The computer will run a li
 
 ### *Choice 1: Raspberry Pi*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
-A Raspverry Pi is the most affordable of the two options.  RasPi's don't have native CAN communication (which is how they must communicate with the actuators), so you will also need to get the PiCAN3 board, which fits on a RasPi and enables CAN.
+A Raspverry Pi is the most affordable of the two options.  Raspberry Pi's don't have native CAN communication (which is how they must communicate with the actuators), so you will also need to get the PiCAN3 board, which fits on a Raspberry Pi and enables CAN.
 
 **Order:**
-- Raspberry Pi (we have validated up to RasPi 3b)
-- PiCAN3 CAN bus board
-- RasPi power cable (see note below)
+- Raspberry Pi (Tested on models 3B/B+ and 4B/B+)
+- PiCAN3 CAN hat
+- Raspberry Pi power cable (see note below)
 
 :::{important} 
-Raspberry Pi 1, 2, and 3 are powered by a micro-USB connection.  Raspberry Pi 4, which we have not yet tried with Epically Powerful as noted above, is powered by a USB-C connection.  We have included recommendations for both in the ordering sheet, so please be sure to order the one that is compatible with your chosen RasPi device.
+Raspberry Pi 1, 2, and 3 are powered by a micro-USB connection.  Raspberry Pi 4 is powered by a USB-C connection.  We have included recommendations for both in the ordering sheet, so please be sure to order the one that is compatible with your chosen Raspberry Pi device.
 :::
 
 ### *Choice 2: Nvidia Jetson Orin Nano*
@@ -39,7 +39,7 @@ We recommend ordering two batteries per device so that the batteries can be conf
 
 ### *Choice 1: Drill Battery*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
-You can use 24-Volt batteries that are typically used for power drills.  We recommend this option because drill batteries are comparably low-maintenance, easily accessible, and durable. Their main con is that they may be a bit more bulky and heavy than lipo batteries.  For devices where 1) power consumption/RMS torque is low, 2) you are able to switch batteries often, and/or 3) you do not need to operate for long time periods, we recommend the 2Ah battery which will be smaller and lighter weight.  Otherwise, we recommend the 4Ah battery option.
+You can use 24-Volt batteries that are typically used for power drills. We recommend this option because drill batteries are comparably low-maintenance, easily accessible, and durable. Their main con is that they may be a bit more bulky and heavy than lipo batteries. For devices where 1) power consumption/RMS torque is low, 2) you are able to switch batteries often, and/or 3) you do not need to operate for long time periods, we recommend the 2Ah battery which will be smaller and lighter weight. Otherwise, we recommend the 4Ah battery option.
 :::{note}
 
 | Item              	|Notes |
@@ -152,10 +152,10 @@ T-Motor has a variety of AK-Series actuators available.  We recommend specifical
 - XT30 connectors
 
 ### *Choice 2: CyberGear MicroMotor*
-The Cybergear Micromotor is a single actuator that is unique due to it's low weight and affordability.
+The Cybergear Micromotor is a single actuator that is unique due to it's low weight and relative affordability.
 
 **Order:**
-- Actuator(s) [AliExpress Link](https://www.aliexpress.us/item/3256808812951670.html?spm=a2g0o.detail.pcDetailTopMoreOtherSeller.1.73f4fR9zfR9z0n&gps-id=pcDetailTopMoreOtherSeller&scm=1007.40050.354490.0&scm_id=1007.40050.354490.0&scm-url=1007.40050.354490.0&pvid=f84137df-6f73-4ef1-bef1-ba7027f6ccef&_t=gps-id:pcDetailTopMoreOtherSeller,scm-url:1007.40050.354490.0,pvid:f84137df-6f73-4ef1-bef1-ba7027f6ccef,tpp_buckets:668%232846%238108%231977&isseo=y&pdp_ext_f=%7B%22order%22%3A%222%22%2C%22eval%22%3A%221%22%2C%22sceneId%22%3A%2230050%22%7D&pdp_npi=4%40dis%21USD%21182.17%21176.71%21%21%211306.82%211267.62%21%402103209b17478429518991337edbd4%2112000047517314407%21rec%21US%21%21ABX&utparam-url=scene%3ApcDetailTopMoreOtherSeller%7Cquery_from%3A)
+- Actuator(s) (Can typically be found on AliExpress)
 - XT30 2+2 connectors [AliExpress Link](https://www.aliexpress.us/item/3256803525553337.html?gatewayAdapt=glo2usa4itemAdapt)
 
 ### *Choice 3: RobStride Actuators*

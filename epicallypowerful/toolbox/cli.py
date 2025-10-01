@@ -9,14 +9,17 @@ def rpi_or_jetson():
         return "rpi"
 
 
-def collect_imu_data():
+def _build_collect_imu_parser():
     parser = argparse.ArgumentParser(description="Collect IMU data", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--imu-serial-id", '-id', nargs='+', required=True, type=str, help="IMU serial ID multiple can be specified")
     parser.add_argument("--output", '-o', default="output.csv", help="Output file")
     parser.add_argument("--duration", '-d', default=30, type=int, help="Duration in seconds")
     parser.add_argument("--channels", '-c', choices=["acc", "gyro", "mag", "orient", "euler"], type=str, nargs="+", default=["acc", "gyro"], help="Types of data to collect")
     parser.add_argument("--remote-sync-channel", '-r', type=int, action="append", help="GPIO pins to use for remote sync channels. Use this argument multiple times to specify multiple channels")
+    return parser
 
+def collect_imu_data():
+    parser = _build_collect_imu_parser()
     args = parser.parse_args()
     print(args.output)
     print(args.imu_serial_id) # This is a list

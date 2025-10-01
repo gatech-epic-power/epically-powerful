@@ -21,7 +21,8 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_design',
     'sphinx_copybutton',
-    'sphinx.ext.todo'
+    'sphinx.ext.todo',
+    'sphinxarg.ext'
 ]
 
 # Options for connecting other Sphinx projects
