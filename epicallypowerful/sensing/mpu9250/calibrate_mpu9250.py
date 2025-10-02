@@ -104,7 +104,8 @@ def calibrate_accelerometer(
 
 
     if verbose:
-        print(f"Calibration complete! acc_offset_coeffs: ({acc_offset_coeffs[0]:0.2f}, {acc_offset_coeffs[1]:0.2f}, {acc_offset_coeffs[2]:0.2f})")
+        # print(f"acc_offset_coeffs: {[acc:0.2f for acc in acc_offset_coeffs[0]]}")
+        print(f"Calibration complete! acc_offset_coeffs: ({acc_offset_coeffs[0]}, {acc_offset_coeffs[1]}, {acc_offset_coeffs[2]})")
 
     return acc_offset_coeffs
 
@@ -144,6 +145,12 @@ def calibrate_magnetometer(
     time_to_calibrate: float=2.5,
     verbose: bool=False,
 ) -> tuple[float]:
+    """.
+
+
+    Returns:
+        mag_coeffs (array): 1 x 3 array 
+    """
     raise NotImplementedError("This function has not been tested due to Linux kernel issues with the AK8693 I2C device on the MPU9250 IMU (https://forums.raspberrypi.com/viewtopic.php?t=388295). This issue may be resolved in a future Linux release, at which point this code will be made functional again.")
     
     mag_coeffs = []
@@ -174,7 +181,12 @@ def calibrate_magnetometer(
             )
             offset_pair.append((np.nanmax(off_axis_data[:, i]) + np.nanmin(off_axis_data[:, i]))/2.0)
 
-        mag_coeffs.append([offset_pair])
+        axis_offsets[a] = offset_pair
+    
+    # (x, y, z) = [[y, z], [x, z], [x, y]]
+    mag_coeffs[0] = (axis_offsets[1][0] + axis_offsets[2][0])/2 # x
+    mag_coeffs[1] = (axis_offsets[0][0] + axis_offsets[2][1])/2 # y
+    mag_coeffs[2] = (axis_offsets[0][1] + axis_offsets[1][1])/2 # z
 
     if verbose:
         print(f"Magnetometer calibration complete! mag_coeffs: ({mag_coeffs[0]}, {mag_coeffs[1]}, {mag_coeffs[2]})")
@@ -240,7 +252,7 @@ if __name__ == "__main__":
     # Set up dictionary for IMU currently being calibrated
     # TODO: decide whether to add functionality for calibrating multiple IMUs in sequence
     imu_id = {
-        f"{bus}_{channel}_{address}":
+        0:
             {
                 'bus': bus,
                 'channel': channel,
@@ -258,12 +270,18 @@ if __name__ == "__main__":
         with open(calibration_filename, "r") as f:
             calibration_dict = json.load(f)
     else:
-        calibration_dict = imu_id
+        calibration_dict = {f"{bus}_{channel}_{address}": {}}
+
+        for component in imu_id[0].keys():
+            calibration_dict[f"{bus}_{channel}_{address}"][component] = imu_id[0][component]
+    
+    # TROUBLESHOOTING
+    # print(f"calibration_dict: \n{calibration_dict}")
 
     # Create instance of MPU9250 IMUs object to initialize connected IMU
     mpu9250_imus = MPU9250IMUs(
         imu_ids=imu_id,
-        components=['acc', 'gyro'],
+        components=args.components,
         verbose=True,
     )
 
@@ -275,8 +293,7 @@ if __name__ == "__main__":
         # Get user confirmation on whether to overwrite existing calibration (if one already exists)
         for idx in calibration_dict.keys():
             # Check all IMUs in dict to see whether they are connected in 
-            # the configuration to be the IMU currently bein calibrated
-            
+            # the configuration to be the IMU currently being calibrated
             if calibration_dict[idx]['bus'] == bus and calibration_dict[idx]['channel'] == channel and calibration_dict[idx]['address'] == address:
 
                 if len(calibration_dict[idx][component]) > 0:
@@ -303,7 +320,7 @@ if __name__ == "__main__":
             imu_id[0]['acc'] = calibrate_accelerometer(
                 imu_handler=mpu9250_imus,
                 loop_timer=LoopTimer(operating_rate=args.rate, verbose=False),
-                time_to_calibrate=2.5,
+                time_to_calibrate=0.5,
                 verbose=True,
             )
 

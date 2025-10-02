@@ -91,7 +91,6 @@ class MPU9250IMUs:
             from epicpower.sensing import MPU9250IMUs
 
             [FINISH]
-
     """
 
     def __init__(
@@ -113,6 +112,15 @@ class MPU9250IMUs:
         self.imus = {}
         self.prev_channel = -1
         self.bus = {}
+
+        # Look for existing calibrations for IMUs
+        calibration_filename = f"mpu9250_calibrations.json"
+        
+        if os.path.isfile(calibration_filename):
+            with open(calibration_filename, "r") as f:
+                calibration_dict = json.load(f)
+        else:
+            calibration_dict = {}
 
         # Initialize all MPU9250 units
         for imu_id in self.imu_ids.keys():
@@ -331,7 +339,8 @@ class MPU9250IMUs:
         bus = self.bus[self.imu_ids[imu_id]['bus']]
         channel = self.imu_ids[imu_id]['channel']
         address = self.imu_ids[imu_id]['address']
-
+        cal_id = f"{bus}_{channel}_{address}"
+        
         # If using multiplexer, switch to proper channel
         if channel in range(0,8):
             if channel is not self.prev_channel:
@@ -358,11 +367,33 @@ class MPU9250IMUs:
                 address=address,
             )
 
+            # If calibrations exist for current IMU, apply them
+            if cal_id in calibration_dict.keys():
+                # Calibrate accelerometer readings using a linear fit
+                if len(calibration_dict[cal_id]["acc"]) > 0:
+                    m_x = calibration_dict[cal_id]["acc"][0][0]
+                    b_x = calibration_dict[cal_id]["acc"][0][1]
+                    imu_data.accx = m_x * (imu_data.accx) + b_x
+
+                    m_y = calibration_dict[cal_id]["acc"][1][0]
+                    b_y = calibration_dict[cal_id]["acc"][1][1]
+                    imu_data.accy = m_y * (imu_data.accy) + b_y
+
+                    m_z = calibration_dict[cal_id]["acc"][2][0]
+                    b_z = calibration_dict[cal_id]["acc"][2][1]
+                    imu_data.accz = m_z * (imu_data.accz) + b_z
+
+                # Calibrate gyroscope by subtracting an offset from each axis
+                if len(calibration_dict[cal_id]["gyro"]) > 0:
+                    imu_data.gyrox = imu_data.gyrox - calibration_dict[cal_id]["gyro"][0]
+                    imu_data.gyroy = imu_data.gyroy - calibration_dict[cal_id]["gyro"][1]
+                    imu_data.gyroz = imu_data.gyroz - calibration_dict[cal_id]["gyro"][2]
+
         # Get magnetometer data
         if any([c for c in self.components if 'mag' in c]):
             (imu_data.magx,
             imu_data.magy,
-            imu_data.magz
+            imu_data.magz,
             ) = self.get_AK8963_data(
                 bus=bus,
                 mag_coeffs=[
@@ -371,6 +402,12 @@ class MPU9250IMUs:
                     self.startup_config_vals['mag_coeffz'],
                 ],
             )
+
+            # Calibrate gyroscope by subtracting an offset from each axis
+            if len(calibration_dict[cal_id]["mag"]) > 0:
+                imu_data.gyrox = imu_data.magx - calibration_dict[cal_id]["mag"][0]
+                imu_data.gyroy = imu_data.magy - calibration_dict[cal_id]["mag"][1]
+                imu_data.gyroz = imu_data.magz - calibration_dict[cal_id]["mag"][2]
 
         # Update IMU data class dictionary
         self.imus[imu_id] = imu_data
