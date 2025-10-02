@@ -7,12 +7,12 @@
 part_picker/*
 ``` -->
 
-## Computer
-The computer will act as the 'brain' for the device.  The computer will run a linux OS and is where you will write and run your controllers.
+## Microcomputer
+The microcomputer will act as the 'brain' for the device.  The microcomputer will run a linux OS and is where you will write and run your controllers.
 
 ### *Choice 1: Raspberry Pi*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
-A Raspverry Pi is the most affordable of the two options.  Raspberry Pi's don't have native CAN communication (which is how they must communicate with the actuators), so you will also need to get the PiCAN3 board, which fits on a Raspberry Pi and enables CAN.
+A Raspberry Pi is the most affordable of the two options.  Raspberry Pi's don't have native CAN communication (which is how they must communicate with the actuators), so you will also need to get the PiCAN3 board, which fits on a Raspberry Pi and enables CAN.
 
 **Order:**
 - Raspberry Pi (Tested on models 3B/B+ and 4B/B+)
