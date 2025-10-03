@@ -7,6 +7,7 @@ and reading from MPU9250 IMUs.
 import os
 import sys
 import time
+import json
 from typing import Dict
 import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
 from epicallypowerful.toolbox import LoopTimer
@@ -98,6 +99,7 @@ class MPU9250IMUs:
         imu_ids: dict[int, dict[int, str, hex]],
         components=['acc','gyro'],
         sample_rate=200, # [Hz]
+        calibration_path='',
         verbose: bool=False,
     ) -> None:
         if imu_ids is None:
@@ -114,13 +116,25 @@ class MPU9250IMUs:
         self.bus = {}
 
         # Look for existing calibrations for IMUs
-        calibration_filename = f"mpu9250_calibrations.json"
-        
-        if os.path.isfile(calibration_filename):
-            with open(calibration_filename, "r") as f:
-                calibration_dict = json.load(f)
+        if len(calibration_path) > 0:
+            print(f"Looking for calibration at: {calibration_path}")
+            
+            if os.path.isfile(calibration_path):                
+                with open(calibration_path, "r") as f:
+                    self.calibration_dict = json.load(f)
+
+                if self.verbose:
+                    print(f"Found calibration file!")
+            else:
+                self.calibration_dict = {}
+                
+                if self.verbose:
+                    print("No calibration file found! Proceeding with raw values...")
         else:
-            calibration_dict = {}
+            self.calibration_dict = {}
+
+            if self.verbose:
+                print(f"No calibration path provided. Proceeding with raw values...")
 
         # Initialize all MPU9250 units
         for imu_id in self.imu_ids.keys():
@@ -197,6 +211,10 @@ class MPU9250IMUs:
             startup_config_vals['mag_coeffz'],
             ) = self._set_up_AK8963(bus=bus)
 
+        # TROUBLESHOOTING
+        if self.verbose:
+            print(f"startup_config_vals: {startup_config_vals}\n")
+
         return startup_config_vals
     
 
@@ -205,8 +223,8 @@ class MPU9250IMUs:
         bus: smbus.SMBus=smbus.SMBus(),
         address=MPU6050_ADDR,
         sample_rate_divisor=0,
-        accel_idx=0,
-        gyro_idx=0,
+        accel_idx=1,
+        gyro_idx=2,
         sleep_time=SLEEP_TIME,
     ) -> tuple[float]:
         """Set up MPU6050 integrated accelerometer and gyroscope on MPU9250.
@@ -257,14 +275,14 @@ class MPU9250IMUs:
         time.sleep(sleep_time)
 
         # Write to accel configuration register
-        accel_config_sel = [0b00000,0b01000,0b10000,0b11000] # byte registers
-        accel_config_vals = [2.0,4.0,8.0,16.0] # +/- val. range [g] (1 g = 9.81 m*s^-2)
+        accel_config_sel = [0b00000, 0b01000, 0b10000, 0b11000] # byte registers
+        accel_config_vals = [2.0, 4.0, 8.0, 16.0] # +/- val. range [g] (1 g = 9.81 m*s^-2)
         bus.write_byte_data(address, ACCEL_CONFIG, int(accel_config_sel[accel_idx]))
         time.sleep(sleep_time)
 
         # Write to gyro configuration register
-        gyro_config_sel = [0b00000,0b01000,0b10000,0b11000] # byte registers
-        gyro_config_vals = [250.0,500.0,1000.0,2000.0] # +/- val. range [deg/s]
+        gyro_config_sel = [0b00000, 0b01000, 0b10000, 0b11000] # byte registers
+        gyro_config_vals = [250.0, 500.0, 1000.0, 2000.0] # +/- val. range [deg/s]
         bus.write_byte_data(address, GYRO_CONFIG, int(gyro_config_sel[gyro_idx]))
         time.sleep(sleep_time)
         
@@ -339,7 +357,7 @@ class MPU9250IMUs:
         bus = self.bus[self.imu_ids[imu_id]['bus']]
         channel = self.imu_ids[imu_id]['channel']
         address = self.imu_ids[imu_id]['address']
-        cal_id = f"{bus}_{channel}_{address}"
+        cal_id = f"{self.imu_ids[imu_id]['bus']}_{channel}_{address}"
         
         # If using multiplexer, switch to proper channel
         if channel in range(0,8):
@@ -368,26 +386,32 @@ class MPU9250IMUs:
             )
 
             # If calibrations exist for current IMU, apply them
-            if cal_id in calibration_dict.keys():
+            if cal_id in self.calibration_dict.keys():
                 # Calibrate accelerometer readings using a linear fit
-                if len(calibration_dict[cal_id]["acc"]) > 0:
-                    m_x = calibration_dict[cal_id]["acc"][0][0]
-                    b_x = calibration_dict[cal_id]["acc"][0][1]
+                if len(self.calibration_dict[cal_id]["acc"]) > 0:
+                    m_x = self.calibration_dict[cal_id]["acc"][0][0] # slope
+                    b_x = self.calibration_dict[cal_id]["acc"][0][1] # offset
                     imu_data.accx = m_x * (imu_data.accx) + b_x
 
-                    m_y = calibration_dict[cal_id]["acc"][1][0]
-                    b_y = calibration_dict[cal_id]["acc"][1][1]
+                    m_y = self.calibration_dict[cal_id]["acc"][1][0] # slope
+                    b_y = self.calibration_dict[cal_id]["acc"][1][1] # offset
                     imu_data.accy = m_y * (imu_data.accy) + b_y
 
-                    m_z = calibration_dict[cal_id]["acc"][2][0]
-                    b_z = calibration_dict[cal_id]["acc"][2][1]
+                    m_z = self.calibration_dict[cal_id]["acc"][2][0] # slope
+                    b_z = self.calibration_dict[cal_id]["acc"][2][1] # offset
                     imu_data.accz = m_z * (imu_data.accz) + b_z
 
+                    # TROUBLESHOOTING
+                    # print(f"cal_dict acc.: {self.calibration_dict[cal_id]['acc']}")
+
                 # Calibrate gyroscope by subtracting an offset from each axis
-                if len(calibration_dict[cal_id]["gyro"]) > 0:
-                    imu_data.gyrox = imu_data.gyrox - calibration_dict[cal_id]["gyro"][0]
-                    imu_data.gyroy = imu_data.gyroy - calibration_dict[cal_id]["gyro"][1]
-                    imu_data.gyroz = imu_data.gyroz - calibration_dict[cal_id]["gyro"][2]
+                if len(self.calibration_dict[cal_id]["gyro"]) > 0:
+                    imu_data.gyrox = imu_data.gyrox - self.calibration_dict[cal_id]["gyro"][0]
+                    imu_data.gyroy = imu_data.gyroy - self.calibration_dict[cal_id]["gyro"][1]
+                    imu_data.gyroz = imu_data.gyroz - self.calibration_dict[cal_id]["gyro"][2]
+
+                    # TROUBLESHOOTING
+                    # print(f"cal_dict gyro.: {self.calibration_dict[cal_id]['gyro']}")
 
         # Get magnetometer data
         if any([c for c in self.components if 'mag' in c]):
@@ -403,13 +427,16 @@ class MPU9250IMUs:
                 ],
             )
 
-            # Calibrate gyroscope by subtracting an offset from each axis
-            if len(calibration_dict[cal_id]["mag"]) > 0:
-                imu_data.gyrox = imu_data.magx - calibration_dict[cal_id]["mag"][0]
-                imu_data.gyroy = imu_data.magy - calibration_dict[cal_id]["mag"][1]
-                imu_data.gyroz = imu_data.magz - calibration_dict[cal_id]["mag"][2]
+            # If calibrations exist for current IMU, apply them
+            if cal_id in self.calibration_dict.keys():
+                # Calibrate gyroscope by subtracting an offset from each axis
+                if len(self.calibration_dict[cal_id]["mag"]) > 0:
+                    imu_data.magx = imu_data.magx - self.calibration_dict[cal_id]["mag"][0]
+                    imu_data.magy = imu_data.magy - self.calibration_dict[cal_id]["mag"][1]
+                    imu_data.magz = imu_data.magz - self.calibration_dict[cal_id]["mag"][2]
 
         # Update IMU data class dictionary
+        imu_data.timestamp = time.perf_counter()
         self.imus[imu_id] = imu_data
 
         return imu_data
@@ -443,23 +470,23 @@ class MPU9250IMUs:
         )
 
         # Convert from bytes to ints
-        raw_acc_x = self._convert_raw_data(data[1], data[0]) # 0:6
-        raw_acc_y = self._convert_raw_data(data[3], data[2])
-        raw_acc_z = self._convert_raw_data(data[5], data[4])
-        raw_temp = self._convert_raw_data(data[7], data[6]) # 6:8
-        raw_gyro_x = self._convert_raw_data(data[9], data[8]) # 8:14
-        raw_gyro_y = self._convert_raw_data(data[11], data[10])
-        raw_gyro_z = self._convert_raw_data(data[13], data[12])
+        raw_acc_x = self._convert_raw_data(data[0], data[1])
+        raw_acc_y = self._convert_raw_data(data[2], data[3])
+        raw_acc_z = self._convert_raw_data(data[4], data[5])
+        raw_temp = self._convert_raw_data(data[6], data[7])
+        raw_gyro_x = self._convert_raw_data(data[8], data[9])
+        raw_gyro_y = self._convert_raw_data(data[10], data[11])
+        raw_gyro_z = self._convert_raw_data(data[12], data[13])
 
         # Convert from bits to g's (accel.), deg/s (gyro), and  then 
         # from those base units to m*s^-2 and rad/s respectively
         acc_x = (raw_acc_x / (2.0**15.0)) * accel_range * GRAV_ACC
         acc_y = (raw_acc_y / (2.0**15.0)) * accel_range * GRAV_ACC
         acc_z = (raw_acc_z / (2.0**15.0)) * accel_range * GRAV_ACC
-        temp = (raw_temp / 333.87 + 21.0) # TODO: CHECK THIS
         gyro_x = (raw_gyro_x / (2.0**15.0)) * gyro_range * DEG2RAD
         gyro_y = (raw_gyro_y / (2.0**15.0)) * gyro_range * DEG2RAD
         gyro_z = (raw_gyro_z / (2.0**15.0)) * gyro_range * DEG2RAD
+        temp = (raw_temp / 333.87 + 21.0) # TODO: CHECK THIS
 
         return (acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z, temp)
 
@@ -494,14 +521,14 @@ class MPU9250IMUs:
             )
 
             # The next line is needed for AK8963
-            if (bus.read_byte_data(address,AK8963_ST2)) & 0x08!=0x08:
+            if (bus.read_byte_data(address, AK8963_ST2)) & 0x08!=0x08:
                 break
 
             num_tries += 1
 
-        raw_mag_x = self._convert_raw_data(data[0],data[1])
-        raw_mag_y = self._convert_raw_data(data[2],data[3])
-        raw_mag_z = self._convert_raw_data(data[4],data[5])
+        raw_mag_x = self._convert_raw_data(data[0], data[1])
+        raw_mag_y = self._convert_raw_data(data[2], data[3])
+        raw_mag_z = self._convert_raw_data(data[4], data[5])
 
         # Convert from bits to uT
         mag_x = (raw_mag_x/(2.0**15.0)) * mag_coeffs[0]
@@ -517,6 +544,8 @@ class MPU9250IMUs:
         address: hex,
         register: hex,
     ) -> int:
+        raise NotImplementedError
+
         """Method of reading raw data from different subcircuits 
         on the MPU9250 board.
 
@@ -652,6 +681,6 @@ if __name__ == "__main__":
             # Get data
             for imu_id in imu_ids.keys():
                 imu_data = mpu9250_imus.get_data(imu_id=imu_id)
-                # print(f"{imu_id}: acc_x: {imu_data.accx:0.2f}, acc_y: {imu_data.accy:0.2f}, acc_z: {imu_data.accz:0.2f}, gyro_x: {imu_data.gyrox:0.2f}, gyro_y: {imu_data.gyroy:0.2f}, gyro_z: {imu_data.gyroz:0.2f}")
+                print(f"{imu_id}: acc_x: {imu_data.accx:0.2f}, acc_y: {imu_data.accy:0.2f}, acc_z: {imu_data.accz:0.2f}, gyro_x: {imu_data.gyrox:0.2f}, gyro_y: {imu_data.gyroy:0.2f}, gyro_z: {imu_data.gyroz:0.2f}")
 
     mpu9250_imus.exit_gracefully()

@@ -93,9 +93,9 @@ def calibrate_accelerometer(
             f=get_linear_output,
             xdata=np.array(axis_offsets).flatten(),
             ydata=np.concatenate([
-                np.ones(np.shape(axis_offsets[0])),  # +1 g
-                -np.ones(np.shape(axis_offsets[1])), # -1 g
-                np.zeros(np.shape(axis_offsets[2])), # 0 g
+                np.ones(np.shape(axis_offsets[0])) * G,  # +9.81 m*s^-2
+                -np.ones(np.shape(axis_offsets[1])) * G, # -9.81 m*s^-2
+                np.zeros(np.shape(axis_offsets[2])) * G, # 0 g
             ]),
             maxfev=10000,
         )
@@ -282,6 +282,7 @@ if __name__ == "__main__":
     mpu9250_imus = MPU9250IMUs(
         imu_ids=imu_id,
         components=args.components,
+        use_calibration=False, # When generating a new calibration, don't rely on old one
         verbose=True,
     )
 
@@ -320,7 +321,7 @@ if __name__ == "__main__":
             imu_id[0]['acc'] = calibrate_accelerometer(
                 imu_handler=mpu9250_imus,
                 loop_timer=LoopTimer(operating_rate=args.rate, verbose=False),
-                time_to_calibrate=0.5,
+                time_to_calibrate=2.5,
                 verbose=True,
             )
 
