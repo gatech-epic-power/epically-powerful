@@ -52,8 +52,18 @@ AK8963_CNTL  = 0x0A
 AK8963_ASAX  = 0x10
 
 # Set constants
-MAG_SENS = 4800.0 # magnetometer sensitivity: 4800 uT
-SLEEP_TIME = 0.1 # [s]
+MAG_SENS        = 4800.0 # magnetometer sensitivity: 4800 uT
+MAG_RATE_8HZ    = 0b0010 # magnetometer sampling rate at 8 Hz
+MAG_RATE_100HZ  = 0b0110 # magnetometer sampling rate at 100 Hz
+ACC_RANGE_2G    = 0 # Set MPU6050 accelerometer resolution to +/- 2 g's
+ACC_RANGE_4G    = 1 # Set MPU6050 accelerometer resolution to +/- 4 g's
+ACC_RANGE_8G    = 2 # Set MPU6050 accelerometer resolution to +/- 8 g's
+ACC_RANGE_16G   = 3 # Set MPU6050 accelerometer resolution to +/- 16 g's
+GYRO_RANGE_250_DEG_PER_S  = 0 # Set MPU6050 gyroscope resolution to +/- 250.0 deg/s
+GYRO_RANGE_500_DEG_PER_S  = 1 # Set MPU6050 gyroscope resolution to +/- 500.0 deg/s
+GYRO_RANGE_1000_DEG_PER_S = 2 # Set MPU6050 gyroscope resolution to +/- 1000.0 deg/s
+GYRO_RANGE_2000_DEG_PER_S = 3 # Set MPU6050 gyroscope resolution to +/- 1000.0 deg/s
+SLEEP_TIME   = 0.1 # [s]
 
 # Set PCA9548A (variant of TCA9548A) multiplexer register, channels and actions
 MULTIPLEXER_ADDR = 0x70
@@ -68,11 +78,12 @@ MULTIPLEXER_ACTIONS = {
     7: 0x80,
 }
 
+
 class MPU9250IMUs:
     """Class for interfacing with the MPU9250 IMU using I2C communication, leveraging the TCA9548A multiplexer for communicating with multiple units at the same time.
 
     This class draws from the following resources:
-        - work of Joshua Hrisko's GitHub repository for single IMU communication
+        - https://github.com/makerportal/mpu92-calibration
         - [LINK TO RESOURCE FOR TCA9548A INTEGRATION WITH MPU9250 UNITS]
         - [TDKINVENSENSE MPU9250 DATASHEET]
         - [PCA9548A DATASHEET]
@@ -82,23 +93,54 @@ class MPU9250IMUs:
     Example (single sensor):
         .. code-block:: python
 
-            from epicpower.sensing import MPU9250IMUs
+            from epicallypowerful.sensing import MPU9250IMUs
 
-            [FINISH]
+            ### Instantiation ---
+            imu_ids = {
+                0: {
+                    'bus': 1,
+                    'channel': -1, # -1 --> no multiplexer, otherwise --> multiplexer channel
+                    'address': 0x68,
+                },
+                1: {
+                    'bus': 1,
+                    'channel': -1,
+                    'address': 0x69,
+                },
+            }
 
-    Example (multiple sensors with I2C multiplexer):
-        .. code-block:: python
+            imus = MPU9250IMUs(
+                imu_ids=imu_ids,
+                components=['acc', 'gyro'],
+            )
 
-            from epicpower.sensing import MPU9250IMUs
+            ### Stream data ---
+            print(imus.get_data(imu_id=0).accx)
+            print(imus.get_data(imu_id=1).accx)
 
-            [FINISH]
+    Args:
+        imu_ids (dict): dictionary of each IMU and the I2C bus number, multiplexer channel (if used), and I2C address needed to access it.
+        components (list of strings): list of MPU9250 sensing components to get. Could include `acc`, `gyro`, or `mag`. For example, `components = ['acc','gyro','mag']` would call on both the MPU9250's MPU6050 and AK8963 boards, but `components = ['acc','gyro']` would only instantiate the MPU6050.
+        acc_range_selector (int): index for range of accelerations to collect. Default: 2 (+/- 8 g), but can be:
+            0: +/- 2.0 g's
+            1: +/- 4.0 g's
+            2: +/- 8.0 g's
+            3: +/- 16.0 g's
+        gyro_range_selector (int): index for range of angular velocities to collect. Default: 2 (+/- 1000.0 deg/s), but can be:
+            0: +/- 250.0 deg/s
+            1: +/- 500.0 deg/s
+            2: +/- 1000.0 deg/s
+            3: +/- 2000.0 deg/s
+        calibration_path (str): path to JSON file with calibration values for IMUs to be connected. NOTE: this file indexes IMUs by which bus, multiplexer channel (if used), and I2C address they are connected to. Be careful not to use the calibration for one IMU connected in this way on another unit by mistake.
+        verbose (bool): whether to print verbose output from IMU operation. Default: False.
     """
 
     def __init__(
         self,
         imu_ids: dict[int, dict[int, str, hex]],
         components=['acc','gyro'],
-        sample_rate=200, # [Hz]
+        acc_range_selector=ACC_RANGE_8G,
+        gyro_range_selector=GYRO_RANGE_1000_DEG_PER_S,
         calibration_path='',
         verbose: bool=False,
     ) -> None:
@@ -110,14 +152,17 @@ class MPU9250IMUs:
         # Initialize all IMU-specific class attributes
         self.imu_ids = imu_ids
         self.components = components
+        self.acc_range_selector = acc_range_selector
+        self.gyro_range_selector = gyro_range_selector
         self.verbose = verbose
-        self.imus = {}
-        self.prev_channel = -1
         self.bus = {}
+        self.calibration_dict = {}
+        self.prev_channel = -1
 
         # Look for existing calibrations for IMUs
         if len(calibration_path) > 0:
-            print(f"Looking for calibration at: {calibration_path}")
+            if self.verbose:
+                print(f"Looking for calibration at: {calibration_path}")
             
             if os.path.isfile(calibration_path):                
                 with open(calibration_path, "r") as f:
@@ -125,23 +170,36 @@ class MPU9250IMUs:
 
                 if self.verbose:
                     print(f"Found calibration file!")
-            else:
-                self.calibration_dict = {}
-                
+            else:        
                 if self.verbose:
-                    print("No calibration file found! Proceeding with raw values...")
+                    print("No calibration file found. Proceeding with raw values...")
         else:
-            self.calibration_dict = {}
-
             if self.verbose:
                 print(f"No calibration path provided. Proceeding with raw values...")
 
         # Initialize all MPU9250 units
-        for imu_id in self.imu_ids.keys():
+        self.imus, self.startup_config_vals = self._set_up_connected_imus(imu_ids=self.imu_ids)
+
+
+    def _set_up_connected_imus(
+        self,
+        imu_ids: dict[int, dict[int, int, hex]],
+    ) -> tuple[list[float]]:
+        """Initialize all IMUs from dictionary of IMU IDs, buses, channels, and addresses. Here you specify which IMU components to start, as well as their corresponding sensing resolution.
+
+        Args:
+            imu_ids (dict): dictionary of each IMU and the I2C bus number, multiplexer channel (if used), and I2C address needed to access it.
+
+        Returns:
+            startup_config_vals (dict of floats): MPU9250 sensor configuration values: acc_range, gyro_range, mag_coeffx, mag_coeffy, mag_coeffz.
+        """
+        imus = {}
+
+        for imu_id in imu_ids.keys():
             # Get all relevant components to communicate with IMU
-            bus_id = self.imu_ids[imu_id]['bus']
-            channel = self.imu_ids[imu_id]['channel']
-            address = self.imu_ids[imu_id]['address']
+            bus_id = imu_ids[imu_id]['bus'] 
+            channel = imu_ids[imu_id]['channel']
+            address = imu_ids[imu_id]['address']
 
             # Initialize I2C bus if it hasn't been initialized yet
             if bus_id not in self.bus.keys():
@@ -159,72 +217,41 @@ class MPU9250IMUs:
                     )
                     self.prev_channel = channel
 
-            # self._check_connected_imu(device_address=idx) # TODO: implement
-            self.startup_config_vals = self._set_up_connected_imu(
-                bus=self.bus[bus_id],
-                device_address=address,
-                components=self.components,
-            )
+            startup_config_vals = {}
 
-            self.imus[imu_id] = IMUData()
+            # Start accelerometer and gyro if configured to do so
+            if any([c for c in self.components if (('acc' in c) or ('gyro' in c))]):
+                (startup_config_vals[imu_id]['acc_range'],
+                startup_config_vals[imu_id]['gyro_range'],
+                ) = self._set_up_MPU6050(
+                        bus=bus,
+                        address=address,
+                        acc_range_idx=self.acc_range_selector,
+                        gyro_range_idx=self.gyro_range_selector,
+                )
+            
+            # Start magnetometer if configured to do so
+            if any([c for c in self.components if 'mag' in c]):
+                (startup_config_vals[imu_id]['mag_coeffx'],
+                startup_config_vals[imu_id]['mag_coeffy'],
+                startup_config_vals[imu_id]['mag_coeffz'],
+                ) = self._set_up_AK8963(bus=bus)
 
+            if self.verbose:
+                print(f"IMU {imu_id} startup_config_vals: {startup_config_vals[imu_id]}\n")
 
-    def _check_connected_imu(self, device_address: hex):
-        """Check if IMU address is visible through I2C."""
-        raise NotImplementedError
-
-
-    def _set_up_connected_imu(
-        self,
-        bus: smbus.SMBus,
-        device_address: hex,
-        components: list[str]
-    ) -> dict[float]:
-        """Get +/- ranges of acceleration and gyro, as well as 
-        magnetometer coefficients.
-
-        Args:
-            bus (smbus.SMBus): I2C bus instance on the device.
-            device_address (hex): address of the MPU9250 IMU.
-            components (list of strings): list of MPU9250 sensing components to get.
-                                            Could include `acc`, `gyro`, or `mag`. For 
-                                            example, `components = ['acc','gyro','mag']` 
-                                            would call on both MPU6050 and AK8963, but 
-                                            `components = ['acc','gyro']` would only 
-                                            instantiate the MPU6050.
-        Returns:
-            startup_config_vals (dict of floats): MPU9250 sensor configuration values:
-                                                accel_range, gyro_range, mag_coeffx, mag_coeffy, mag_coeffz.
-        """
-        startup_config_vals = {}
-
-        # Start accelerometer and gyro
-        if any([c for c in components if (('acc' in c) or ('gyro' in c))]):
-            (startup_config_vals['accel_range'],
-            startup_config_vals['gyro_range'],
-            ) = self._set_up_MPU6050(bus=bus, address=device_address)
+            imus[imu_id] = IMUData()
         
-        # Start magnetometer
-        if any([c for c in components if 'mag' in c]):
-            (startup_config_vals['mag_coeffx'],
-            startup_config_vals['mag_coeffy'],
-            startup_config_vals['mag_coeffz'],
-            ) = self._set_up_AK8963(bus=bus)
+        return imus, startup_config_vals
 
-        # TROUBLESHOOTING
-        if self.verbose:
-            print(f"startup_config_vals: {startup_config_vals}\n")
-
-        return startup_config_vals
-    
 
     def _set_up_MPU6050(
         self,
         bus: smbus.SMBus=smbus.SMBus(),
         address=MPU6050_ADDR,
+        acc_range_idx=ACC_RANGE_8G,
+        gyro_range_idx=GYRO_RANGE_1000_DEG_PER_S,
         sample_rate_divisor=0,
-        accel_idx=1,
-        gyro_idx=2,
         sleep_time=SLEEP_TIME,
     ) -> tuple[float]:
         """Set up MPU6050 integrated accelerometer and gyroscope on MPU9250.
@@ -232,29 +259,22 @@ class MPU9250IMUs:
         Args:
             bus (smbus.SMBus): I2C bus instance on the device.
             address (hex): address of the MPU6050 unit. Default set outside this function.
-            sample_rate_divisor (int): divisor term to lower possible sampling rate. 
-                                Equation: sampling_rate = 8 kHz/(1+sample_rate_divisor).
-                                Default: 0.
-            accel_idx (int): index for range of accelerations to collect. Used to 
-                            set in byte registers on startup. Default: 0 (+/- 2 g), 
-                            but can be:
-                            0: +/- 2.0 g's
-                            1: +/- 4.0 g's
-                            2: +/- 8.0 g's
-                            3: +/- 16.0 g's
-            gyro_idx (int): index for range of angular velocities to collect. Used to 
-                            set in byte registers on startup. Default: 0 (+/- 250.0 deg/s), 
-                            but can be:
-                            0: +/- 250.0 deg/s
-                            1: +/- 500.0 deg/s
-                            2: +/- 1000.0 deg/s
-                            3: +/- 2000.0 deg/s
-            sleep_time (float): time to sleep between sending and receiving signals. 
-                                Default: 0.1 seconds (defined outside this function).
+            acc_range_idx (int): index for range of accelerations to collect. Used to set in byte registers on startup. Default: 2 (+/- 8 g), but can be:
+                0: +/- 2.0 g's
+                1: +/- 4.0 g's
+                2: +/- 8.0 g's
+                3: +/- 16.0 g's
+            gyro_range_idx (int): index for range of angular velocities to collect. Used to set in byte registers on startup. Default: 2 (+/- 1000.0 deg/s), but can be:
+                0: +/- 250.0 deg/s
+                1: +/- 500.0 deg/s
+                2: +/- 1000.0 deg/s
+                3: +/- 2000.0 deg/s
+            sample_rate_divisor (int): divisor term to lower possible sampling rate. Equation: sampling_rate = 8 kHz/(1+sample_rate_divisor). Default: 0.
+            sleep_time (float): time to sleep between sending and receiving signals. Default: 0.1 seconds.
 
         Returns:
-            [accel_config_vals, gyro_config_vals] (list of floats): +/- range of values 
-                                                            collected for each sensor.
+            acc_config_vals (list of floats): +/- range of accelerometer values collected for each sensor.
+            gyro_config_vals (list of floats): +/- range of gyroscope values collected for each sensor.
         """
         # Reset all integrated sensors
         bus.write_byte_data(address, PWR_MGMT_1, 0x80)
@@ -266,7 +286,8 @@ class MPU9250IMUs:
         bus.write_byte_data(address, PWR_MGMT_1, 0x01)
         time.sleep(sleep_time)
 
-        # Set sample rate (stability) --> only do if you don't want to collect at default: 8 kHz
+        # Set sample rate (stability) --> only change 
+        # sample_rate_divisor if you don't want to collect at default (8 kHz)
         bus.write_byte_data(address, SMPLRT_DIV, sample_rate_divisor)
         time.sleep(sleep_time)
 
@@ -275,15 +296,15 @@ class MPU9250IMUs:
         time.sleep(sleep_time)
 
         # Write to accel configuration register
-        accel_config_sel = [0b00000, 0b01000, 0b10000, 0b11000] # byte registers
-        accel_config_vals = [2.0, 4.0, 8.0, 16.0] # +/- val. range [g] (1 g = 9.81 m*s^-2)
-        bus.write_byte_data(address, ACCEL_CONFIG, int(accel_config_sel[accel_idx]))
+        acc_config_sel = [0b00000, 0b01000, 0b10000, 0b11000] # byte registers
+        acc_config_vals = [2.0, 4.0, 8.0, 16.0] # +/- val. range [g] (1 g = 9.81 m*s^-2)
+        bus.write_byte_data(address, ACCEL_CONFIG, int(acc_config_sel[acc_range_idx]))
         time.sleep(sleep_time)
 
         # Write to gyro configuration register
         gyro_config_sel = [0b00000, 0b01000, 0b10000, 0b11000] # byte registers
         gyro_config_vals = [250.0, 500.0, 1000.0, 2000.0] # +/- val. range [deg/s]
-        bus.write_byte_data(address, GYRO_CONFIG, int(gyro_config_sel[gyro_idx]))
+        bus.write_byte_data(address, GYRO_CONFIG, int(gyro_config_sel[gyro_range_idx]))
         time.sleep(sleep_time)
         
         # Interrupt register (related to overflow of data [FIFO])
@@ -294,29 +315,24 @@ class MPU9250IMUs:
         bus.write_byte_data(address, INT_ENABLE, 1)
         time.sleep(sleep_time)
 
-        return accel_config_vals[accel_idx], gyro_config_vals[gyro_idx]
+        return acc_config_vals[acc_range_idx], gyro_config_vals[gyro_range_idx]
 
 
     def _set_up_AK8963(
         self,
         bus: smbus.SMBus=smbus.SMBus(),
-        bit_resolution=0b0001, # Select 16-bit res.
-        sample_rate=0b0110,    # Select 100 Hz sampling rate
+        rate_selector=MAG_RATE_100HZ,
         sleep_time=SLEEP_TIME,
     ) -> tuple:
         """Set up AK8963 integrated magnetometer on MPU9250.
 
         Args:
             bus (smbus.SMBus): I2C bus instance on the device.
-            bit_resolution (binary): bit resolution at which to sample data.
-                                    Default: 0b0001 (16-bit).
-            sample_rate (binary): rate at which to sample. Default: 0b0110 (100 Hz).
-                                    Could also do 0b0010 (8 Hz).
-            sleep_time (float): time to sleep between sending and receiving signals. 
-                                Default: 0.1 seconds (defined outside this function).
+            rate_selector (binary): rate at which to sample. Default: 0b0110 (100 Hz). Could also do 0b0010 (8 Hz).
+            sleep_time (float): time to sleep between sending and receiving signals. Default: 0.1 seconds.
 
         Returns:
-            [coeffx, coeffy, coeffz] (list of floats): coefficients for each DOF
+            [coeffx, coeffy, coeffz] (list of floats): coefficients for each DOF.
         """
         # Initialize magnetometer mode
         bus.write_byte_data(AK8963_ADDR,AK8963_CNTL, 0x00)
@@ -325,7 +341,7 @@ class MPU9250IMUs:
         time.sleep(sleep_time)
         
         # Read coefficient data from circuit address
-        coeff_data = bus.read_i2c_block_data(AK8963_ADDR,AK8963_ASAX, 3)
+        coeff_data = bus.read_i2c_block_data(AK8963_ADDR, AK8963_ASAX, 3)
         coeffx = (0.5 * (coeff_data[0] - 128)) / 256.0 + 1.0
         coeffy = (0.5 * (coeff_data[1] - 128)) / 256.0 + 1.0
         coeffz = (0.5 * (coeff_data[2] - 128)) / 256.0 + 1.0
@@ -336,7 +352,8 @@ class MPU9250IMUs:
         time.sleep(sleep_time)
 
         # Set magnetometer resolution and frequency of communication
-        AK8963_mode = (bit_resolution << 4) + sample_rate
+        bit_resolution = 0b0001 # specifies 16-bit precision
+        AK8963_mode = (bit_resolution << 4) + rate_selector
         bus.write_byte_data(AK8963_ADDR, AK8963_CNTL, AK8963_mode)
         time.sleep(sleep_time)
 
@@ -344,8 +361,7 @@ class MPU9250IMUs:
 
 
     def get_data(self, imu_id: int) -> IMUData:
-        """Get acceleration, gyroscope, and magnetometer 
-        data from MPU9250.
+        """Get acceleration, gyroscope, and magnetometer data from MPU9250.
 
         Args:
             imu_id (int): IMU number (index number from starting dict, not address).
@@ -380,7 +396,7 @@ class MPU9250IMUs:
             imu_data.temp,
             ) = self.get_MPU6050_data(
                 bus=bus,
-                accel_range=self.startup_config_vals['accel_range'],
+                acc_range=self.startup_config_vals['acc_range'],
                 gyro_range=self.startup_config_vals['gyro_range'],
                 address=address,
             )
@@ -401,17 +417,11 @@ class MPU9250IMUs:
                     b_z = self.calibration_dict[cal_id]["acc"][2][1] # offset
                     imu_data.accz = m_z * (imu_data.accz) + b_z
 
-                    # TROUBLESHOOTING
-                    # print(f"cal_dict acc.: {self.calibration_dict[cal_id]['acc']}")
-
                 # Calibrate gyroscope by subtracting an offset from each axis
                 if len(self.calibration_dict[cal_id]["gyro"]) > 0:
                     imu_data.gyrox = imu_data.gyrox - self.calibration_dict[cal_id]["gyro"][0]
                     imu_data.gyroy = imu_data.gyroy - self.calibration_dict[cal_id]["gyro"][1]
                     imu_data.gyroz = imu_data.gyroz - self.calibration_dict[cal_id]["gyro"][2]
-
-                    # TROUBLESHOOTING
-                    # print(f"cal_dict gyro.: {self.calibration_dict[cal_id]['gyro']}")
 
         # Get magnetometer data
         if any([c for c in self.components if 'mag' in c]):
@@ -445,7 +455,7 @@ class MPU9250IMUs:
     def get_MPU6050_data(
         self,
         bus: smbus.SMBus,
-        accel_range: float,
+        acc_range: float,
         gyro_range: float,
         address: hex=MPU6050_ADDR,
     ) -> tuple[float]:
@@ -453,11 +463,8 @@ class MPU9250IMUs:
 
         Args:
             bus (smbus.SMBus): I2C bus instance on the device.
-            accel_range (float): +/- range of acceleration being 
-                                read from MPU6050. Units are 
-                                g's (1 g = 9.81 m*s^-2).
-            gyro_range (float): +/- range of gyro being 
-                                read from MPU6050. Units are deg/s.
+            acc_range (float): +/- range of acceleration being read from MPU6050. Raw units are g's (1 g = 9.81 m*s^-2).
+            gyro_range (float): +/- range of gyro being read from MPU6050. Raw units are deg/s.
             address (hex): address of the MPU6050 subcircuit.
 
         Returns:
@@ -480,9 +487,9 @@ class MPU9250IMUs:
 
         # Convert from bits to g's (accel.), deg/s (gyro), and  then 
         # from those base units to m*s^-2 and rad/s respectively
-        acc_x = (raw_acc_x / (2.0**15.0)) * accel_range * GRAV_ACC
-        acc_y = (raw_acc_y / (2.0**15.0)) * accel_range * GRAV_ACC
-        acc_z = (raw_acc_z / (2.0**15.0)) * accel_range * GRAV_ACC
+        acc_x = (raw_acc_x / (2.0**15.0)) * acc_range * GRAV_ACC
+        acc_y = (raw_acc_y / (2.0**15.0)) * acc_range * GRAV_ACC
+        acc_z = (raw_acc_z / (2.0**15.0)) * acc_range * GRAV_ACC
         gyro_x = (raw_gyro_x / (2.0**15.0)) * gyro_range * DEG2RAD
         gyro_y = (raw_gyro_y / (2.0**15.0)) * gyro_range * DEG2RAD
         gyro_z = (raw_gyro_z / (2.0**15.0)) * gyro_range * DEG2RAD
@@ -501,10 +508,8 @@ class MPU9250IMUs:
 
         Args:
             bus (smbus.SMBus): I2C bus instance on the device.
-            address (hex): address of AK8963 sensor. Should always be default 
-                            AK8963_ADDR value (defined outside function).
-            mag_coeffs (list of floats): coefficients set from AK8963. Units are 
-                                micro-T (uT).
+            address (hex): address of AK8963 sensor. Should always be default AK8963_ADDR value (defined outside function).
+            mag_coeffs (list of floats): coefficients set from AK8963. Raw units are micro-T (uT).
 
         Returns:
             mag_x, mag_y, mag_z (floats): magnetometer values (in uT).
@@ -555,8 +560,7 @@ class MPU9250IMUs:
             register (hex): register from which to pull specific data.
 
         Returns:
-            value (int): raw value pulled from specific register and converted 
-                        to int.
+            value (int): raw value pulled from specific register and converted to int.
         """
         if address == MPU6050_ADDR or address == MPU6050_ADDR_AD0_HIGH:
             # Read accel and gyro values
@@ -593,8 +597,7 @@ class MPU9250IMUs:
 
 
     def exit_gracefully(self) -> None:
-        """Exit MPU-9250 communication across all connected 
-        I2C buses gracefully. Handle multithreading as present.
+        """Exit MPU-9250 communication across all connected I2C buses gracefully. Handle multithreading as present.
 
         Args:
             None

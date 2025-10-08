@@ -152,7 +152,6 @@ class MicroStrainIMUs:
             rate (float): rate at which each MSCL IMU object samples data.
 
         Returns:
-
             imus: Dictionary of MSCL Inertial Nodes with serial numbers as
                 keys, and nodes and dataclasses as a tuple pair.
         """
