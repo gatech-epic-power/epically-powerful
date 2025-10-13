@@ -3,7 +3,7 @@ from epicallypowerful.actuation.motor_data import MotorData
 
 class Actuator(ABC):
     @abstractmethod
-    def control(self, pos: float, vel: float, torque: float, kp: float, kd: float, degrees: bool = False):
+    def set_control(self, pos: float, vel: float, torque: float, kp: float, kd: float, degrees: bool = False):
         pass
 
     @abstractmethod

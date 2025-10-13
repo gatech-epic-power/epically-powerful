@@ -222,6 +222,9 @@ class TMotorServo(can.Listener, Actuator):
     def call_response_latency(self):
         return self.data.last_command_time - self.data.timestamp
     
+    def set_control(self, pos, vel, torque, kp, kd, degrees = False):
+        raise NotImplementedError("TMotorServo does not support combined control mode. Use individual control methods instead.")
+
     def set_torque(self, torque: float):
         """Sets the torque of the motor as a direct current value. Range is -60A to 60A.
 

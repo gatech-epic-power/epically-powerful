@@ -119,8 +119,8 @@ class Robstride(can.Listener, Actuator):
     def call_response_latency(self) -> float:
         return self.data.last_command_time - self.data.timestamp
 
-    def control(self, pos: float, vel: float, torque: float, kp: float, kd: float, degrees: bool = False) -> None:
-        """Sets the control of the motor using full MIT control mode. This uses the built in capability to simultaneously use torque, as well as position and velocity control. It is highly recommended you consult
+    def set_control(self, pos: float, vel: float, torque: float, kp: float, kd: float, degrees: bool = False) -> None:
+        """Sets the control of the motor using full MIT control mode. This uses the built in capability to simultaneously use torque, as well as position and velocity control.
 
         Args:
             pos (float): Position to set the actuator to in radians or degrees depending on the ``degrees`` argument.
