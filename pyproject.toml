@@ -21,7 +21,8 @@ dependencies = [
     "numpy",
     "python-can",
     "scipy",
-    "msgspec"
+    "msgspec",
+    "nicegui"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
