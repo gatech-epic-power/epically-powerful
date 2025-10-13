@@ -126,7 +126,7 @@ PARAM_READ_WRITE_STATUS = { # r indicates READ only, w indicates both READ and W
 }
 
 # BELOW ARE HELPER FUNCTIONS FOR CONSTRUCTING RELEVANT CYBERGEAR CAN MESSAGES.
-# This stops short of sending the messages to allow for simulated enviornments and
+# This stops short of sending the messages to allow for simulated environments and
 # testing. Generally, the structure of a CAN message for these motors is as such.
 # Arbitration ID contains three used 'fields'. The left most field (bit 28-24) contains
 # the "communication type" indicating how the host or motor should respond to and unpack

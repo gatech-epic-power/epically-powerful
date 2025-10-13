@@ -14,6 +14,18 @@ except ImportError:
     pass
 
 def TimedLoop(rate, tolerance=0.1, verbose=True):
+    """Creates a TimedLoop object, which can be used to enforce a set loop frequency. This uses a "scheduled" sleep method to reduce busy looping, and will adjust the 
+    sleep time based on the actual time taken for each loop iteration to ensure average frequency is maintained. This means over time, the number of iterations will
+    tightly match the expected number of iterations.
+
+    Args:
+        rate (int): The desired loop frequency in Hz.
+        tolerance (float, optional): The acceptable time step error tolerance as a proportion of the time step. Defaults to 0.1.
+        verbose (bool, optional): Whether to print verbose output. Defaults to True.
+
+    Returns:
+        TimedLoopC: A TimedLoopC object configured with the specified parameters.
+    """
     return TimedLoopC(rate=rate, tolerance=tolerance, verbose=verbose)
 
 class LoopTimer:

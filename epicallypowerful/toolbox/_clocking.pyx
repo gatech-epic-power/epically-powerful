@@ -65,8 +65,13 @@ cdef class TimedLoopC:
             return to_sec(self.now) # No need to sleep, we're slow
 
         self.slow = False
-        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
+        with nogil:
+            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
+        #self.sleepy(self.sleep_to)
         return to_sec(self.now)
+    
+    cdef sleepy(self, timespec sleep_to):
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleep_to, NULL)
 
     def __call__(self):
         return self.sleep()
