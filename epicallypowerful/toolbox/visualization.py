@@ -5,7 +5,9 @@ import msgspec
 # Convenience functions for sending data to a Plotjuggler instance
 
 class PlotJugglerUDPClient:
-    """
+    """ Client for sending data to plotjuggler via UDP. Check the ip address and port number in the Plotjuggler settings on the device running Plotjuggler.
+    Data will be sent as JSON serialized strings, so ensure the PlotJuggler program is set to parse incoming data as JSON. Additionally, we recommend using a timestamp field.
+    This field can be named anything (settable in PlotJuggler), but it is recommended to use 'timestamp' for consistency.
 
     Example:
         .. code-block:: python
