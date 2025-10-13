@@ -98,6 +98,39 @@ class TMotor(can.Listener, Actuator):
     def call_response_latency(self) -> float:
         return self.data.last_command_time - self.data.timestamp
     
+    def set_control(self, pos: float, vel: float, torque: float, kp: float, kd: float, degrees: bool = False) -> None:
+        """Sets the control of the motor using full MIT control mode. This uses the built in capability to simultaneously use torque, as well as position and velocity control. It is highly recommended you consult
+
+        Args:
+            pos (float): Position to set the actuator to in radians or degrees depending on the ``degrees`` argument.
+            vel (float): Velocity to set the actuator to in radians or degrees depending on the ``degrees`` argument.
+            torque (float): Torque to set the actuator to in Newton-meters.
+            kp (float): Proportional gain to set the actuator to in Newton-meters per radian or Newton-meters per degree depending on the ``degrees`` argument.
+            kd (float): Derivative gain to set the actuator to in Newton-meters per radian per second or Newton-meters per degree per second depending on the ``degrees`` argument.
+            degrees (bool, optional): Whether the position and velocity are in degrees or radians. Defaults to False.
+        """
+        # Alter values from degrees to radians (the TMotor needs to be commanded in radians)
+        if degrees:
+            pos = pos * DEG2RAD
+            vel = vel * DEG2RAD
+            kp = kp * RAD2DEG
+            kd = kd * RAD2DEG
+
+        pos = pos * self.invert
+        vel = vel * self.invert
+        torque = torque * self.invert
+
+        self.data.commanded_position = pos
+        self.data.commanded_velocity = vel
+        self.data.commanded_torque = torque
+        self.data.kp = kp
+        self.data.kd = kd
+        _packed_message = tmd._pack_motor_message(
+            pos=pos, vel=vel, kp=kp, kd=kd, t=torque,
+            motor=self.data
+        )
+        self._bus.send(_packed_message)
+
     def set_torque(self, torque: float) -> None:
         """Sets the torque of the motor in Newton-meters. This will saturate if the torque is outside the limits of the motor.
         Positive and negative torques will spin the motor in opposite directions, and this direction will be reversed if the motor is inverted at intialization.
