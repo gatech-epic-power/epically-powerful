@@ -116,4 +116,3 @@ def main():
     #ui.run(title='Robstride Setup', dark=True, native=True, reload=False, window_size=(1280, 720))
     ui.run(title='Robstride Setup', dark=True, show_welcome_message=False)
 
-main()
