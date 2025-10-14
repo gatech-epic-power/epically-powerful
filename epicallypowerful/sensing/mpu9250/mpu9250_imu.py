@@ -90,7 +90,7 @@ class MPU9250IMUs:
 
     Many helper functions are included in the :py:class:`IMUData` class to assist with getting data conveniently. Please see that documentation for all options.
 
-    Example (single sensor):
+    Example:
         .. code-block:: python
 
             from epicallypowerful.sensing import MPU9250IMUs
@@ -194,6 +194,7 @@ class MPU9250IMUs:
             startup_config_vals (dict of floats): MPU9250 sensor configuration values: acc_range, gyro_range, mag_coeffx, mag_coeffy, mag_coeffz.
         """
         imus = {}
+        startup_config_vals = {}
 
         for imu_id in imu_ids.keys():
             # Get all relevant components to communicate with IMU
@@ -217,14 +218,14 @@ class MPU9250IMUs:
                     )
                     self.prev_channel = channel
 
-            startup_config_vals = {}
+            startup_config_vals[imu_id] = {}
 
             # Start accelerometer and gyro if configured to do so
             if any([c for c in self.components if (('acc' in c) or ('gyro' in c))]):
                 (startup_config_vals[imu_id]['acc_range'],
                 startup_config_vals[imu_id]['gyro_range'],
                 ) = self._set_up_MPU6050(
-                        bus=bus,
+                        bus=self.bus[bus_id],
                         address=address,
                         acc_range_idx=self.acc_range_selector,
                         gyro_range_idx=self.gyro_range_selector,
@@ -235,7 +236,7 @@ class MPU9250IMUs:
                 (startup_config_vals[imu_id]['mag_coeffx'],
                 startup_config_vals[imu_id]['mag_coeffy'],
                 startup_config_vals[imu_id]['mag_coeffz'],
-                ) = self._set_up_AK8963(bus=bus)
+                ) = self._set_up_AK8963(bus=self.bus[bus_id])
 
             if self.verbose:
                 print(f"IMU {imu_id} startup_config_vals: {startup_config_vals[imu_id]}\n")
@@ -295,20 +296,20 @@ class MPU9250IMUs:
         bus.write_byte_data(address, CONFIG, 0)
         time.sleep(sleep_time)
 
-        # Write to accel configuration register
+        # Write to accelerometer configuration register
         acc_config_sel = [0b00000, 0b01000, 0b10000, 0b11000] # byte registers
         acc_config_vals = [2.0, 4.0, 8.0, 16.0] # +/- val. range [g] (1 g = 9.81 m*s^-2)
         bus.write_byte_data(address, ACCEL_CONFIG, int(acc_config_sel[acc_range_idx]))
         time.sleep(sleep_time)
 
-        # Write to gyro configuration register
+        # Write to gyroscope configuration register
         gyro_config_sel = [0b00000, 0b01000, 0b10000, 0b11000] # byte registers
         gyro_config_vals = [250.0, 500.0, 1000.0, 2000.0] # +/- val. range [deg/s]
         bus.write_byte_data(address, GYRO_CONFIG, int(gyro_config_sel[gyro_range_idx]))
         time.sleep(sleep_time)
         
         # Interrupt register (related to overflow of data [FIFO])
-        bus.write_byte_data(address,INT_PIN_CFG,0x22)
+        bus.write_byte_data(address, INT_PIN_CFG, 0x22)
         time.sleep(sleep_time)
 
         # Enable the AK8963 magnetometer in pass-through mode
@@ -335,9 +336,9 @@ class MPU9250IMUs:
             [coeffx, coeffy, coeffz] (list of floats): coefficients for each DOF.
         """
         # Initialize magnetometer mode
-        bus.write_byte_data(AK8963_ADDR,AK8963_CNTL, 0x00)
+        bus.write_byte_data(AK8963_ADDR, AK8963_CNTL, 0x00)
         time.sleep(sleep_time)
-        bus.write_byte_data(AK8963_ADDR,AK8963_CNTL, 0x0F)
+        bus.write_byte_data(AK8963_ADDR, AK8963_CNTL, 0x0F)
         time.sleep(sleep_time)
         
         # Read coefficient data from circuit address
@@ -396,8 +397,8 @@ class MPU9250IMUs:
             imu_data.temp,
             ) = self.get_MPU6050_data(
                 bus=bus,
-                acc_range=self.startup_config_vals['acc_range'],
-                gyro_range=self.startup_config_vals['gyro_range'],
+                acc_range=self.startup_config_vals[imu_id]['acc_range'],
+                gyro_range=self.startup_config_vals[imu_id]['gyro_range'],
                 address=address,
             )
 
@@ -431,9 +432,9 @@ class MPU9250IMUs:
             ) = self.get_AK8963_data(
                 bus=bus,
                 mag_coeffs=[
-                    self.startup_config_vals['mag_coeffx'],
-                    self.startup_config_vals['mag_coeffy'],
-                    self.startup_config_vals['mag_coeffz'],
+                    self.startup_config_vals[imu_id]['mag_coeffx'],
+                    self.startup_config_vals[imu_id]['mag_coeffy'],
+                    self.startup_config_vals[imu_id]['mag_coeffz'],
                 ],
             )
 
@@ -596,29 +597,6 @@ class MPU9250IMUs:
         return value
 
 
-    def exit_gracefully(self) -> None:
-        """Exit MPU-9250 communication across all connected I2C buses gracefully. Handle multithreading as present.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        raise NotImplementedError
-
-        os.write(sys.stdout.fileno(), b"Exiting gracefully\n")
-
-        try:
-            for b in self.bus.keys():
-                self.bus[b].join()
-        except:
-            sys.exit("Failed to kill threads for I2C buses.\n")
-
-        os.write(sys.stdout.fileno(), b"Shutdown finished.\n")
-        sys.exit(0)
-
-
 if __name__ == "__main__":
     import platform
     machine_name = platform.uname().release.lower()
@@ -685,5 +663,3 @@ if __name__ == "__main__":
             for imu_id in imu_ids.keys():
                 imu_data = mpu9250_imus.get_data(imu_id=imu_id)
                 print(f"{imu_id}: acc_x: {imu_data.accx:0.2f}, acc_y: {imu_data.accy:0.2f}, acc_z: {imu_data.accz:0.2f}, gyro_x: {imu_data.gyrox:0.2f}, gyro_y: {imu_data.gyroy:0.2f}, gyro_z: {imu_data.gyroz:0.2f}")
-
-    mpu9250_imus.exit_gracefully()
