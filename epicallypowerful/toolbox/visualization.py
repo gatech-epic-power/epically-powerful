@@ -74,7 +74,7 @@ if __name__ == "__main__":
         'timestamp': time.time()
     }
     while True:
-        time.sleep(0.033)
+        time.sleep(0.005)
         test_data = {
             'example_data': {
                 'sine': math.sin(time.time()),

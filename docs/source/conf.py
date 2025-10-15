@@ -55,7 +55,7 @@ myst_enable_extensions = [
     "substitution",
     "tasklist",
 ]
-
+html_favicon = '_static/EPLogoCaps.png'
 
 
 # Napoleon settings (for converting Google + NumPy docstrings to Sphinx format)
