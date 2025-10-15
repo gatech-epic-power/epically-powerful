@@ -4,7 +4,7 @@
 This library is designed to be used on a Linux computer, typically with GPIO capability. Most often, this is a verion of the Raspberry Pi device, a single board computer with wide community support. Additionally, we provide instructions for setup and use of this package with the Jetson Orin Nano device, which has built-in CAN bus capabilities and a more powerful GPU for machine learning or computer vision tasks. For details on exact parts needed for each setup, please consult the [Part Picker](PartPicker) page. Setup instructions for each device can be found below. 
 
 :::{attention}
-Please read through the entire section for you device before starting.
+Please read through the entire section for yoru device before starting.
 :::
 
 (RPiSetup)=
@@ -95,6 +95,10 @@ If you are not using any actuators in your application, you may skip this step.
 
 ### Python environment
 While everything can be run using the system python environment, we highly recommend using some form of virtual environment, as incompatible versions and installed modules have the potential to interfere with operating system application if something goes wrong. We discuss possible options on our [Python Environments](PythonEnvs) page.
+
+:::{warning}
+While it's possible to install this and other packages without a virtual environment, we (and official Linux developers) do not recommend doing so because it can break your operating system. If that's not enough to motivate you, recent Raspbian releases now require you to use a virtual environment to use `pip install`.
+:::
 
 ### Microstrain Communication Library Setup
 :::{note}
