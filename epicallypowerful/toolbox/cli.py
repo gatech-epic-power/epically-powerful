@@ -24,18 +24,17 @@ def collect_imu_data():
     print(args.channels)
     print(args.remote_sync_channel)
 
-
     outfile = args.output
     duration = args.duration
     serial_ids = args.imu_serial_id
     channels = args.channels
     remote_sync_channels = args.remote_sync_channel
 
-    from epicallypowerful.sensing.microstrain_imu import MicrostrainImus
+    from epicallypowerful.sensing.microstrain_imu import MicrostrainIMUs
     from epicallypowerful.toolbox.clocking import timed_loop
     from epicallypowerful.toolbox.data_recorder import DataRecorder
 
-    imus = MicrostrainImus(serial_ids)
+    imus = MicrostrainIMUs(serial_ids)
 
     headers = []
     for serial_id in serial_ids:

@@ -44,8 +44,7 @@ PI = 3.1415265
 
 
 class MicroStrainIMUs(IMU):
-    """Class for receiving data from MicroStrain IMUs. Getting data from each IMU is as simple as calling :py:meth:`get_data` with the respective serial identifier as the argument.
-    The microstrain IMUs typically need no special configuration or calibration. The serial number used to identify the IMUs is typically found on top of the IMU, and is the last 6 digits following the period.
+    """Class for receiving data from MicroStrain IMUs. Getting data from each IMU is as simple as calling :py:meth:`get_data` with the respective serial identifier as the argument. The MicroStrain IMUs typically need no special configuration or calibration. The serial number used to identify the IMUs is typically found on top of the IMU, and is the last 6 digits following the period.
     
     In order to use this functionality, the low level MSCL drivers need to be installed. Please see the tutorials on installing this, or directly consult the MSCL documentation (https://github.com/LORD-MicroStrain/MSCL).
 
@@ -55,7 +54,7 @@ class MicroStrainIMUs(IMU):
         .. code-block:: python
 
 
-            from epicpower.sensing import MicroStrainImus
+            from epicpower.sensing import MicroStrainIMUs
             
             ### Instantiation
             LEFT_THIGH = '154143'
