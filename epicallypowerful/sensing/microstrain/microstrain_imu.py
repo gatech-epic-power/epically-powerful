@@ -11,6 +11,7 @@ from typing import List
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 from epicallypowerful.sensing.imu_data import IMUData
+from epicallypowerful.sensing.imu_abc import IMU
 
 """Try to import mscl 
 (follow instructions from MSCL installation guide: 
@@ -42,7 +43,7 @@ G_CONSTANT = 9.80665 # [m/s^2]
 PI = 3.1415265
 
 
-class MicroStrainIMUs:
+class MicroStrainIMUs(IMU):
     """Class for receiving data from MicroStrain IMUs. Getting data from each IMU is as simple as calling :py:meth:`get_data` with the respective serial identifier as the argument.
     The microstrain IMUs typically need no special configuration or calibration. The serial number used to identify the IMUs is typically found on top of the IMU, and is the last 6 digits following the period.
     
@@ -290,16 +291,13 @@ class MicroStrainIMUs:
         from MSCL Inertial Node.
 
         Args:
-            imu_id (str): serial number relating to MSCL Inertial Node
-                        containing orientation, ang. velocity and lin.
-                        acceleration.
+            imu_id (str): serial number relating to MSCL Inertial Node containing orientation, angular velocity and linear acceleration.
             raw (bool): whether to provide IMU values relative to a zeroed
                         (static) reference frame obtained by calling
                         `self.tares()`. Default: True (providing raw values).
 
         Returns:
-            imu_data: IMUData dataclass object with orientation, angular
-                    velocity and linear acceleration.
+            imu_data: IMUData dataclass object with orientation, angular velocity and linear acceleration.
         """
         # Pre-populate imu_data with values in buffer (in case no new values)
         imu_node = self._imu_nodes[imu_id][0]
@@ -447,8 +445,7 @@ class MicroStrainIMUs:
         """Manually tare MSCL Inertial Nodes.
 
         Args:
-            imu_id (str): MSCL Inertial Node, or a list, set, tuple or dict of
-                        MSCL Inertial Nodes.
+            imu_id (str): MSCL Inertial Node, or a list, set, tuple or dict of MSCL Inertial Nodes.
             zeroing_time (float): time to get current raw rotation matrix.
         """
         t0 = time.perf_counter()
@@ -465,10 +462,6 @@ class MicroStrainIMUs:
                     self.get_data(imu_id, raw=True).matrix.T
                 ).inv()
 
-        # TROUBLESHOOTING: get current reference rotation matrix
-        # if self.verbose:
-        #     print(f"static matrix: {self._imu_ref_rot_matrices[imu_id].as_quat()}")
-
     def __getitem__(self, index: str) -> IMUData:
         return self.get_data(index)
 
@@ -479,11 +472,9 @@ def main(imu_ids: List[str], rate=IMU_RATE, tare_on_startup=False) -> None:
 
     Args:
         imu_ids (list): dict of body segments and Microstrain serial numbers.
-        use_euler (bool): boolean for whether to use Euler angle convention
-                        (True) or Quaternion angle convention (False).
+        use_euler (bool): boolean for whether to use Euler angle convention (True) or Quaternion angle convention (False).
         rate (int): operational rate to set using internal MSCL library.
-        tare_on_startup (bool): boolean for whether to automatically tare on
-                                startup. Default: True.
+        tare_on_startup (bool): boolean for whether to automatically tare on startup. Default: True.
 
     Returns:
         None

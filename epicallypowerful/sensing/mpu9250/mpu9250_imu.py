@@ -12,6 +12,7 @@ from typing import Dict
 import smbus2 as smbus # I2C bus library on Raspberry Pi and NVIDIA Jetson Orin Nano
 from epicallypowerful.toolbox import LoopTimer
 from epicallypowerful.sensing.imu_data import IMUData
+from epicallypowerful.sensing.imu_abc import IMU
 
 # Unit conversions
 PI = 3.1415926535897932384
@@ -79,7 +80,7 @@ MULTIPLEXER_ACTIONS = {
 }
 
 
-class MPU9250IMUs:
+class MPU9250IMUs(IMU):
     """Class for interfacing with the MPU9250 IMU using I2C communication, leveraging the TCA9548A multiplexer for communicating with multiple units at the same time.
 
     This class draws from the following resources:

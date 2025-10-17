@@ -3,12 +3,11 @@ from epicallypowerful.sensing.imu_data import IMUData
 
 class IMU(ABC):
     @abstractmethod
-    def _set_up_connected_imus(self):
-
-    @abstractmethod
-    def get_data(self):
+    def get_data(self) -> IMUData:
+        """Return data from call to IMU."""
         pass
 
     @abstractmethod
-    def exit_gracefully(self):
+    def _set_up_connected_imus(self, imu_ids: list) -> None:
+        """Initialize all IMUs."""
         pass
