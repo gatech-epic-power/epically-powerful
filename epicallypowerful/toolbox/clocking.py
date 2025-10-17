@@ -29,7 +29,7 @@ def TimedLoop(rate, tolerance=0.1, verbose=True):
     return TimedLoopC(rate=rate, tolerance=tolerance, verbose=verbose)
 
 class LoopTimer:
-    """Class for creating a simple timed loop manager. This object will attempt to enforece a set frequency when used in a looped script.
+    """Class for creating a simple timed loop manager. This object will attempt to enforce a set frequency when used in a looped script.
     NOTE: this frequency cannot be guaranteed, and the actual frequency should be recorded if this is important for your application. Please
     see the benchmarks for expected maximum performance.
 

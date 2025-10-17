@@ -150,7 +150,6 @@ class DataRecorder():
 if __name__ == "__main__":
     from epicallypowerful.toolbox.clocking import LoopTimer
     from epicallypowerful.toolbox.jetson_performance import jetson_performance
-    from epicallypowerful.toolbox.clocking import LoopTimer
 
     jetson_performance()
     looper = LoopTimer(300)
