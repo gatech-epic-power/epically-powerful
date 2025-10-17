@@ -35,8 +35,9 @@ clocking_loop = LoopTimer(LOOP_RATE)
 ##################################################################
 
 # Set MicroStrain IMU IDs
-# IMU_01 = str(input("Enter the last six digits of the plugged-in Microstrain IMU's serial number (e.g. 154136)"))
-MICROSTRAIN_IMU_IDS = ['133932']
+IMU_01 = str(input("Enter the last six digits of the plugged-in Microstrain IMU's serial number (e.g. 154136)"))
+# IMU_01 = '133932'
+MICROSTRAIN_IMU_IDS = [IMU_01]
 
 # Change IMU operation options (each one has a default)
 MICROSTRAIN_IMU_RATE = LOOP_RATE # Set collection rate of IMUs
@@ -93,35 +94,35 @@ while time.perf_counter() - t0 <= TEST_DURATION:
         # Iterate through all connected IMUs
         for imu_id in MICROSTRAIN_IMU_IDS:
             # Orientation, angular velocity, linear acceleration
-            # print(f'ID: {imu_id} | orient. (w,x,y,z): {imus.get_data(imu_id).orientw:.2f}, {imus.get_data(imu_id).orientx:.2f},{imus.get_data(imu_id).orienty:.2f},{imus.get_data(imu_id).orientz:.2f},\t | ang. vel. (r,p,y):  ({imus.get_data(imu_id).gyrox:.2f}, {imus.get_data(imu_id).gyroy:.2f}, {imus.get_data(imu_id).gyroz:.2f}),\t | lin. accel. (x,y,z): ({imus.get_data(imu_id).accx:.2f}, {imus.get_data(imu_id).accy:.2f}, {imus.get_data(imu_id).accz:.2f})')
+            # print(f'ID: {imu_id} | quat. (w,x,y,z): {imus.get_data(imu_id).quat_w:.2f}, {imus.get_data(imu_id).quat_x:.2f},{imus.get_data(imu_id).quat_y:.2f},{imus.get_data(imu_id).quat_z:.2f},\t | ang. vel. (x,y,z):  ({imus.get_data(imu_id).gyro_x:.2f}, {imus.get_data(imu_id).gyro_y:.2f}, {imus.get_data(imu_id).gyro_z:.2f}),\t | lin. accel. (x,y,z): ({imus.get_data(imu_id).acc_x:.2f}, {imus.get_data(imu_id).acc_y:.2f}, {imus.get_data(imu_id).acc_z:.2f})')
 
             # Acceleration in x, y, z direction
             # ms_data = microstrain_imus.get_data(imu_id)
             # microstrain_time.append(ms_data.timestamp - t0)
-            # microstrain_data.append([ms_data.accx, ms_data.accy, ms_data.accz])
-            # print(f"ID: {imu_id} | ({ms_data.accx:.2f}, {ms_data.accy:.2f}, {ms_data.accz:.2f})")
+            # microstrain_data.append([ms_data.acc_x, ms_data.acc_y, ms_data.acc_z])
+            # print(f"ID: {imu_id} | ({ms_data.acc_x:.2f}, {ms_data.acc_y:.2f}, {ms_data.acc_z:.2f})")
 
             # Gyroscopic angular velocity in x, y, z direction
             ms_data = microstrain_imus.get_data(imu_id)
             microstrain_time.append(ms_data.timestamp - t0)
-            microstrain_data.append([ms_data.gyrox, ms_data.gyroy, ms_data.gyroz])
-            print(f"ID: {imu_id} | ({ms_data.gyrox:.2f}, {ms_data.gyroy:.2f}, {ms_data.gyroz:.2f})")
+            microstrain_data.append([ms_data.gyro_x, ms_data.gyro_y, ms_data.gyro_z])
+            print(f"ID: {imu_id} | ({ms_data.gyro_x:.2f}, {ms_data.gyro_y:.2f}, {ms_data.gyro_z:.2f})")
 
-            # Roll, pitch, yaw only
-            # print(f"ID: {imu_id}\t| roll: {microstrain_imus.get_data(imu_id).roll:.2f},\t pitch: {microstrain_imus.get_data(imu_id).pitch:.2f},\t yaw: {microstrain_imus.get_data(imu_id).yaw:.2f}")
+            # Roll, eul_y, eul_z only
+            # print(f"ID: {imu_id}\t| eul_x: {microstrain_imus.get_data(imu_id).eul_x:.2f},\t eul_y: {microstrain_imus.get_data(imu_id).eul_y:.2f},\t eul_z: {microstrain_imus.get_data(imu_id).eul_z:.2f}")
 
         for imu_id in MPU9250_IMU_IDS:
             # Acceleration in x, y, z directions
             # mpu_data = mpu9250_imus.get_data(imu_id)
             # mpu9250_time.append(mpu_data.timestamp - t0)
-            # mpu9250_data.append([mpu_data.accx, mpu_data.accy, mpu_data.accz])
-            # print(f"ID: 00000{imu_id} | ({mpu_data.accx:.2f}, {mpu_data.accy:.2f}, {mpu_data.accz:.2f})")
+            # mpu9250_data.append([mpu_data.acc_x, mpu_data.acc_y, mpu_data.acc_z])
+            # print(f"ID: 00000{imu_id} | ({mpu_data.acc_x:.2f}, {mpu_data.acc_y:.2f}, {mpu_data.acc_z:.2f})")
 
             # Gyroscopic angular velocity in x, y, z directions
             mpu_data = mpu9250_imus.get_data(imu_id)
             mpu9250_time.append(mpu_data.timestamp - t0)
-            mpu9250_data.append([mpu_data.gyrox, mpu_data.gyroy, mpu_data.gyroz])
-            print(f"ID: 00000{imu_id} | ({mpu_data.gyrox:.2f}, {mpu_data.gyroy:.2f}, {mpu_data.gyroz:.2f})")
+            mpu9250_data.append([mpu_data.gyro_x, mpu_data.gyro_y, mpu_data.gyro_z])
+            print(f"ID: 00000{imu_id} | ({mpu_data.gyro_x:.2f}, {mpu_data.gyro_y:.2f}, {mpu_data.gyro_z:.2f})")
 
 ##################################################################
 # VISUALIZE OUTPUTS

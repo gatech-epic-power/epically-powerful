@@ -35,19 +35,19 @@ MICROSTRAIN_IMU_IDS = ['156125']
 MICROSTRAIN_IMU_RATE = LOOP_RATE # Set collection rate of IMUs
 TARE_ON_STARTUP = False # Zero orientation on startup?
 MICROSTRAIN_IMU_CHANNELS = [
-    'orientx',
-    'orienty',
-    'orientz',
-    'orientw',
-    'gyrox',
-    'gyroy',
-    'gyroz',
-    'accx',
-    'accy',
-    'accz',
-    'roll',
-    'pitch',
-    'yaw',
+    'quat_x',
+    'quat_y',
+    'quat_z',
+    'quat_w',
+    'gyro_x',
+    'gyro_y',
+    'gyro_z',
+    'acc_x',
+    'acc_y',
+    'acc_z',
+    'eul_x',
+    'eul_y',
+    'eul_z',
     'm11',
     'm12',
     'm13',
@@ -130,7 +130,7 @@ while True:
               data.extend([getattr(raw_imu_data, channel, 0)])
 
             # Print out raw linear acceleration for current sensor
-            print(f"{imu_id} | ({raw_imu_data.accx:.2f}, {raw_imu_data.accy:.2f}, {raw_imu_data.accz:.2f})")
+            print(f"{imu_id} | ({raw_imu_data.acc_x:.2f}, {raw_imu_data.acc_y:.2f}, {raw_imu_data.acc_z:.2f})")
 
         # Iterate through all connected XSENSOR insoles
         for insole in INSOLE_LOCATIONS:

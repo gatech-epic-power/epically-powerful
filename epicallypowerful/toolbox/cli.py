@@ -14,7 +14,7 @@ def collect_imu_data():
     parser.add_argument("--imu-serial-id", '-id', nargs='+', required=True, type=str, help="IMU serial ID multiple can be specified")
     parser.add_argument("--output", '-o', default="output.csv", help="Output file")
     parser.add_argument("--duration", '-d', default=30, type=int, help="Duration in seconds")
-    parser.add_argument("--channels", '-c', choices=["acc", "gyro", "mag", "orient", "euler"], type=str, nargs="+", default=["acc", "gyro"], help="Types of data to collect")
+    parser.add_argument("--channels", '-c', choices=["acc", "gyro", "mag", "quat", "eul"], type=str, nargs="+", default=["acc", "gyro"], help="Types of data to collect")
     parser.add_argument("--remote-sync-channel", '-r', type=int, action="append", help="GPIO pins to use for remote sync channels. Use this argument multiple times to specify multiple channels")
 
     args = parser.parse_args()
@@ -30,11 +30,11 @@ def collect_imu_data():
     channels = args.channels
     remote_sync_channels = args.remote_sync_channel
 
-    from epicallypowerful.sensing.microstrain_imu import MicrostrainIMUs
+    from epicallypowerful.sensing.microstrain.microstrain_imu import MicroStrainIMUs
     from epicallypowerful.toolbox.clocking import timed_loop
     from epicallypowerful.toolbox.data_recorder import DataRecorder
 
-    imus = MicrostrainIMUs(serial_ids)
+    imus = MicroStrainIMUs(serial_ids)
 
     headers = []
     for serial_id in serial_ids:
@@ -45,14 +45,14 @@ def collect_imu_data():
         if "mag" in channels:
             headers.extend([f"{serial_id}_mag_x", f"{serial_id}_mag_y", f"{serial_id}_mag_z"])
         if "orient" in channels:
-            headers.extend([f"{serial_id}_orient_w", f"{serial_id}_orient_x", f"{serial_id}_orient_y", f"{serial_id}_orient_z"])
+            headers.extend([f"{serial_id}_quat_w", f"{serial_id}_quat_x", f"{serial_id}_quat_y", f"{serial_id}_quat_z"])
         if "euler" in channels:
-            headers.extend([f"{serial_id}_roll", f"{serial_id}_pitch", f"{serial_id}_yaw"])
+            headers.extend([f"{serial_id}_eul_x", f"{serial_id}_eul_y", f"{serial_id}_eul_z"])
 
     if remote_sync_channels != []:
         if _rpi_or_jetson() == "rpi":
             import RPi.GPIO as GPIO
-            GPIO.setmode(GPIO.BORD)
+            GPIO.setmode(GPIO.BOARD)
         elif _rpi_or_jetson() == "jetson":
             import Jetson.GPIO as GPIO
             GPIO.setmode(GPIO.BOARD)
@@ -62,7 +62,12 @@ def collect_imu_data():
             headers.append(f"sync_{c}")
             GPIO.setup(c, GPIO.IN)
 
-    recorder = DataRecorder(outfile, headers, delimiter=",", overwrite=False, buffer_limit=duration*200) # Data is collected at 200Hz, and data is not saved until file is manually closed
+    recorder = DataRecorder(
+        outfile, headers,
+        delimiter=",",
+        overwrite=False,
+        buffer_limit=duration*200
+    ) # Data is collected at 200Hz, and data is not saved until file is manually closed
 
     print(f"Collecting data for {duration} seconds")
     for _ in timed_loop(200, duration):
@@ -70,15 +75,15 @@ def collect_imu_data():
         for serial_id in serial_ids:
             data = imus.get_data(serial_id)
             if "acc" in channels:
-                row_data.extend([data.accx, data.accy, data.accz])
+                row_data.extend([data.acc_x, data.acc_y, data.acc_z])
             if "gyro" in channels:
-                row_data.extend([data.gyrox, data.gyroy, data.gyroz])
+                row_data.extend([data.gyro_x, data.gyro_y, data.gyro_z])
             if "mag" in channels:
-                row_data.extend([data.magx, data.magy, data.magz])
+                row_data.extend([data.mag_x, data.mag_y, data.mag_z])
             if "orient" in channels:
-                row_data.extend([data.orientw, data.orientx, data.orienty, data.orientz])
+                row_data.extend([data.quat_w, data.quat_x, data.quat_y, data.quat_z])
             if "euler" in channels:
-                row_data.extend([data.roll, data.pitch, data.yaw])
+                row_data.extend([data.eul_x, data.eul_y, data.eul_z])
         if remote_sync_channels != []:
             for c in remote_sync_channels:
                 row_data.append(GPIO.input(c))

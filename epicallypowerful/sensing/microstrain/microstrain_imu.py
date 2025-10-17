@@ -24,29 +24,29 @@ machine. THIS VERSION of the file must be imported into the `lib` folder.
 # Method of importing mscl suggested by manufacturer
 import sys
 import platform
+
 if platform.platform().lower().startswith("linux"):
     sys.path.append(f"/usr/local/lib/python{sys.version_info.major}.{sys.version_info.minor}/dist-packages")
     # sys.path.append(f"/usr/share/python{sys.version_info.major}-mscl")
 
-mscl_available = False
-
 try:
     import mscl
-    mscl_available = True
+    MSCL_AVAILABLE = True
 except:
-    mscl_available = False
+    MSCL_AVAILABLE = False
+    print(f"Could not import `mscl` package. Is it visible on your Python path?")
 
 # Set constants
 TARE_ON_STARTUP = False
 IMU_RATE = 1000 # [Hz]
-G_CONSTANT = 9.80665 # [m/s^2]
+G_CONSTANT = 9.80665 # [m*s^-2]
 PI = 3.1415265
 
 
 class MicroStrainIMUs(IMU):
     """Class for receiving data from MicroStrain IMUs. Getting data from each IMU is as simple as calling :py:meth:`get_data` with the respective serial identifier as the argument. The MicroStrain IMUs typically need no special configuration or calibration. The serial number used to identify the IMUs is typically found on top of the IMU, and is the last 6 digits following the period.
     
-    In order to use this functionality, the low level MSCL drivers need to be installed. Please see the tutorials on installing this, or directly consult the MSCL documentation (https://github.com/LORD-MicroStrain/MSCL).
+    In order to use this functionality, the low-level MSCL drivers need to be installed. Please see the tutorials on installing this, or directly consult the MSCL documentation (https://github.com/LORD-MicroStrain/MSCL).
 
     Many helper functions are included in the :py:class:`IMUData` class to assist with getting data conveniently. Please see that documentation for all options.
     
@@ -94,14 +94,17 @@ class MicroStrainIMUs(IMU):
         num_retries: int=10,
         verbose: bool=False
     ) -> None:
-        if not mscl_available:
+        if not MSCL_AVAILABLE:
             raise ModuleNotFoundError("MSCL not found, please install MSCL to use the MicroStrain IMUs. Please see https://github.com/LORD-MicroStrain/MSCL or the included setup script, ep-install-mscl.")
         
         self.verbose = verbose
         self.timeout = timeout
-        self._enable_ports()
         self._imu_ref_rot_matrices = {}
+        
+        # Enable serial port access
+        self._enable_ports()
 
+        # Attempt to connect to IMUs
         for i in range(num_retries):
             try:
                 self._imu_nodes = self._set_up_connected_imus(
@@ -115,14 +118,15 @@ class MicroStrainIMUs(IMU):
                 else:
                     for imu_id in imu_ids:
                         self._imu_ref_rot_matrices[imu_id] = R.from_matrix(np.eye(3))
-
                 break
+
             except Exception:
                 if i == num_retries - 1:
-                    print(f"Error initializing IMUs after {num_retries} attempts. Check that the IMUs are connected.")
+                    print(f"Error initializing IMUs after {num_retries} attempts. Check that all IMUs are connected.")
                 else:
                     if verbose:
                         print(f"Retrying initialization...")
+                        
 
     def _enable_ports(self) -> None:
         """Grant access to all ports used by Microstrains."""
@@ -244,13 +248,15 @@ class MicroStrainIMUs(IMU):
                 mscl.MipTypes.CLASS_AHRS_IMU,
                 ahrs_channels
             )
+
+            # Add estimation filter for orientation data
             # node_obj.setActiveChannelFields(
             #     mscl.MipTypes.CLASS_ESTFILTER,
             #     est_filter_channels
-            # ) # FOR ESTIMATION FILTER
+            # )
 
             node_obj.enableDataStream(mscl.MipTypes.CLASS_AHRS_IMU)
-            # node_obj.enableDataStream(mscl.MipTypes.CLASS_ESTFILTER) # FOR ESTIMATION FILTER
+            # node_obj.enableDataStream(mscl.MipTypes.CLASS_ESTFILTER) # for estimation filter
 
             node_obj.resume()
 
@@ -262,13 +268,13 @@ class MicroStrainIMUs(IMU):
             if self.verbose:
                 current_settings = node_obj.getComplementaryFilterSettings()
                 print(
-                    f"Complementary filter settings: {current_settings.upCompensationEnabled}, {current_settings.northCompensationEnabled}, {current_settings.upCompensationTimeInSeconds}, {current_settings.northCompensationTimeInSeconds}"
+                    f"Previous complementary filter settings: {current_settings.upCompensationEnabled}, {current_settings.northCompensationEnabled}, {current_settings.upCompensationTimeInSeconds}, {current_settings.northCompensationTimeInSeconds}"
                 )
 
-            # Set complementary filter parameters # TODO: Check this part???? -> probably make the defaults the system defaults
+            # Set complementary filter parameters
             cf_filter_settings = mscl.ComplementaryFilterData()
             cf_filter_settings.upCompensationEnabled = True
-            cf_filter_settings.northCompensationEnabled = False # True
+            cf_filter_settings.northCompensationEnabled = False # NOTE: do not use unless you're sure there is no appreciable magnetic interference in the area
             cf_filter_settings.upCompensationTimeInSeconds = 10
             cf_filter_settings.northCompensationTimeInSeconds = 60
             node_obj.setComplementaryFilterSettings(cf_filter_settings)
@@ -279,7 +285,7 @@ class MicroStrainIMUs(IMU):
                     f"Complementary filter settings: {current_settings.upCompensationEnabled}, {current_settings.northCompensationEnabled}, {current_settings.upCompensationTimeInSeconds}, {current_settings.northCompensationTimeInSeconds}"
                 )
                 print(
-                    f"(roll, pitch, yaw) tare settings: {node_obj.getSensorToVehicleRotation_eulerAngles().roll(),node_obj.getSensorToVehicleRotation_eulerAngles().pitch(),node_obj.getSensorToVehicleRotation_eulerAngles().yaw()}"
+                    f"(roll, pitch, yaw) tare settings: {node_obj.getSensorToVehicleRotation_eulerAngles().roll(), node_obj.getSensorToVehicleRotation_eulerAngles().pitch(), node_obj.getSensorToVehicleRotation_eulerAngles().yaw()}"
                 )
 
         return imus
@@ -291,9 +297,7 @@ class MicroStrainIMUs(IMU):
 
         Args:
             imu_id (str): serial number relating to MSCL Inertial Node containing orientation, angular velocity and linear acceleration.
-            raw (bool): whether to provide IMU values relative to a zeroed
-                        (static) reference frame obtained by calling
-                        `self.tares()`. Default: True (providing raw values).
+            raw (bool): whether to provide IMU values relative to a zeroed (static) reference frame obtained by calling `self.tares()`. Default: True (providing raw values).
 
         Returns:
             imu_data: IMUData dataclass object with orientation, angular velocity and linear acceleration.
@@ -330,10 +334,10 @@ class MicroStrainIMUs(IMU):
                     data_field == mscl.MipTypes.CH_FIELD_SENSOR_ORIENTATION_QUATERNION
                 ): # ORIENTATION QUATERNION
                     quat_vec = data_point.as_Vector()
-                    imu_data.orientw = quat_vec.as_floatAt(0)
-                    imu_data.orientx = quat_vec.as_floatAt(1)
-                    imu_data.orienty = quat_vec.as_floatAt(2)
-                    imu_data.orientz = quat_vec.as_floatAt(3)
+                    imu_data.quat_w = quat_vec.as_floatAt(0)
+                    imu_data.quat_x = quat_vec.as_floatAt(1)
+                    imu_data.quat_y = quat_vec.as_floatAt(2)
+                    imu_data.quat_z = quat_vec.as_floatAt(3)
                 elif (
                     data_field == mscl.MipTypes.CH_FIELD_SENSOR_ORIENTATION_MATRIX
                 ): # ORIENTATION MATRIX
@@ -351,45 +355,45 @@ class MicroStrainIMUs(IMU):
                     data_field == mscl.MipTypes.CH_FIELD_ESTFILTER_ESTIMATED_ORIENT_QUATERNION
                 ): # EF QUATERNION
                     ef_quat_vec = data_point.as_Vector()
-                    imu_data.ef_orientw = ef_quat_vec.as_Vector().as_floatAt(0)
-                    imu_data.ef_orientx = ef_quat_vec.as_Vector().as_floatAt(1)
-                    imu_data.ef_orienty = ef_quat_vec.as_Vector().as_floatAt(2)
-                    imu_data.ef_orientz = ef_quat_vec.as_Vector().as_floatAt(3)
+                    imu_data.ef_quat_w = ef_quat_vec.as_Vector().as_floatAt(0)
+                    imu_data.ef_quat_x = ef_quat_vec.as_Vector().as_floatAt(1)
+                    imu_data.ef_quat_y = ef_quat_vec.as_Vector().as_floatAt(2)
+                    imu_data.ef_quat_z = ef_quat_vec.as_Vector().as_floatAt(3)
                 elif (
                     data_field == mscl.MipTypes.CH_FIELD_SENSOR_EULER_ANGLES
                 ): # EULER ORIENTATION (Computed)
                     if data_qualifier == mscl.MipTypes.CH_ROLL:
-                        imu_data.roll = data_point.as_double()
+                        imu_data.eul_x = data_point.as_double() # roll
                     elif data_qualifier == mscl.MipTypes.CH_PITCH:
-                        imu_data.pitch = data_point.as_double()
+                        imu_data.eul_y = data_point.as_double() # pitch
                     elif data_qualifier == mscl.MipTypes.CH_YAW:
-                        imu_data.yaw = data_point.as_double()
+                        imu_data.eul_z = data_point.as_double() # yaw
                 elif (
                 data_field == mscl.MipTypes.CH_FIELD_SENSOR_SCALED_GYRO_VEC
                 ): # ANGULAR RATE (SCALED)
                     if data_qualifier == mscl.MipTypes.CH_X:
-                        imu_data.gyrox = data_point.as_double()
+                        imu_data.gyro_x = data_point.as_double()
                     elif data_qualifier == mscl.MipTypes.CH_Y:
-                        imu_data.gyroy = data_point.as_double()
+                        imu_data.gyro_y = data_point.as_double()
                     elif data_qualifier == mscl.MipTypes.CH_Z:
-                        imu_data.gyroz = data_point.as_double()
+                        imu_data.gyro_z = data_point.as_double()
                 elif (data_field == mscl.MipTypes.CH_FIELD_SENSOR_SCALED_ACCEL_VEC
                 ): # LINEAR ACCELERATION (SCALED)
                     if data_qualifier == mscl.MipTypes.CH_X:
-                        imu_data.accx = data_point.as_double() * G_CONSTANT
+                        imu_data.acc_x = data_point.as_double() * G_CONSTANT
                     elif data_qualifier == mscl.MipTypes.CH_Y:
-                        imu_data.accy = data_point.as_double() * G_CONSTANT
+                        imu_data.acc_y = data_point.as_double() * G_CONSTANT
                     elif data_qualifier == mscl.MipTypes.CH_Z:
-                        imu_data.accz = data_point.as_double() * G_CONSTANT
+                        imu_data.acc_z = data_point.as_double() * G_CONSTANT
                 elif (
                 data_field == mscl.MipTypes.CH_FIELD_SENSOR_SCALED_MAG_VEC
                 ): # MAGNETOMETER (SCALED)
                     if data_qualifier == mscl.MipTypes.CH_X:
-                        imu_data.magx = data_point.as_double()
+                        imu_data.mag_x = data_point.as_double()
                     if data_qualifier == mscl.MipTypes.CH_Y:
-                        imu_data.magy = data_point.as_double()
+                        imu_data.mag_y = data_point.as_double()
                     if data_qualifier == mscl.MipTypes.CH_Z:
-                        imu_data.magz = data_point.as_double()
+                        imu_data.mag_z = data_point.as_double()
 
         # Convert quaternion and Euler readings to be with respect to static values
         if not raw:
@@ -399,12 +403,12 @@ class MicroStrainIMUs(IMU):
             rot_zeroed = self._imu_ref_rot_matrices[imu_id] * rot_raw
 
             # Convert orientation (quaternions)
-            imu_data.orientx, imu_data.orienty, imu_data.orientz, imu_data.orientw = (
+            imu_data.quat_x, imu_data.quat_y, imu_data.quat_z, imu_data.quat_w = (
                 rot_zeroed.as_quat()
             )
 
             # Convert orientation (Euler angles)
-            imu_data.roll, imu_data.pitch, imu_data.yaw = list(
+            imu_data.eul_x, imu_data.eul_y, imu_data.eul_z = list(
                 rot_zeroed.as_euler("xyz", degrees=False)
             )
 
@@ -453,12 +457,12 @@ class MicroStrainIMUs(IMU):
             if imu_id is None:
                 for imu_id, imu_node in self._imu_nodes.items():
                     self._imu_ref_rot_matrices[imu_id] = R.from_matrix(
-                        self.get_data(imu_id, raw=True).matrix.T
+                        self.get_data(imu_id, raw=True).rot_matrix.T
                     ).inv()
 
             else:
                 self._imu_ref_rot_matrices[imu_id] = R.from_matrix(
-                    self.get_data(imu_id, raw=True).matrix.T
+                    self.get_data(imu_id, raw=True).rot_matrix.T
                 ).inv()
 
     def __getitem__(self, index: str) -> IMUData:
@@ -491,7 +495,7 @@ def main(imu_ids: List[str], rate=IMU_RATE, tare_on_startup=False) -> None:
         for imu_id in imu_ids:
             current_time = time.perf_counter()
             print(
-                f"[{(1/(current_time-last_time)):.4f}]: ID: {imu_id} | roll: {imus.get_data(imu_id, True).roll:.2f},\t pitch: {imus.get_data(imu_id, True).pitch:.2f},\t yaw: {imus.get_data(imu_id, True).yaw:.2f}"
+                f"[{(1/(current_time-last_time)):.4f}]: ID: {imu_id} | roll: {imus.get_data(imu_id, True).eul_x:.2f},\t pitch: {imus.get_data(imu_id, True).eul_y:.2f},\t yaw: {imus.get_data(imu_id, True).eul_z:.2f}"
             )
             last_time = current_time
 
