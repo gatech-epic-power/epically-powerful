@@ -1,6 +1,6 @@
 (GettingStarted)=
 # Getting Started
-EpicallyPowerful assumes a basic familiarity with some concepts like Python, electrical actuation, linux computers, and inertial sensing. An in depth knowledge is not needed, but it can be helpful to google around for some basic refreshers.
+EpicallyPowerful assumes a basic familiarity with some concepts like Python, electrical actuation, Linux computers, and inertial sensing. An in depth knowledge is not needed, but it can be helpful to search around for some basic refreshers.
 
 
 ## Quickstart

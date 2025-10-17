@@ -2,7 +2,7 @@
 We recommend using PlotJuggler for most data visualization when using EpicallyPowerful. PlotJuggler is a popular time-series visualization tool with roboticists, particularly in the ROS community. We include simple client functionality in EpicallyPowerful allowing you to send data from your controller over the network to a device running PlotJuggler.
 
 ## Installing PlotJuggler
-You can (and probably should) install PlotJuggler on a device not running your robot. As long as the computer with PlotJuggler and the EpicallyPowerful robot are on the same network, things will work just fine. Please follow the instructions on the [PlotJuggler GitHub Page](https://github.com/facontidavide/PlotJuggler?tab=readme-ov-file#installation) to install PlotJuggler. By default, Linux and Windows are supported, however you can likely build PlotJuggler from the source code for MacOS. Any specific issues with PlotJuggler itself should be directed to the issues page on their GitHub repository.
+You can (and probably should) install PlotJuggler on a device not running your robot. As long as the computer with PlotJuggler and the EpicallyPowerful robot are on the same network, things will work just fine. Please follow the instructions on the [PlotJuggler GitHub Page](https://github.com/facontidavide/PlotJuggler?tab=readme-ov-file#installation) to install PlotJuggler. By default, Linux and Windows are supported, however you can build PlotJuggler from the source code for macOS as well. Any specific issues with PlotJuggler itself should be directed to the issues page on their GitHub repository.
 
 ## Setting up PlotJuggler
 EpicallyPowerful utilizes UDP communication to send data to PlotJuggler, so you will need to select that option from the dropdown menu in the "Streaming" tab.
@@ -52,7 +52,7 @@ while loop.continue_loop():
 More information on how to use PlotJuggler effectively can be found in [the PlotJuggler User Guide](https://facontidavide.github.io/PlotJuggler/visualization_howto/index.html)
 
 ## Other Options
-EpicallyPowerful does not include helper functionality for any other visualization tools, however please see the list below for some nice options if PlotJuggler does not server your needs.
+EpicallyPowerful does not include helper functionality for any other visualization tools, however please see the list below for some nice options if PlotJuggler does not serve your needs.
 * [Rerun](https://rerun.io/)
 * [Teleplot](https://github.com/nesnes/teleplot)
 * [Foxglove](https://foxglove.dev/)

@@ -1,8 +1,7 @@
-(MPU9250Install)=
-# MPU9250 IMU Setup
+(MSCLInstall)=
+# MicroStrain IMU Library
 
-The MPU9250 IMU series is easy to use, but requires a some setup and checks to ensure that I2C buses are  
-The low level driver library for the MicroStrain IMUs is maintained by MicroStrain by HBK, and is routinely updated on [their GitHub page](https://github.com/LORD-MicroStrain/MSCL). However, the installation is not automatically included with the pip or conda Epically Powerful install. Epically Powerful can be used without it, however the MicroStrain IMU functions and tools will not be available. **There are two options for installing the package**.
+The low level driver library for the MicroStrain IMUs is maintained by MicroStrain by HBK, and is routinely updated on [their github page](https://github.com/LORD-MicroStrain/MSCL). However, the installation is not automatically included with the pip or conda Epically Powerful install. Epically Powerful can be used without it, however the MicroStrain IMU functions and tools will not be available. **There are two options for installing the package**.
 
 ## Epically Powerful Install Helper
 Epically Powerful comes with a helper script that will attempt to automatically install the MSCL dependency. Once you've installed Epically Powerful, run `ep-install-mscl`. By default, this will grab the version of MSCL that corresponds with your hardware and Python version and attempt to install it into your base Python environment. Additionally, if you are using a virtual environment or conda environment, you can run it with the `-E` flag, which will attempt to install it into your virtual environment, or you can use `-d` to manually specify a directory to copy the files into. After this, you will have access to the all the MicroStrain IMU functionality.
