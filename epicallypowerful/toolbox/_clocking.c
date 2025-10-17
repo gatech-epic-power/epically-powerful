@@ -1480,6 +1480,13 @@ static const char* const __pyx_f[] = {
             __pyx_sub_acquisition_count_locked(__pyx_get_slice_count_pointer(memview), memview->lock)
 #endif
 
+/* NoFastGil.proto */
+#define __Pyx_PyGILState_Ensure PyGILState_Ensure
+#define __Pyx_PyGILState_Release PyGILState_Release
+#define __Pyx_FastGIL_Remember()
+#define __Pyx_FastGIL_Forget()
+#define __Pyx_FastGilFuncInit()
+
 /* IncludeStructmemberH.proto */
 #include <structmember.h>
 
@@ -1505,6 +1512,11 @@ static const char* const __pyx_f[] = {
 #else
 #define __Pyx_BEGIN_CRITICAL_SECTION Py_BEGIN_CRITICAL_SECTION
 #define __Pyx_END_CRITICAL_SECTION Py_END_CRITICAL_SECTION
+#endif
+
+/* ForceInitThreads.proto */
+#ifndef __PYX_FORCE_INIT_THREADS
+  #define __PYX_FORCE_INIT_THREADS 0
 #endif
 
 /* #### Code section: numeric_typedefs ### */
@@ -1539,6 +1551,7 @@ struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC {
 struct __pyx_vtabstruct_16epicallypowerful_7toolbox_9_clocking_TimedLoopC {
   PyObject *(*reset)(struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *);
   PyObject *(*sleep)(struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *, int __pyx_skip_dispatch);
+  PyObject *(*sleepy)(struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *, struct timespec);
 };
 static struct __pyx_vtabstruct_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *__pyx_vtabptr_16epicallypowerful_7toolbox_9_clocking_TimedLoopC;
 /* #### Code section: utility_code_proto ### */
@@ -2218,6 +2231,7 @@ static int __Pyx_State_RemoveModule(void*);
 
 static PyObject *__pyx_f_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_reset(struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *__pyx_v_self); /* proto*/
 static PyObject *__pyx_f_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_sleep(struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static PyObject *__pyx_f_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_sleepy(CYTHON_UNUSED struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *__pyx_v_self, struct timespec __pyx_v_sleep_to); /* proto*/
 
 /* Module declarations from "libc.stdint" */
 
@@ -2286,7 +2300,7 @@ static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_TimedLoopC___reduce_cython[] = "TimedLoopC.__reduce_cython__";
 static const char __pyx_k_Rate_must_be_greater_than_0[] = "Rate must be greater than 0";
 static const char __pyx_k_TimedLoopC___setstate_cython[] = "TimedLoopC.__setstate_cython__";
-static const char __pyx_k_A_I_XRt1_Q_q_A_q_A_a_9Ba_r_Q_4z[] = "\200A\330\010\014\210I\220[\240\001\240\027\250\001\250\024\250X\260R\260t\2701\330\010\025\220Q\320\026'\240q\250\004\250A\340\010 \240\007\240q\250\004\250A\330\010\"\240'\250\021\250$\250a\340\010\013\2109\220B\220a\330\014\020\220\t\230\022\230<\240r\250\024\250Q\330\020\023\2204\220z\240\026\240q\250\001\330\020\024\220H\230A\340\014\020\220\t\230\023\230K\240r\250\024\250Q\330\020\024\220F\230!\330\014\023\2206\230\021\230$\230a\340\010\014\210H\220A\330\010\027\220q\320\030)\250\037\270\001\270\024\270X\300Q\330\010\017\210v\220Q\220d\230!";
+static const char __pyx_k_A_I_XRt1_Q_q_A_q_A_a_9Ba_r_Q_4z[] = "\200A\330\010\014\210I\220[\240\001\240\027\250\001\250\024\250X\260R\260t\2701\330\010\025\220Q\320\026'\240q\250\004\250A\340\010 \240\007\240q\250\004\250A\330\010\"\240'\250\021\250$\250a\340\010\013\2109\220B\220a\330\014\020\220\t\230\022\230<\240r\250\024\250Q\330\020\023\2204\220z\240\026\240q\250\001\330\020\024\220H\230A\340\014\020\220\t\230\023\230K\240r\250\024\250Q\330\020\024\220F\230!\330\014\023\2206\230\021\230$\230a\340\010\014\210H\220A\330\r\016\330\014\033\2301\320\034-\250_\270A\270T\300\030\310\021\340\010\017\210v\220Q\220d\230!";
 static const char __pyx_k_epicallypowerful_toolbox__clocki[] = "epicallypowerful.toolbox._clocking";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_epicallypowerful_toolbox__clocki_2[] = "epicallypowerful/toolbox/_clocking.pyx";
@@ -3250,30 +3264,62 @@ static PyObject *__pyx_f_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_sle
  *             return to_sec(self.now) # No need to sleep, we're slow
  * 
  *         self.slow = False             # <<<<<<<<<<<<<<
- *         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
- *         return to_sec(self.now)
+ *         with nogil:
+ *             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
 */
   __pyx_v_self->slow = 0;
 
   /* "epicallypowerful/toolbox/_clocking.pyx":68
  * 
  *         self.slow = False
- *         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)             # <<<<<<<<<<<<<<
- *         return to_sec(self.now)
- * 
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
+ *         #self.sleepy(self.sleep_to)
 */
-  (void)(clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, (&__pyx_v_self->sched), NULL));
+  {
+      PyThreadState *_save;
+      _save = NULL;
+      Py_UNBLOCK_THREADS
+      __Pyx_FastGIL_Remember();
+      /*try:*/ {
 
-  /* "epicallypowerful/toolbox/_clocking.pyx":69
+        /* "epicallypowerful/toolbox/_clocking.pyx":69
  *         self.slow = False
- *         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
+ *         with nogil:
+ *             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)             # <<<<<<<<<<<<<<
+ *         #self.sleepy(self.sleep_to)
+ *         return to_sec(self.now)
+*/
+        (void)(clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, (&__pyx_v_self->sched), NULL));
+      }
+
+      /* "epicallypowerful/toolbox/_clocking.pyx":68
+ * 
+ *         self.slow = False
+ *         with nogil:             # <<<<<<<<<<<<<<
+ *             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
+ *         #self.sleepy(self.sleep_to)
+*/
+      /*finally:*/ {
+        /*normal exit:*/{
+          __Pyx_FastGIL_Forget();
+          Py_BLOCK_THREADS
+          goto __pyx_L9;
+        }
+        __pyx_L9:;
+      }
+  }
+
+  /* "epicallypowerful/toolbox/_clocking.pyx":71
+ *             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &self.sched, NULL)
+ *         #self.sleepy(self.sleep_to)
  *         return to_sec(self.now)             # <<<<<<<<<<<<<<
  * 
- *     def __call__(self):
+ *     cdef sleepy(self, timespec sleep_to):
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_9 = __pyx_f_16epicallypowerful_7toolbox_9_clocking_to_sec(__pyx_v_self->now); if (unlikely(__pyx_t_9 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L1_error)
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_9 = __pyx_f_16epicallypowerful_7toolbox_9_clocking_to_sec(__pyx_v_self->now); if (unlikely(__pyx_t_9 == ((double)-1) && PyErr_Occurred())) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3369,8 +3415,45 @@ static PyObject *__pyx_pf_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_4s
   return __pyx_r;
 }
 
-/* "epicallypowerful/toolbox/_clocking.pyx":71
+/* "epicallypowerful/toolbox/_clocking.pyx":73
  *         return to_sec(self.now)
+ * 
+ *     cdef sleepy(self, timespec sleep_to):             # <<<<<<<<<<<<<<
+ *         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleep_to, NULL)
+ * 
+*/
+
+static PyObject *__pyx_f_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_sleepy(CYTHON_UNUSED struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *__pyx_v_self, struct timespec __pyx_v_sleep_to) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("sleepy", 0);
+
+  /* "epicallypowerful/toolbox/_clocking.pyx":74
+ * 
+ *     cdef sleepy(self, timespec sleep_to):
+ *         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleep_to, NULL)             # <<<<<<<<<<<<<<
+ * 
+ *     def __call__(self):
+*/
+  (void)(clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, (&__pyx_v_sleep_to), NULL));
+
+  /* "epicallypowerful/toolbox/_clocking.pyx":73
+ *         return to_sec(self.now)
+ * 
+ *     cdef sleepy(self, timespec sleep_to):             # <<<<<<<<<<<<<<
+ *         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleep_to, NULL)
+ * 
+*/
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "epicallypowerful/toolbox/_clocking.pyx":76
+ *         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleep_to, NULL)
  * 
  *     def __call__(self):             # <<<<<<<<<<<<<<
  *         return self.sleep()
@@ -3410,20 +3493,20 @@ static PyObject *__pyx_pf_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_6_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__call__", 0);
 
-  /* "epicallypowerful/toolbox/_clocking.pyx":72
+  /* "epicallypowerful/toolbox/_clocking.pyx":77
  * 
  *     def __call__(self):
  *         return self.sleep()             # <<<<<<<<<<<<<<
 */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((struct __pyx_vtabstruct_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *)__pyx_v_self->__pyx_vtab)->sleep(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *)__pyx_v_self->__pyx_vtab)->sleep(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "epicallypowerful/toolbox/_clocking.pyx":71
- *         return to_sec(self.now)
+  /* "epicallypowerful/toolbox/_clocking.pyx":76
+ *         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleep_to, NULL)
  * 
  *     def __call__(self):             # <<<<<<<<<<<<<<
  *         return self.sleep()
@@ -3844,6 +3927,7 @@ static int __Pyx_modinit_type_init_code(__pyx_mstatetype *__pyx_mstate) {
   __pyx_vtabptr_16epicallypowerful_7toolbox_9_clocking_TimedLoopC = &__pyx_vtable_16epicallypowerful_7toolbox_9_clocking_TimedLoopC;
   __pyx_vtable_16epicallypowerful_7toolbox_9_clocking_TimedLoopC.reset = (PyObject *(*)(struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *))__pyx_f_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_reset;
   __pyx_vtable_16epicallypowerful_7toolbox_9_clocking_TimedLoopC.sleep = (PyObject *(*)(struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *, int __pyx_skip_dispatch))__pyx_f_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_sleep;
+  __pyx_vtable_16epicallypowerful_7toolbox_9_clocking_TimedLoopC.sleepy = (PyObject *(*)(struct __pyx_obj_16epicallypowerful_7toolbox_9_clocking_TimedLoopC *, struct timespec))__pyx_f_16epicallypowerful_7toolbox_9_clocking_10TimedLoopC_sleepy;
   #if CYTHON_USE_TYPE_SPECS
   __pyx_mstate->__pyx_ptype_16epicallypowerful_7toolbox_9_clocking_TimedLoopC = (PyTypeObject *) __Pyx_PyType_FromModuleAndSpec(__pyx_m, &__pyx_type_16epicallypowerful_7toolbox_9_clocking_TimedLoopC_spec, NULL); if (unlikely(!__pyx_mstate->__pyx_ptype_16epicallypowerful_7toolbox_9_clocking_TimedLoopC)) __PYX_ERR(0, 18, __pyx_L1_error)
   if (__Pyx_fix_up_extension_type_from_spec(&__pyx_type_16epicallypowerful_7toolbox_9_clocking_TimedLoopC_spec, __pyx_mstate->__pyx_ptype_16epicallypowerful_7toolbox_9_clocking_TimedLoopC) < 0) __PYX_ERR(0, 18, __pyx_L1_error)
@@ -4384,7 +4468,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 51, 174};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 51, 177};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_self};
     __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_epicallypowerful_toolbox__clocki_2, __pyx_mstate->__pyx_n_u_sleep, __pyx_k_A_I_XRt1_Q_q_A_q_A_a_9Ba_r_Q_4z, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }

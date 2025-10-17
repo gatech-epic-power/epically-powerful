@@ -21,7 +21,8 @@ dependencies = [
     "numpy",
     "python-can",
     "scipy",
-    "msgspec"
+    "msgspec",
+    "nicegui"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -42,6 +43,7 @@ jetson = ["Jetson.GPIO"]
 [project.scripts]
 ep-collect-imu-data = "epicallypowerful.toolbox.cli:collect_imu_data"
 ep-install-mscl = "epicallypowerful.toolbox.cli:install_mscl_python"
+ep-robstride-setup = "epicallypowerful.toolbox.robstride_setup_gui:main"
 
 
 [project.urls] # Make sure to update these to your project's URLs

@@ -29,7 +29,9 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-18.0, 18.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotor'
+        'pole_pairs': 21,
+        'gear_ratio': 9,
+        'super_type': 'TMotor',
     },
     'AK60-6-V1.1': { # 24V operation
         'position_limits': (-12.5, 12.5),
@@ -38,7 +40,9 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-3.0, 3.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotor'
+        'pole_pairs': 14,
+        'gear_ratio': 6,
+        'super_type': 'TMotor',
     },
     'AK70-10': { # 24V/48V operation
         'position_limits': (-12.5, 12.5),
@@ -47,7 +51,9 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-10.0, 10.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotor'
+        'pole_pairs': 21,
+        'gear_ratio': 10,
+        'super_type': 'TMotor',
     },
     'AK80-6': { # 48V operation
         'position_limits': (-12.5, 12.5),
@@ -56,7 +62,9 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-6.0, 6.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotor'
+        'pole_pairs': 21,
+        'gear_ratio': 6,
+        'super_type': 'TMotor',
     },
     'AK80-8': { # 48V operation
         'position_limits': (-12.5, 12.5),
@@ -65,7 +73,9 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-10.0, 10.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotor'
+        'pole_pairs': 21,
+        'gear_ratio': 8,
+        'super_type': 'TMotor',
     },
     'AK80-9': { # 48V operation
         'position_limits': (-12.5, 12.5),
@@ -74,7 +84,9 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-9.0, 9.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotor'
+        'pole_pairs': 21,
+        'gear_ratio': 9,
+        'super_type': 'TMotor',
     },
     'AK80-64': { # 24V/48V operation
         'position_limits': (-12.5, 12.5),
@@ -83,7 +95,9 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-48.0, 48.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotor'
+        'pole_pairs': 21,
+        'gear_ratio': 64,
+        'super_type': 'TMotor',
     },
     'Cybergear': {
         'position_limits': (-12.5, 12.5),
@@ -92,24 +106,78 @@ MOTOR_PARAMS = { # Listed with increasing
         'rated_torque_limits': (-4.0, 4.0),
         'kp_limits': (0, 500.0),
         'kd_limits': (0, 5.0),
+        'super_type': 'Robstride',
+    },
+    'RS00': {
+        'position_limits': (-12.566, 12.566),
+        'velocity_limits': (-33.0, 33.0),
+        'torque_limits': (-14.0, 14.0),
+        'rated_torque_limits': (-5.0, 5.0),
+        'kp_limits': (0, 500.0),
+        'kd_limits': (0, 5.0),
+        'super_type': 'Robstride'
+
+    },
+    'RS01': {
+        'position_limits': (-12.7, 12.7),
+        'velocity_limits': (-44.0, 44.0),
+        'torque_limits': (-17.0, 17.0),
+        'rated_torque_limits': (-6.0, 6.0),
+        'kp_limits': (0, 500.0),
+        'kd_limits': (0, 5.0),
         'super_type': 'Robstride'
     },
     'RS02': {
-        'position_limits': (-12.5, 12.5),
-        'velocity_limits': (-30.0, 30.0),
+        'position_limits': (-12.7, 12.7),
+        'velocity_limits': (-44.0, 44.0),
         'torque_limits': (-17.0, 17.0),
-        'rated_torque_limits': (-4.0, 4.0),
+        'rated_torque_limits': (-6.0, 6.0),
         'kp_limits': (0, 500.0),
         'kd_limits': (0, 5.0),
+        'super_type': 'Robstride'
+    },
+    'RS03': {
+        'position_limits': (-12.7, 12.7),
+        'velocity_limits': (-20.0, 20.0),
+        'torque_limits': (-60.0, 60.0),
+        'rated_torque_limits': (-20.0, 20.0),
+        'kp_limits': (0, 5000.0),
+        'kd_limits': (0, 100.0),
+        'super_type': 'Robstride'
+    },
+    'RS04': {
+        'position_limits': (-12.7, 12.7),
+        'velocity_limits': (-15.0, 15.0),
+        'torque_limits': (-120.0, 120.0),
+        'rated_torque_limits': (-40.0, 40.0),
+        'kp_limits': (0, 5000.0),
+        'kd_limits': (0, 100.0),
+        'super_type': 'Robstride'
+    },
+    'RS05': {
+        'position_limits': (-12.7, 12.7),
+        'velocity_limits': (-50.0, 50.0),
+        'torque_limits': (-5.5, 5.5),
+        'rated_torque_limits': (-1.6, 1.6),
+        'kp_limits': (0, 500.0),
+        'kd_limits': (0, 5.0),
+        'super_type': 'Robstride'
+    },
+    'RS06': {
+        'position_limits': (-12.7, 12.7),
+        'velocity_limits': (-50.0, 50.0),
+        'torque_limits': (-36.0, 36.0),
+        'rated_torque_limits': (-11.0, 11.0),
+        'kp_limits': (0, 5000.0),
+        'kd_limits': (0, 100.0),
         'super_type': 'Robstride'
     }
 }
 
-def get_motor_limits(motor_type):
+def get_motor_details(motor_type):
     if motor_type not in MOTOR_PARAMS.keys():
         raise ValueError(f'{motor_type} is not a valid motor type, must be one of {list(MOTOR_PARAMS.keys())}')
-    return MOTOR_PARAMS[motor_type].values()
-
+    return MOTOR_PARAMS[motor_type]
 
 def t_motors():
     return [motor_key for motor_key in MOTOR_PARAMS.keys() if MOTOR_PARAMS[motor_key]['super_type'] == 'TMotor']
@@ -155,6 +223,7 @@ class MotorData:
     rms_time_prev: float = 0
     motor_mode: float = 0
     internal_params = {}
+    erpm_to_rpm: float = None
 
     def __post_init__(self):
         """Initializes the motor limits based on the motor type
@@ -164,4 +233,10 @@ class MotorData:
         """
         if self.motor_type is None:
             raise ValueError('motor_type must be specified')
-        self.position_limits, self.velocity_limits, self.torque_limits, self.rated_torque_limits, self.kp_limits, self.kd_limits, _ = get_motor_limits(self.motor_type)
+        details = get_motor_details(self.motor_type)
+        self.position_limits = details.get('position_limits')
+        self.velocity_limits = details.get('velocity_limits')
+        self.torque_limits = details.get('torque_limits')
+        self.kp_limits = details.get('kp_limits')
+        self.kd_limits = details.get('kd_limits')
+        self.erpm_to_rpm = (1 / details.get('pole_pairs')) * (1 / details.get('gear_ratio'))
