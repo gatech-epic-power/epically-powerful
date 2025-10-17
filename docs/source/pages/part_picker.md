@@ -8,7 +8,7 @@ part_picker/*
 ``` -->
 
 ## Microcomputer
-The microcomputer will act as the 'brain' for the device.  The microcomputer will run a linux OS and is where you will write and run your controllers.
+The microcomputer will act as the 'brain' for the device.  The microcomputer will run a Linux OS and is where you will write and run your controllers.
 
 ### *Choice 1: Raspberry Pi*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
@@ -23,8 +23,8 @@ A Raspberry Pi is the most affordable of the two options.  Raspberry Pi's don't 
 Raspberry Pi 1, 2, and 3 are powered by a micro-USB connection.  Raspberry Pi 4 is powered by a USB-C connection.  We have included recommendations for both in the ordering sheet, so please be sure to order the one that is compatible with your chosen Raspberry Pi device.
 :::
 
-### *Choice 2: Nvidia Jetson Orin Nano*
-A Jetson is particularly well-suited for real-time machine learning models, as it is equipped with an Nvidia GPU.  These computers can be a bit more complicated to set up, so we recommend this for more advanced users that need the ML capatability.
+### *Choice 2: NVIDIA Jetson Orin Nano*
+A Jetson is particularly well-suited for real-time machine learning models, as it is equipped with an NVIDIA GPU.  These computers can be a bit more complicated to set up, so we recommend this for more advanced users that need the ML capatability.
 
 **Order:**
 - Jetson
@@ -143,7 +143,7 @@ All of the listed actuators are commercially-available quasi-direct drive actuat
 ### *Choice 1: CubeMars T-Motor AK-Series Actuators*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
 
-T-Motor has a variety of AK-Series actuators available.  We recommend specifically considering actuator mass, rated torque, and peak torque, as they have a large variety of actuators and the desired specifications will be specific to your use case.  All actuator options are listed in the ordering sheet.  This is our recommendation because this is the actuator that our lab has used the most extensively over the last 5 years, however, these are the more expensive of the possible actuators listed here.
+T-Motor has a variety of AK-Series actuators available.  We recommend specifically considering actuator mass, rated torque, and peak torque, as they have a large variety of actuators and the desired specifications will be specific to your use case.  All actuator options are listed in the ordering sheet.  This is our recommendation because this is the actuator that our lab has used the most extensively over the last 5 years. However, these are the more expensive of the possible actuators listed here.
 
 **Order:**
 - Actuator(s)
@@ -152,7 +152,7 @@ T-Motor has a variety of AK-Series actuators available.  We recommend specifical
 - XT30 connectors
 
 ### *Choice 2: CyberGear MicroMotor*
-The Cybergear Micromotor is a single actuator that is unique due to it's low weight and relative affordability.
+The CyberGear Micromotor is a single actuator that is unique due to its low weight and relative affordability.
 
 **Order:**
 - Actuator(s) (Can typically be found on AliExpress)
@@ -174,12 +174,23 @@ The Cybergear Micromotor is a single actuator that is unique due to it's low wei
 - E-stop
 
 ## Sensors
+You can choose from several possible IMU sensor types depending on your use case. While they differ in price and number of features, they all provide the same raw signals. Furthermore, each uses one of the basic communication protocols like serial or I2C, making them easy to integrate with your microcomputer setup.
 
 ### *Microstrain IMUs*
+The MicroStrain IMUs provide extensive features on top of their basic accelerometer and gyroscope sensing, making their orientation readings highly drift-resistent. However, these benefits come at the (literal) cost of higher prices per unit.
+
+**Order:**
+- MicroStrain 3DM-GX5-25 [Mouser link from HBK page](https://www.mouser.com/ProductDetail/MicroStrain-by-HBK/3DM-GX5-AHRS?qs=A6eO%252BMLsxmRQvdAwtoW2wA%3D%3D). Comes with micro DB9-to-USB A connectors in the box
 
 ### *MPU9250 IMUs*
+MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fraction of the price of more expensive units, though their orientation data are more prone to drift than other models.
 
-### *Force Sensitive Resistors*
+**Order:**
+- MPU9250 IMU [Amazon link](https://www.amazon.com/HiLetgo-Gyroscope-Acceleration-Accelerator-Magnetometer/dp/B01I1J0Z7Y?dib=eyJ2IjoiMSJ9.H8rPQB0pzcqcejL12LryTrfaawvinmIg3oXfm3omCbvZ8DRGfgSizDcByakTUZO3aTIU3H6KYQsGBcEmOSt-Fv63u-HU6X8cu-8rDoYw5hCb9Tg69Xq_0lZnc6mVdwOfmt7fyIodPzpu5d6MZ9v9uCyRv6Lva_LRKIeOY9f1uKneguuhGeTDf_QBCPEw1IS658mwZowzp8HWfHQ5qv8G4K40-wB9gq-Mq3gSRICnLYk.a1bqqcOhq27x7foPwikzjRUb1NmOSBhqgPU4T2EHXbs&dib_tag=se&keywords=hiletgo%2Bmpu9250%2Bimu&qid=1760737737&sr=8-1&th=1)
+- TCA9548A multiplexer [Amazon link](https://www.amazon.com/dp/B06XXG5G3L?ref=nb_sb_ss_w_as-reorder_k0_1_8&amp=&crid=3NXPOA65KQZDW&amp=&sprefix=tca9548a)
+- DuPont jumper cable kit [Amazon link](https://www.amazon.com/Elegoo-EL-CP-004-Multicolored-Breadboard-arduino/dp/B01EV70C78?crid=29G5RBEXYSINA&dib=eyJ2IjoiMSJ9.tjHxIQLJsk16_0YVtUGN6b3pM1t_83I8NWCCan5QgtAb7wPk_xNEOF5Oro49HwBOyPc0kJgs1e7VUCDqxPaPjoh-RSZTd6TR-zPdsWAFFWspKXmJEaB2pKxzOjmRCuEW0JdKYd7gWwlneB2AwFR8uTU-8dxAcEnDgWG3_MT0Fm2Hh_00Nx9gWPoqazonY89oGerbY-nvNoS0qw0hNTck1rpFJ5OIm6KqFFPrxAtcpQ8.dlS7XRp-JS_LaKrOSHRhCcNfTuZe_cb-LUTN2QFNkRQ&dib_tag=se&keywords=dupont+jumper+cable+kit&qid=1760737522&sprefix=dupont+jumper+cable+kit%2Caps%2C118&sr=8-1)
+
+
 
 ## Additional + Standard Mechatronics Materials
 
