@@ -73,7 +73,7 @@ We welcome contributions from the robotics community! If you have improvements, 
 
 ### 📄 License
 
-This project is released under the [LGPL V2.1 License](LICENSE).
+This project is released under the [GPLv3 License](LICENSE).
 
 ---
 
