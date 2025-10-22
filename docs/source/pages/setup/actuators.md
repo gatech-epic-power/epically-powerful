@@ -83,13 +83,13 @@ To change CAN IDs, the following components and packages are required:
       :::
       
 
-## Robstride Actuators & Cybergear Micromotors
-The Robstride and Cybergear branded actuators use the same underlying control protocol, so for all setup steps they will be identical. However, you should note that these actuators of course may have different specifications (such as peak and rated torque, required voltage, etc.). The Robstride & Cybergear Micromotor Actuators utilize a CAN bus protocol for control, and are set up to work correctly with the provided library out of the box. Each actuator has a pre-programmed CAN ID, which defaults to 127. In order to address more than one actuator simultaneously, you will need to re-configure the actuator IDs. 
+## RobStride Actuators & CyberGear Micromotors
+The RobStride and CyberGear branded actuators use the same underlying control protocol, so for all setup steps they will be identical. However, you should note that these actuators of course may have different specifications (such as peak and rated torque, required voltage, etc.). The RobStride & CyberGear Micromotor Actuators utilize a CAN bus protocol for control, and are set up to work correctly with the provided library out of the box. Each actuator has a pre-programmed CAN ID, which defaults to 127. In order to address more than one actuator simultaneously, you will need to re-configure the actuator IDs. 
 
-### Steps for setting up the Cybergear and Robstride actuators
-Because Robstride requires an additional adapter for configuring CAN IDs, we created and included a adapter-less software tool in Epically Powerful with this functionality.
+### Steps for setting up the CyberGear and RobStride actuators
+Because RobStride requires an additional adapter for configuring CAN IDs, we created and included a adapter-less software tool in Epically Powerful with this functionality.
 1. Ensure Epically Powerful is installed
-2. Connect your Robstride or Cybergear actuator to power and the CAN interface on your Raspberry Pi or Jetson according to the the wiring setup found on the [Mechatronics](Mechatronics) page
+2. Connect your RobStride or CyberGear actuator to power and the CAN interface on your Raspberry Pi or Jetson according to the the wiring setup found on the [Mechatronics](Mechatronics) page
 3. Run `ep-robstride-setup` to launch our web GUI
 4. Select "Scan for actuators"
       * This will attempt to find all actuators connected to the bus and their CAN IDs
@@ -98,7 +98,7 @@ Because Robstride requires an additional adapter for configuring CAN IDs, we cre
 
 At this point, your actuator will be ready to use with the set CAN ID using the EpicallyPowerful actuator utilities.
 
-Robstride provides a tool to configure the actuator IDs, along with other parameters, and to use this you will need the CAN bus USB adapter. If you want additional functionality that this provides (configure additional parameters, alter internal torque limits or current gains, etc.), you will need to use their tool.
+RobStride provides a tool to configure the actuator IDs, along with other parameters, and to use this you will need the CAN bus USB adapter. If you want additional functionality that this provides (configure additional parameters, alter internal torque limits or current gains, etc.), you will need to use their tool.
 
 
 
