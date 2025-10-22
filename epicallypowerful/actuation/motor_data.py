@@ -239,4 +239,5 @@ class MotorData:
         self.torque_limits = details.get('torque_limits')
         self.kp_limits = details.get('kp_limits')
         self.kd_limits = details.get('kd_limits')
+        self.rated_torque_limits = details.get('rated_torque_limits')
         self.erpm_to_rpm = (1 / details.get('pole_pairs')) * (1 / details.get('gear_ratio'))
