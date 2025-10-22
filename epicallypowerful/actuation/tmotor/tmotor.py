@@ -62,7 +62,7 @@ class TMotor(can.Listener, Actuator):
             kp=0, kd=0, timestamp=-1,
             running_torque=(), rms_torque=0, rms_time_prev=0
         )
-        self.torque_monitor = RMSTorqueMonitor(limit=self.data.rated_torque_limits[0], window=20.0)
+        self.torque_monitor = RMSTorqueMonitor(limit=abs(self.data.rated_torque_limits[1]), window=20.0)
         self._over_limit = False
 
         self._connection_established = False
