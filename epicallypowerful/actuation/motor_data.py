@@ -21,7 +21,7 @@ AK70_10 = 'AK70-10'
 AK10_9_V2_0 = 'AK10-9-V2.0'
 
 
-MOTOR_PARAMS = { # Listed with increasing
+MOTOR_PARAMS = {
     'AK10-9-V2.0': { # 24V/48V operation
         'position_limits': (-12.5, 12.5),
         'velocity_limits': (-50.0, 50.0),
