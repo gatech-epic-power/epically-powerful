@@ -1,4 +1,4 @@
-# Extras
+# Toolbox
 
 ## Data Recorder
 ```{eval-rst}

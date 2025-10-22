@@ -7,8 +7,8 @@
 part_picker/*
 ``` -->
 
-## Microcomputer
-The microcomputer will act as the 'brain' for the device.  The microcomputer will run a Linux OS and is where you will write and run your controllers.
+## Single Board Computer
+The single board computer will act as the 'brain' for the device.  The computer will run a Linux OS and is where you will write and run your controllers.
 
 ### *Choice 1: Raspberry Pi*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
@@ -45,9 +45,9 @@ You can use 24-Volt batteries that are typically used for power drills. We recom
 | Item              	|Notes |
 | :---------------- 	| :---- |
 | 12-gauge black/red wire | Cable that will be used to connect all powered components in system |
-| XT30 connectors       | Recommended to add disconnection/break points in power cables in all possible configurations, needed for T-Motor actuator connection |
+| XT30 connectors       | Recommended to add disconnection/break points in power cables in all possible configurations, needed for CubeMars actuator connection |
 | XT60 connectors       | Only needed if using lipo batteries |
-| XT30 2+2 connectors    | Only needed for Cybergear and Robstride actuators |
+| XT30 2+2 connectors    | Only needed for CyberGear and RobStride actuators |
 
 
 **1 2Ah 24V drill battery:** 4-actuator hip exoskeleton that applies about 15 Nm of torque for 0.5 sec. duration every 20 seconds (battery switch every 2-3 hours)
@@ -140,10 +140,10 @@ All of the listed actuators are commercially-available quasi-direct drive actuat
    :class: only-dark
 ```
 
-### *Choice 1: CubeMars T-Motor AK-Series Actuators*
+### *Choice 1: CubeMars AK-Series Actuators*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
 
-T-Motor has a variety of AK-Series actuators available.  We recommend specifically considering actuator mass, rated torque, and peak torque, as they have a large variety of actuators and the desired specifications will be specific to your use case.  All actuator options are listed in the ordering sheet.  This is our recommendation because this is the actuator that our lab has used the most extensively over the last 5 years. However, these are the more expensive of the possible actuators listed here.
+CubeMars has a variety of AK-Series actuators available.  We recommend specifically considering actuator mass, rated torque, and peak torque, as they have a large variety of actuators and the desired specifications will be specific to your use case.  All actuator options are listed in the ordering sheet.  This is our recommendation because this is the actuator that our lab has used the most extensively over the last 5 years. However, these are the more expensive of the possible actuators listed here.
 
 **Order:**
 - Actuator(s)
@@ -151,7 +151,7 @@ T-Motor has a variety of AK-Series actuators available.  We recommend specifical
 - CAN cable kit
 - XT30 connectors
 
-### *Choice 2: CyberGear MicroMotor*
+### *Choice 2: CyberGear Micromotor*
 The CyberGear Micromotor is a single actuator that is unique due to its low weight and relative affordability.
 
 **Order:**
@@ -174,7 +174,7 @@ The CyberGear Micromotor is a single actuator that is unique due to its low weig
 - E-stop
 
 ## Sensors
-You can choose from several possible IMU sensor types depending on your use case. While they differ in price and number of features, they all provide the same raw signals. Furthermore, each uses one of the basic communication protocols like serial or I2C, making them easy to integrate with your microcomputer setup.
+You can choose from several possible IMU sensor types depending on your use case. While they differ in price and number of features, they all provide the same raw signals. Furthermore, each uses one of the basic communication protocols like serial or I2C, making them easy to integrate with your computer setup.
 
 ### *Microstrain IMUs*
 The MicroStrain IMUs provide extensive features on top of their basic accelerometer and gyroscope sensing, making their orientation readings highly drift-resistent. However, these benefits come at the (literal) cost of higher prices per unit.
@@ -202,9 +202,9 @@ MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fra
 | Item              	|Notes |
 | :---------------- 	| :---- |
 | 12-gauge black/red wire | Cable that will be used to connect all powered components in system |
-| XT30 connectors       | Recommended to add disconnection/break points in power cables in all possible configurations, needed for T-Motor actuator connection |
+| XT30 connectors       | Recommended to add disconnection/break points in power cables in all possible configurations, needed for CubeMars actuator connection |
 | XT60 connectors       | Only needed if using lipo batteries |
-| XT30 2+2 connectors    | Only needed for Cybergear and Robstride actuators |
+| XT30 2+2 connectors    | Only needed for CyberGear and RobStride actuators |
 
 ### Actuator Communication System
 

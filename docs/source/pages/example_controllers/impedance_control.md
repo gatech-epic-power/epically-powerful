@@ -5,7 +5,7 @@
 # IMPORTS
 from epicallypowerful import actuation, toolbox
 
-# MOTOR SETUP
+# ACTUATOR SETUP
 right_hip = 0x1
 left_hip = 0x2
 actuator_type = 'AK80-9'
