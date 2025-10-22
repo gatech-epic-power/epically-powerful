@@ -176,3 +176,6 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 *.deb
+
+_clocking.c
+_clocking.*.so

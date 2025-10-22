@@ -226,6 +226,8 @@ class ActuatorGroup():
             self.actuators[can_id]._enable()
             return -1
 
+
+
         self.actuators[can_id].data.last_command_time = time.perf_counter()
         self.actuators[can_id].set_torque(torque)
         self.actuators[can_id].data.responding = True

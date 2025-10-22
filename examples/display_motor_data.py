@@ -19,6 +19,7 @@ the same type for this script (not necessary for typical use).
 motor_type = input(
     "\nWhich motor type: AK80-9, AK70-10, AK80-8, AK10-9, AK80-64?"
 )
+motor_type = 'AK10-9-V2.0'
 
 motor_ids = input("What are all the motor ids (seperate each by a comma)? ")
 motor_ids = [int(s) for s in motor_ids.replace(" ","").split(',')]
