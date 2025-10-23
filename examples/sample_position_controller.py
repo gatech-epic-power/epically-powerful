@@ -5,7 +5,6 @@ a sinusoidal pattern using a PD controller.
 """
 
 from epicallypowerful.actuation import ActuatorGroup
-from epicallypowerful.actuation.tmotor import TMotor
 from epicallypowerful.toolbox import TimedLoop
 
 import time # only necessary for sine position control implementation
@@ -13,14 +12,15 @@ import math # only necessary for sine position control implementation
 
 
 ##################################################################
-# DEFINE DEVICE IDS & OTHER PARAMETERS
+# SET CLOCK SPECIFICATIONS
 ##################################################################
 
+# Set control loop frequency
 OPERATING_FREQ = 200 # [Hz]
-ACT_ID = 0x1 # CAN ID
+clocking_loop = TimedLoop(rate=OPERATING_FREQ)
 
 ##################################################################
-# INITIALIZE DEVICES & CLOCKS & VISUALIZER
+# INITIALIZE DEVICES & VISUALIZER
 ##################################################################
 
 # Determine number of connected actuators. This assumes a uniform actuator type (i.e. all are AK80-9)
@@ -35,7 +35,6 @@ initialization_dict = {actuator_id:actuator_type}
 
 # Initialize actuator object from dictionary
 acts = ActuatorGroup.from_dict(initialization_dict)
-clocking_loop = TimedLoop(rate=OPERATING_FREQ)
 
 ##################################################################
 # SET CONTROLLER PARAMETERS

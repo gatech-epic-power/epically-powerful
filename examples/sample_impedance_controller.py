@@ -5,29 +5,39 @@ a sinusoidal pattern using a PD controller.
 """
 
 from epicallypowerful.actuation import ActuatorGroup
-from epicallypowerful.actuation.tmotor import TMotor
 from epicallypowerful.toolbox import TimedLoop
 
 
 ##################################################################
-# DEFINE DEVICE IDS & OTHER PARAMETERS
+# SET CLOCK SPECIFICATIONS
 ##################################################################
 
+# Set control loop frequency
 OPERATING_FREQ = 200 # [Hz]
-ACT_ID = 0x1 # CAN ID
-
-##################################################################
-# INITIALIZE DEVICES & CLOCKS & VISUALIZER
-##################################################################
-
-acts = ActuatorGroup([TMotor(ACT_ID, 'AK10-9-V2.0')])
 clocking_loop = TimedLoop(rate=OPERATING_FREQ)
+
+##################################################################
+# INITIALIZE DEVICES & VISUALIZER
+##################################################################
+
+# Determine number of connected actuators. This assumes a uniform actuator type (i.e. all are AK80-9)
+actuator_type = input(
+    "\nSpecify actuator type (see actuation.motor_data for possible types): "
+)
+
+# Get actuator IDs
+actuator_id = input("Specify actuator id: ")
+actuator_id = int(actuator_id)
+initialization_dict = {actuator_id:actuator_type}
+
+# Initialize actuator object from dictionary
+acts = ActuatorGroup.from_dict(initialization_dict)
 
 ##################################################################
 # SET CONTROLLER PARAMETERS (PLAY AROUND WITH THESE!)
 ##################################################################
 
-GAIN_KP = 1 # proportional gain
+GAIN_KP = 2 # proportional gain
 GAIN_KD = 0.1 # derivative gain
 error_current = 0 # initialize, will change in loop
 prev_error = 0 # initialize, will change in loop
@@ -38,7 +48,7 @@ position_desired = 0 # [rad]
 ##################################################################
 
 # Zero actuator encoder
-acts.zero_encoder(ACT_ID)
+acts.zero_encoder(actuator_id)
 
 # Run control loop at set frequency
 while clocking_loop():

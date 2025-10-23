@@ -206,15 +206,15 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--components",
     type=split_strings,
-    default="acc,gyro,mag",
+    default="acc,gyro",
     help="Which channels to calibrate on the sensor, comma-separated without spaces (e.g., --components acc,gyro)",
 )
 
 parser.add_argument(
-    "--i2c_bus",
+    "--i2c-bus",
     type=int,
     default=DEFAULT_I2C_BUS,
-    help="Which I2C bus the sensor is on (e.g., --i2c_bus 7). Defaults to 7 for NVIDIA Jetson Orin Nano or 1 for Raspberry Pi",
+    help="Which I2C bus the sensor is on (e.g., --i2c-bus 7). Defaults to 7 for NVIDIA Jetson Orin Nano or 1 for Raspberry Pi",
 )
 
 parser.add_argument(
@@ -282,7 +282,7 @@ if __name__ == "__main__":
     mpu9250_imus = MPU9250IMUs(
         imu_ids=imu_id,
         components=args.components,
-        use_calibration=False, # When generating a new calibration, don't rely on old one
+        calibration_path='', # When generating a new calibration, don't rely on old one
         verbose=True,
     )
 
