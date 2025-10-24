@@ -59,6 +59,7 @@ class PlotJugglerUDPClient:
         except BlockingIOError as e:
             pass
 
+
 if __name__ == "__main__":
     import sys
     import time
