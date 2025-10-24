@@ -68,9 +68,9 @@ class MicroStrainIMUs(IMU):
             shank_data = imus.get_data(LEFT_SHANK)
 
             # Specific Orientation Channels
-            thigh_roll = thigh_data.roll
-            thigh_pitch = thigh_data.pitch
-            thigh_yaw = thigh_data.yaw
+            thigh_roll = thigh_data.eul_x
+            thigh_pitch = thigh_data.eul_y
+            thigh_yaw = thigh_data.eul_z
 
             # Helpers for getting multiple relevant channels at once
             thigh_quaternion = thigh_data.quaternion

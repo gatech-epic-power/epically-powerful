@@ -29,7 +29,8 @@ def _load_can_drivers() -> None:
     This will load the CAN drivers, but then remove them and load them again...
     Trust the process. Loading them alone will not reset the can drivers.
     If they are not reset, the buffer can fill up due to errors and the buffer
-    will not properly reset."""
+    will not properly reset.
+    """
 
     dev_uname = platform.uname()
     if 'aarch64' in dev_uname.machine.lower() and 'tegra' in dev_uname.release.lower():
