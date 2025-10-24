@@ -252,7 +252,7 @@ def stream_microstrain_imu_data():
         "--rate", '-r',
         nargs='+',
         required=False,
-        type=str,
+        type=int,
         default=200,
         help="Operating frequency [Hz]",
     )
@@ -261,7 +261,7 @@ def stream_microstrain_imu_data():
     serial_ids = args.imu_serial_id[0] # This is a list
     serial_ids = [str(s) for s in serial_ids.replace(" ", "").split(',')]
     print(f"Using IMU(s) with IDs {serial_ids}")
-    rate = int(args.rate[0]) # This is an int [Hz]
+    rate = int(args.rate) # This is an int [Hz]
     
     from epicallypowerful.sensing.microstrain.microstrain_imu import MicroStrainIMUs
     from epicallypowerful.toolbox.clocking import TimedLoop
@@ -779,7 +779,7 @@ def imu_control_actuator():
     serial_id = args.imu_serial_id[0] # This is a list
     serial_id = [str(s) for s in serial_id.replace(" ", "").split(',')]
     print(f"Using IMU(s) with IDs {serial_id}")
-    rate = args.rate # This is an int [Hz]
+    rate = int(args.rate[0]) # This is an int [Hz]
     actuator_type = args.actuator_type
     actuator_id = int(args.actuator_id)
 
