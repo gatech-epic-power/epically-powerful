@@ -54,12 +54,16 @@ open_imus = OpenIMUs(
 print("\n")
 
 # Continuously stream data
-while clocking_loop():
-    print('\033[A\033[A\033[A')
-    print(f'| IMU addr. | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
+try:
+    while clocking_loop():
+        print('\033[A\033[A\033[A')
+        print(f'| IMU addr. | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
 
-    # Iterate through all connected IMUs
-    for imu_id in open_imu_ids:
-        # Acceleration in x, y, z direction
-        oi_data = open_imus.get_data(imu_id)
-        print(f"| {int(imu_id):^9} | {oi_data.acc_x:^15.2f} | {oi_data.acc_y:^15.2f} | {oi_data.acc_z:^15.2f} |")
+        # Iterate through all connected IMUs
+        for imu_id in open_imu_ids:
+            # Acceleration in x, y, z direction
+            oi_data = open_imus.get_data(imu_id)
+            print(f"| {int(imu_id):^9} | {oi_data.acc_x:^15.2f} | {oi_data.acc_y:^15.2f} | {oi_data.acc_z:^15.2f} |")
+except KeyboardInterrupt:
+    open_imus._close_loop_resources()
+    print("\nStopped OpenIMUs instance.")

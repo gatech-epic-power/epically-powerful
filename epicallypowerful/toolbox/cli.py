@@ -250,7 +250,6 @@ def stream_microstrain_imu_data():
     )
     parser.add_argument(
         "--rate", '-r',
-        nargs='+',
         required=False,
         type=int,
         default=200,
@@ -285,15 +284,19 @@ def stream_microstrain_imu_data():
     print("\n")
 
     # Continuously stream data
-    while clocking_loop():
-        print('\033[A\033[A\033[A')
-        print(f'| IMU addr. | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
+    try:
+        while clocking_loop():
+            print('\033[A\033[A\033[A')
+            print(f'| IMU addr. | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
 
-        # Iterate through all connected IMUs
-        for imu_id in serial_ids:
-            # Acceleration in x, y, z direction
-            ms_data = microstrain_imus.get_data(imu_id)
-            print(f"| {int(imu_id):^9} | {ms_data.acc_x:^15.2f} | {ms_data.acc_y:^15.2f} | {ms_data.acc_z:^15.2f} |")
+            # Iterate through all connected IMUs
+            for imu_id in serial_ids:
+                # Acceleration in x, y, z direction
+                ms_data = microstrain_imus.get_data(imu_id)
+                print(f"| {int(imu_id):^9} | {ms_data.acc_x:^15.2f} | {ms_data.acc_y:^15.2f} | {ms_data.acc_z:^15.2f} |")
+
+    except KeyboardInterrupt:
+        print("\nClosing MicroStrain IMUs.")
 
 
 def stream_mpu9250_imu_data():
@@ -310,7 +313,6 @@ def stream_mpu9250_imu_data():
 
     parser.add_argument(
         "--rate", '-r',
-        nargs='+',
         required=False,
         type=float,
         default=250,
@@ -342,7 +344,7 @@ def stream_mpu9250_imu_data():
     bus = args.i2c_bus
     channel = args.channel
     address = int('0x'+str(args.address), 0) # Convert multi-digit address into hex, then int
-    rate = int(args.rate[0]) # This is an int [Hz]
+    rate = int(args.rate) # This is an int [Hz]
     
     from epicallypowerful.sensing.mpu9250.mpu9250_imu import MPU9250IMUs
     from epicallypowerful.toolbox.clocking import TimedLoop
@@ -375,15 +377,19 @@ def stream_mpu9250_imu_data():
     print("\n")
 
     # Continuously stream data
-    while clocking_loop():
-        print('\033[A\033[A\033[A')
-        print(f'| I2C bus | channel | I2C addr. | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
+    try:
+        while clocking_loop():
+            print('\033[A\033[A\033[A')
+            print(f'| I2C bus | channel | I2C addr. | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
 
-        # Iterate through all connected IMUs
-        for imu_id, connection in mpu9250_imu_ids.items():
-            # Acceleration in x, y, z directions
-            mpu_data = mpu9250_imus.get_data(imu_id)
-            print(f'| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |')
+            # Iterate through all connected IMUs
+            for imu_id, connection in mpu9250_imu_ids.items():
+                # Acceleration in x, y, z directions
+                mpu_data = mpu9250_imus.get_data(imu_id)
+                print(f'| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |')
+
+    except KeyboardInterrupt:
+        print("\nClosing MPU9250 IMUs.")
 
 
 def stream_open_imu_data():
@@ -396,7 +402,6 @@ def stream_open_imu_data():
 
     parser.add_argument(
         "--rate", '-r',
-        nargs='+',
         required=False,
         type=float,
         default=100,
@@ -404,18 +409,17 @@ def stream_open_imu_data():
     )
 
     parser.add_argument(
-        "--can-id", '-id',
-        type=int,
+        "--imu-can-id", '-id',
+        type=str,
         required=True,
-        default=128,
-        help="IMU serial ID (multiple can be specified and separated by comma)",
-        help="OpenIMU CAN ID (multiple can be specified and separated by comma) (e.g., --can-id 128)",
+        default='128',
+        help="OpenIMU CAN ID (multiple can be specified and separated by comma) (e.g., --imu-can-id 128)",
     )
 
     args = parser.parse_args()
-    open_imu_ids = args.can_id
+    open_imu_ids = args.imu_can_id
     open_imu_ids = [int(s) for s in open_imu_ids.replace(" ", "").split(',')]
-    rate = int(args.rate[0]) # This is an int [Hz]
+    rate = args.rate # This is an int [Hz]
     
     from epicallypowerful.sensing.open_imu.open_imu import OpenIMUs
     from epicallypowerful.toolbox.clocking import TimedLoop
@@ -439,15 +443,21 @@ def stream_open_imu_data():
     print("\n")
 
     # Continuously stream data
-    while clocking_loop():
-        print('\033[A\033[A\033[A')
-        print(f'| CAN ID | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
+    try:
+        while clocking_loop():
+            print('\033[A\033[A\033[A')
+            print(f'| CAN ID | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
 
-        # Iterate through all connected IMUs
-        for imu_id, connection in open_imu_ids.items():
-            # Acceleration in x, y, z directions
-            oi_data = open_imus.get_data(imu_id)
-            print(f'| {int(imu_id):^6} | {oi_data.acc_x:^15.2f} | {oi_data.acc_y:^15.2f} | {oi_data.acc_z:^15.2f} |')
+            # Iterate through all connected IMUs
+            for imu_id in open_imu_ids:
+                # Acceleration in x, y, z directions
+                oi_data = open_imus.get_data(imu_id)
+                print(f'| {int(imu_id):^6} | {oi_data.acc_x:^15.2f} | {oi_data.acc_y:^15.2f} | {oi_data.acc_z:^15.2f} |')
+
+    except KeyboardInterrupt:
+        open_imus._close_loop_resources()
+        print("\nClosing OpenIMUs.")
+
 
 
 def stream_actuator_data():
@@ -496,17 +506,21 @@ def stream_actuator_data():
     print("\n")
 
     # Run control loop at set frequency
-    while clocking_loop():
-        # Clear terminal output for each actuator's data
-        clear_string = '\033[A\033[A' + len(actuator_ids) * '\033[A'
-        print(clear_string)
-        print(f'| Actuator | Position [rad] | Velocity [rad/s] | Torque [Nm] |')
+    try:
+        while clocking_loop():
+            # Clear terminal output for each actuator's data
+            clear_string = '\033[A\033[A' + len(actuator_ids) * '\033[A'
+            print(clear_string)
+            print(f'| Actuator | Position [rad] | Velocity [rad/s] | Torque [Nm] |')
 
-        # Loop through all actuators and get position, velocity, torque
-        for can_id in actuator_ids:
-            actuators.set_torque(can_id, 0)
-            act_data = actuators.get_data(can_id)
-            print(f'| {int(can_id):^8} | {act_data.current_position:^14.2f} | {act_data.current_velocity:^16.2f} | {act_data.current_torque:^11.2f} |')
+            # Loop through all actuators and get position, velocity, torque
+            for can_id in actuator_ids:
+                actuators.set_torque(can_id, 0)
+                act_data = actuators.get_data(can_id)
+                print(f'| {int(can_id):^8} | {act_data.current_position:^14.2f} | {act_data.current_velocity:^16.2f} | {act_data.current_torque:^11.2f} |')
+
+    except KeyboardInterrupt:
+        print("\nClosing actuators.")
 
 
 def impedance_control_actuator():
