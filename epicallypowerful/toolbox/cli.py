@@ -246,7 +246,7 @@ def stream_microstrain_imu_data():
         nargs='+',
         required=True,
         type=str,
-        help="IMU serial ID (multiple can be specified)",
+        help="IMU serial ID (multiple can be specified and separated by comma)",
     )
     parser.add_argument(
         "--rate", '-r',
@@ -384,6 +384,70 @@ def stream_mpu9250_imu_data():
             # Acceleration in x, y, z directions
             mpu_data = mpu9250_imus.get_data(imu_id)
             print(f'| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |')
+
+
+def stream_open_imu_data():
+    """Run with command-line shortcut `ep-stream-open-imu [ARGS]`."""
+
+    parser = argparse.ArgumentParser(
+        description="Stream OpenIMU data",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    parser.add_argument(
+        "--rate", '-r',
+        nargs='+',
+        required=False,
+        type=float,
+        default=100,
+        help="Operating frequency [Hz]. Defaults to 100 Hz",
+    )
+
+    parser.add_argument(
+        "--can-id", '-id',
+        type=int,
+        required=True,
+        default=128,
+        help="IMU serial ID (multiple can be specified and separated by comma)",
+        help="OpenIMU CAN ID (multiple can be specified and separated by comma) (e.g., --can-id 128)",
+    )
+
+    args = parser.parse_args()
+    open_imu_ids = args.can_id
+    open_imu_ids = [int(s) for s in open_imu_ids.replace(" ", "").split(',')]
+    rate = int(args.rate[0]) # This is an int [Hz]
+    
+    from epicallypowerful.sensing.open_imu.open_imu import OpenIMUs
+    from epicallypowerful.toolbox.clocking import TimedLoop
+
+    # Set clocking loop specifications
+    clocking_loop = TimedLoop(rate)
+    
+    # Change IMU operation options (each one has a default)
+    open_imu_freq = rate # Set collection rate of IMUs
+    tare_on_startup = False # Zero orientation on startup?
+    
+    # Instantiate instance of MPU9250 IMU manager
+    open_imus = OpenIMUs(
+        imu_ids=open_imu_ids,
+        components=['acc'],
+        rate=open_imu_freq,
+        verbose=True,
+    )
+    
+    # Main loop
+    print("\n")
+
+    # Continuously stream data
+    while clocking_loop():
+        print('\033[A\033[A\033[A')
+        print(f'| CAN ID | Acc. (x) m*s^-2 | Acc. (y) m*s^-2 | Acc. (z) m*s^-2 |')
+
+        # Iterate through all connected IMUs
+        for imu_id, connection in open_imu_ids.items():
+            # Acceleration in x, y, z directions
+            oi_data = open_imus.get_data(imu_id)
+            print(f'| {int(imu_id):^6} | {oi_data.acc_x:^15.2f} | {oi_data.acc_y:^15.2f} | {oi_data.acc_z:^15.2f} |')
 
 
 def stream_actuator_data():
