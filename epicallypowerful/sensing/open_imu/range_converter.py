@@ -69,11 +69,11 @@ class UnsignedIntConverter:
 # Convert raw bit data into readable numbers:
 # - linear acceleration: m*s^-2
 # - angular velocity:  degrees per second
-# - magnetometer: milli-Gauss
+# - magnetometer: Gauss # we think? TODO: verify this
 # Reference link: https://openimu.readthedocs.io/en/latest/software/CAN/CAN_J1939_DataPacketMessages.html
 # NOTE: in the OpenIMU docs the "high" part of the range is just an approximation
 # and is several percent off of the actual resolution-defined value. Only low and
 # resolution are accurate.
-angular_packer = UnsignedIntConverter(16, low=-400, resolution=1.0 / 81)
 acceleration_packer = UnsignedIntConverter(16, low=-320, resolution=0.01)
+gyroscope_packer = UnsignedIntConverter(16, low=-400, resolution=1.0 / 81)
 magnetometer_packer = UnsignedIntConverter(16, low=-8, resolution=1.0 / 4000)

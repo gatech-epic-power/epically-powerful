@@ -9,7 +9,7 @@ def _rpi_or_jetson():
     elif "rpi" in machine_name or "bcm" in machine_name or "raspi" in machine_name:
         return "rpi"
 
-def jetson_performance(verbose=False) -> bool:
+def increase_jetson_performance(verbose=False) -> bool:
     """Set the Jetson performance mode to use the maximum GPU power. Note, this is only applicable for Jetson devices, and will pass and return False otherwise.
 
     Args:
