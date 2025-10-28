@@ -91,7 +91,8 @@ You can also use lithium polymer (lipo) batteries.  These batteries are comparab
 **Order:**
 - Battery
 - Battery charger
-- Lipo-safe bags
+- Lipo-safe bags (storage)
+- Lipo-safe bags (operation)
 
 ## Computer Power Source
 The power source from your computer can be shared with the actuators or independent.  If is shared, we have recommended the appropriate components to step down the voltage and protect the computer from voltage spikes.  If it is independent, you will need to order a separate battery (recommendations below).
