@@ -48,8 +48,7 @@ def collect_microstrain_imu_data():
         help="GPIO pins to use for remote sync channels. Use this argument multiple times to specify multiple channels",
     )
 
-def collect_imu_data():
-    parser = _build_collect_imu_parser()
+
     args = parser.parse_args()
     print(f"output name: {args.output}")
     print(f"MicroStrain serial IDs: {args.imu_serial_id}") # This is a list
@@ -63,9 +62,11 @@ def collect_imu_data():
     channels = args.channels
     remote_sync_channels = args.remote_sync_channel
 
-    from epicallypowerful.sensing.microstrain_imu import MicrostrainImus
+    from epicallypowerful.sensing.microstrain.microstrain_imu import MicroStrainIMUs
+    from epicallypowerful.toolbox.clocking import timed_loop, TimedLoop
     from epicallypowerful.toolbox.clocking import timed_loop, TimedLoop
     from epicallypowerful.toolbox.data_recorder import DataRecorder
+    import time
     import time
 
     imus = MicroStrainIMUs(serial_ids)
@@ -128,6 +129,9 @@ def collect_imu_data():
     loop = TimedLoop(200)
     t0 = time.perf_counter()
     while loop.sleep():
+    loop = TimedLoop(200)
+    t0 = time.perf_counter()
+    while loop.sleep():
         row_data = []
         for serial_id in serial_ids:
             data = imus.get_data(serial_id)
@@ -166,6 +170,8 @@ def collect_imu_data():
             for c in remote_sync_channels:
                 row_data.append(GPIO.input(c))
         recorder.save(row_data)
+        if time.perf_counter() - t0 > duration:
+            break
         if time.perf_counter() - t0 > duration:
             break
 
