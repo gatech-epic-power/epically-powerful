@@ -31,7 +31,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 21,
         'gear_ratio': 9,
-        'super_type': 'TMotor',
+        'super_type': 'CubeMars',
     },
     'AK60-6-V1.1': { # 24V operation
         'position_limits': (-12.5, 12.5),
@@ -42,7 +42,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 14,
         'gear_ratio': 6,
-        'super_type': 'TMotor',
+        'super_type': 'CubeMars',
     },
     'AK70-10': { # 24V/48V operation
         'position_limits': (-12.5, 12.5),
@@ -53,7 +53,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 21,
         'gear_ratio': 10,
-        'super_type': 'TMotor',
+        'super_type': 'CubeMars',
     },
     'AK80-6': { # 48V operation
         'position_limits': (-12.5, 12.5),
@@ -64,7 +64,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 21,
         'gear_ratio': 6,
-        'super_type': 'TMotor',
+        'super_type': 'CubeMars',
     },
     'AK80-8': { # 48V operation
         'position_limits': (-12.5, 12.5),
@@ -75,7 +75,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 21,
         'gear_ratio': 8,
-        'super_type': 'TMotor',
+        'super_type': 'CubeMars',
     },
     'AK80-9': { # 48V operation
         'position_limits': (-12.5, 12.5),
@@ -86,7 +86,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 21,
         'gear_ratio': 9,
-        'super_type': 'TMotor',
+        'super_type': 'CubeMars',
     },
     'AK80-64': { # 24V/48V operation
         'position_limits': (-12.5, 12.5),
@@ -97,7 +97,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 21,
         'gear_ratio': 64,
-        'super_type': 'TMotor',
+        'super_type': 'CubeMars',
     },
     'Cybergear': {
         'position_limits': (-12.5, 12.5),
@@ -179,8 +179,8 @@ def get_motor_details(motor_type):
         raise ValueError(f'{motor_type} is not a valid motor type, must be one of {list(MOTOR_PARAMS.keys())}')
     return MOTOR_PARAMS[motor_type]
 
-def t_motors():
-    return [motor_key for motor_key in MOTOR_PARAMS.keys() if MOTOR_PARAMS[motor_key]['super_type'] == 'TMotor']
+def cubemars():
+    return [motor_key for motor_key in MOTOR_PARAMS.keys() if MOTOR_PARAMS[motor_key]['super_type'] == 'CubeMars']
 
 def cybergears():
     return [motor_key for motor_key in MOTOR_PARAMS.keys() if MOTOR_PARAMS[motor_key]['super_type'] == 'Robstride']
