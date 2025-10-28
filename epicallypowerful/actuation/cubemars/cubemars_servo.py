@@ -176,7 +176,7 @@ def make_position_velocity_mode_message(target_id: int, position: float, velocit
         is_extended_id=True
     )
 
-class TMotorServo(can.Listener, Actuator):
+class CubeMarsServo(can.Listener, Actuator):
     def __init__(self, can_id: int, motor_type: str, invert: bool = False):
         self.can_id = can_id
         self.motor_type = motor_type
@@ -223,7 +223,7 @@ class TMotorServo(can.Listener, Actuator):
         return self.data.last_command_time - self.data.timestamp
     
     def set_control(self, pos, vel, torque, kp, kd, degrees = False):
-        raise NotImplementedError("TMotorServo does not support combined control mode. Use individual control methods instead.")
+        raise NotImplementedError("CubeMarsServo does not support combined control mode. Use individual control methods instead.")
 
     def set_torque(self, torque: float):
         """Sets the torque of the motor as a direct current value. Range is -60A to 60A.
@@ -346,7 +346,7 @@ if __name__ == "__main__":
     FREQ = 200
     DURATION = 20
     SAMPLES = FREQ * DURATION
-    act_group = ActuatorGroup( [TMotorServo(ACT_ID, "AK10-9-V2.0")] )
+    act_group = ActuatorGroup( [CubeMarsServo(ACT_ID, "AK10-9-V2.0")] )
     act_group.enable_actuators()
     loop2 = TimedLoop(FREQ)
     recorder = DataRecorder("AK10-9V2.0_chirp_test2A.csv", headers=["pos_desired", "pos_measured"])

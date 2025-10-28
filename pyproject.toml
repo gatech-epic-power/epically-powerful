@@ -24,7 +24,6 @@ dependencies = [
     "msgspec",
     "nicegui",
     "smbus2",
-    "scipy"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
