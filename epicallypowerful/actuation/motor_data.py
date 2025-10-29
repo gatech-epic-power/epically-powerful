@@ -103,7 +103,7 @@ MOTOR_PARAMS = {
         'position_limits': (-12.5, 12.5),
         'velocity_limits': (-30.0, 30.0),
         'torque_limits': (-12.0, 12.0),
-        'rated_torque_limits': (-4.0, 4.0),
+        'rated_torque_limits': (-1.0, 1.0),
         'kp_limits': (0, 500.0),
         'kd_limits': (0, 5.0),
         'super_type': 'Robstride',
@@ -240,4 +240,7 @@ class MotorData:
         self.kp_limits = details.get('kp_limits')
         self.kd_limits = details.get('kd_limits')
         self.rated_torque_limits = details.get('rated_torque_limits')
-        self.erpm_to_rpm = (1 / details.get('pole_pairs')) * (1 / details.get('gear_ratio'))
+        if details.get('pole_pairs', None) is None or details.get('gear_ratio', None) is None:
+            self.erpm_to_rpm = 1
+        else:
+            self.erpm_to_rpm = (1 / details.get('pole_pairs')) * (1 / details.get('gear_ratio'))
