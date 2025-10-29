@@ -46,7 +46,7 @@ class Robstride(can.Listener, Actuator):
             kp=0, kd=0, timestamp=-1,
             running_torque=(), rms_torque=0, rms_time_prev=0
         )
-        self.torque_monitor = RMSTorqueMonitor(limit=self.data.rated_torque_limits[0], window=20.0)
+        self.torque_monitor = RMSTorqueMonitor(limit=self.data.rated_torque_limits[1], window=20.0)
         self._over_limit = False
 
         self._connection_established = False
@@ -93,7 +93,7 @@ class Robstride(can.Listener, Actuator):
 
             rms_torque, over_limit = self.torque_monitor.update(self.data.current_torque)
             self.data.rms_torque = rms_torque
-            self._over_limit = over_limit
+            self._over_limit = self.torque_monitor.over_limit()
         return
 
     def _ping_actuator(self) -> None:
