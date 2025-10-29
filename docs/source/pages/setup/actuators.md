@@ -82,7 +82,26 @@ To change CAN IDs, the following components and packages are required:
       :::{caution}
       Make sure to limit the output shaft's range of motion and keep a hand on the E-stop in case the motor response is too aggressive.
       :::
+
+### V2.0 actuators in Servo Mode
+The CubeMars actuators can optionally be operated in "servo mode" allowing for direct current control. These instructions are based off of this [video from CubeMars](https://www.youtube.com/watch?v=k4ClvZlc7JI), which we recommend viewing as well.
+1. Download the most up to date firmware for your actuator from the [CubeMars discord server](https://www.cubemars.com/technical-support-and-software-download.html).
+
+2.  Connect the R-Link module to the computer via USB and to the actuator's CAN and UART ports
+    ![tmotor21](/res/tmotor2_1.png){width="700"}
+
+3.  To start up the configuration software:
+      * Open Command Prompt (WIN+R and type `cmd` then hit ENTER)
+      * Navigate to the directory in which the software is stored: `cd [CONFIGURATION DIRECTORY]`
+      * If the executable ends with ".downloading", it can still run. For formality, the executable can be renamed by deleting the ".downloading" portion. As long as the filetype is still ".exe", then it can be executed without issue.
+      * Run the executable (Example: `CubeMarstool_V1.32.exe` + ENTER)
+4.  Change the application language from Mandarin to English (if you don't speak Mandarin)
+     ![tmotor22](/res/tmotor2_2.png){width="700"}
+
+5.  Set the COM port to the right serial connection for the R-Link unit
+     ![tmotor23](/res/tmotor2_3.png){width="700"}
       
+6. 
 
 ## RobStride Actuators & CyberGear Micromotors
 The RobStride and CyberGear branded actuators use the same underlying control protocol, so for all setup steps they will be identical. However, you should note that these actuators of course may have different specifications (such as peak and rated torque, required voltage, etc.). The RobStride & CyberGear Micromotor Actuators utilize a CAN bus protocol for control, and are set up to work correctly with the provided library out of the box. Each actuator has a pre-programmed CAN ID, which defaults to 127. In order to address more than one actuator simultaneously, you will need to re-configure the actuator IDs. 
