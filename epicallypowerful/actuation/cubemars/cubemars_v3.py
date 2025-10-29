@@ -75,7 +75,7 @@ def _create_set_origin_message(can_id: int) -> can.Message:
         is_extended_id=True
     )
 
-class TMotorV3(can.Listener, Actuator):
+class CubeMarsV3(can.Listener, Actuator):
     def __init__(self, can_id: int, motor_type: str, invert: bool = False):
         self.can_id = can_id
         self.motor_type = motor_type
