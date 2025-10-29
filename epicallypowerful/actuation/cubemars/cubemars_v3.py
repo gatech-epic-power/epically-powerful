@@ -5,6 +5,7 @@ import math
 
 RAD2DEG = 180.0 / math.pi
 DEG2RAD = math.pi / 180.0
+DEGPERSEC2RPM = 1.0/6.0
 
 MIT_MODE_ID = 8
 ORIGIN_SET_ID = 5
@@ -30,13 +31,9 @@ def _clamp(x, x_min, x_max):
 
 
 def _read_cubemars_message(msg: can.Message) -> list[float]:
-    pos_int = msg.data[0] << 8 | msg.data[1]
-    vel_int = msg.data[2] << 8 | msg.data[3]
-    current_int = msg.data[4] << 8 | msg.data[5]
-    
-    pos = pos_int*0.1
-    vel = vel_int*10.0
-    current = current_int*0.01
+    pos = int.from_bytes(msg.data[0:2], byteorder="big", signed=True) * 0.1 * DEG2RAD
+    vel = int.from_bytes(msg.data[2:4], byteorder="big", signed=True) * 10 # VALUE IS IN ERPM -> ENSURE CONVERSION IF USING OUTSIDE THIS SCOPE
+    current = int.from_bytes(msg.data[4:6], byteorder="big", signed=True) * 0.01
     temp = msg.data[6]
     errs = msg.data[7]
     return [pos, vel, current, temp, errs]
@@ -95,14 +92,14 @@ class CubeMarsV3(can.Listener, Actuator):
 
 
     def on_message_received(self, msg: can.Message) -> None:
-        # print(f"Received message: {msg}") # Uncomment for debugging
-        if msg.arbitration_id == (0x2900 + self.can_id) + (1 << 32): # Message is from the motor, shift the check by 
-            pos, vel, current, temp, errs = _read_cubemars_message(msg)
-            self.data.current_position = pos
-            self.data.current_velocity = vel
-            self.data.current_torque = current # This is not necessarily correct, the torque != to current in all cases
+        if msg.arbitration_id == ((0x29 << 8) | (self.can_id)):
+            [pos, vel, cur, temp, err] = _read_cubemars_message(msg)
+            self.data.current_position = pos * self.invert
+            self.data.current_velocity = vel * self.invert * self.data.erpm_to_rpm / DEGPERSEC2RPM * DEG2RAD
+            self.data.current_torque = cur * self.invert
             self.data.temperature = temp
-            # Ignoring errors for now
+            self.data.error_code = err
+            self.data.timestamp = msg.timestamp
 
     def call_response_latency(self):
         return self.data.last_command_time - self.data.timestamp
