@@ -15,6 +15,7 @@ from typing_extensions import Self, Optional
 import platform
 import functools
 from typing import Callable, Literal
+import math
 
 # ~~~~~ Logging Setup ~~~~~ #
 motorlog = logging.getLogger('motorlog')
@@ -105,7 +106,7 @@ class ActuatorGroup():
         can_args: Optional[dict] = None,
         enable_on_startup: bool = True,
         exit_manually: bool = False,
-        torque_limit_mode: Literal['warn', 'throttle', 'disable'] = 'warn',
+        torque_limit_mode: Literal['warn', 'throttle', 'saturate', 'disable', 'silent'] = 'warn',
         torque_rms_window: float=20.0,
     ) -> None:
         _load_can_drivers()
@@ -129,9 +130,9 @@ class ActuatorGroup():
             self.actuators[actuator.can_id].torque_monitor.window = torque_rms_window
 
         self._torque_limit_mode = torque_limit_mode
-        if torque_limit_mode not in ['warn', 'throttle', 'disable']:
+        if torque_limit_mode not in ['warn', 'throttle', 'saturate', 'disable', 'silent']:
             self.bus.shutdown()
-            raise ValueError("torque_limit_mode must be either 'warn', 'throttle', or 'disable'")
+            raise ValueError("torque_limit_mode must be one of 'warn', 'throttle', 'saturate', 'disable', or 'silent'")
         self._actuators_enabled = False
         self._priming_reconnection = False
         self._reconnection_start_time = 0
@@ -142,11 +143,13 @@ class ActuatorGroup():
             signal.signal(signal.SIGTERM, self._exit_gracefully)
 
         time.sleep(0.1)
+        self.auto_disabled = False
         if enable_on_startup: self.enable_actuators()
 
     def _guard_connection(func: Callable) -> Callable: # Guard connection decorator, will check if all motors are disconnected from the bus
             @functools.wraps(func)
             def wrapper(self, *args, **kw):
+                if self.auto_disabled: return
                 self.prev_command_time = time.perf_counter()
                 if self._actuators_enabled == False and not self._priming_reconnection:
                     try:
@@ -208,16 +211,7 @@ class ActuatorGroup():
             can_id (int): CAN ID of the actuator. This should be set by the appropriate manufacturer software.
             torque (float): Torque to set the actuator to in Newton-meters.
         """
-        if self.actuators[can_id]._over_limit:
-            if self._torque_limit_mode == 'warn':
-                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
-            elif self._torque_limit_mode == 'throttle':
-                self.actuators[can_id].set_torque(0.0)
-                return
-            elif self._torque_limit_mode == 'disable':
-                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
-                self.disable_actuators()
-                return -1
+        expected_torque_command = torque
 
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
@@ -225,6 +219,27 @@ class ActuatorGroup():
             self.actuators[can_id].data.last_command_time = time.perf_counter()
             self.actuators[can_id]._enable()
             return -1
+
+        if self.actuators[can_id]._over_limit:
+            if self._torque_limit_mode == 'warn':
+                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
+            elif self._torque_limit_mode == 'throttle':
+                self.actuators[can_id].set_torque(0.0)
+                return
+            elif self._torque_limit_mode == 'saturate':
+                #print("HERE")
+                saturated_torque = math.copysign(self.actuators[can_id].torque_monitor.limit, expected_torque_command)
+                if abs(saturated_torque) < abs(expected_torque_command):
+                    torque_to_use = saturated_torque
+                else:
+                    torque_to_use = expected_torque_command
+                self.actuators[can_id].set_torque(torque_to_use)
+                return
+            elif self._torque_limit_mode == 'disable':
+                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
+                self.disable_actuators()
+                self.auto_disabled = True
+                return -1
 
 
 
@@ -244,23 +259,39 @@ class ActuatorGroup():
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the position is in degrees or radians.
         """
-        if self.actuators[can_id]._over_limit:
-            if self._torque_limit_mode == 'warn':
-                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
-            elif self._torque_limit_mode == 'throttle':
-                self.actuators[can_id].set_torque(0.0)
-                return
-            elif self._torque_limit_mode == 'disable':
-                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
-                self.disable_actuators()
-                return -1
-
+        expected_torque_command = kp * (position - self.actuators[can_id].get_position()) - kd * (self.actuators[can_id].get_velocity())
+        #print(f'{expected_torque_command:.3f}, {self.actuators[can_id].get_torque():.3f}')
+        
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
             self.actuators[can_id].data.responding = False
             self.actuators[can_id].data.last_command_time = time.perf_counter()
             self.actuators[can_id]._enable()
             return -1
+        
+        if self.actuators[can_id]._over_limit:
+            if self._torque_limit_mode == 'warn':
+                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
+            elif self._torque_limit_mode == 'throttle':
+                self.actuators[can_id].set_torque(0.0)
+                return
+            elif self._torque_limit_mode == 'saturate':
+                saturated_torque = math.copysign(self.actuators[can_id].torque_monitor.limit, expected_torque_command)
+                if abs(saturated_torque) < abs(expected_torque_command):
+                    torque_to_use = saturated_torque
+                    self.actuators[can_id].set_torque(torque_to_use)
+                    self.actuators[can_id].data.responding = True
+                    self.actuators[can_id].data.last_command_time = time.perf_counter()
+                    return
+                else:
+                    torque_to_use = expected_torque_command
+            elif self._torque_limit_mode == 'disable':
+                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
+                self.disable_actuators()
+                self.auto_disabled = True
+                return -1
+            elif self._torque_limit_mode == 'silent':
+                pass
 
         self.actuators[can_id].data.last_command_time = time.perf_counter()
         self.actuators[can_id].set_position(position, kp, kd, degrees)
@@ -277,23 +308,40 @@ class ActuatorGroup():
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the velocity is in degrees per second or radians per second.
         """
-        if self.actuators[can_id]._over_limit:
-            if self._torque_limit_mode == 'warn':
-                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
-            elif self._torque_limit_mode == 'throttle':
-                self.actuators[can_id].set_torque(0.0)
-                return
-            elif self._torque_limit_mode == 'disable':
-                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
-                self.disable_actuators()
-                return -1
-
+        
+        expected_torque_command = -kd * (self.actuators[can_id].get_velocity())
+        
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
             self.actuators[can_id].data.responding = False
             self.actuators[can_id].data.last_command_time = time.perf_counter()
             self.actuators[can_id]._enable()
             return -1
+        
+        if self.actuators[can_id]._over_limit:
+            if self._torque_limit_mode == 'warn':
+                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
+            elif self._torque_limit_mode == 'throttle':
+                self.actuators[can_id].set_torque(0.0)
+                return
+            elif self._torque_limit_mode == 'saturate':
+                saturated_torque = math.copysign(self.actuators[can_id].torque_monitor.limit, expected_torque_command)
+                if abs(saturated_torque) < abs(expected_torque_command):
+                    torque_to_use = saturated_torque
+                    self.actuators[can_id].set_torque(torque_to_use)
+                    self.actuators[can_id].data.responding = True
+                    self.actuators[can_id].data.last_command_time = time.perf_counter()
+                    return
+                else:
+                    torque_to_use = expected_torque_command
+            elif self._torque_limit_mode == 'disable':
+                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
+                self.disable_actuators()
+                self.auto_disabled = True
+                return -1
+            elif self._torque_limit_mode == 'silent':
+                pass
+
 
         self.actuators[can_id].data.last_command_time = time.perf_counter()
         self.actuators[can_id].set_velocity(velocity, kd, degrees)
@@ -303,6 +351,7 @@ class ActuatorGroup():
     def is_connected(self, can_id: int) -> bool:
         return self.actuators[can_id].data.responding
 
+    @_guard_connection
     def zero_encoder(self, can_id: int) -> None:
         """Zeros the encoder of the actuator with the given CAN ID.
 
@@ -460,16 +509,14 @@ class ActuatorGroup():
 
 
 if __name__ == '__main__':
-    acts = ActuatorGroup([Robstride(2, 'Cybergear'), Robstride(1, 'RS02'), CubeMars(3, 'AK80-9')])
-    import time
-    while True:
-        res1 = acts.set_torque(1, 0.0)
-        res2 = acts.set_torque(2, 0.0)
-        res3 = acts.set_torque(3, 0.0)
-        print(acts.is_connected(1), acts.is_connected(2), acts.is_connected(3))
-        time.sleep(0.005)
-
-
+    acts = ActuatorGroup([Robstride(2, 'Cybergear')], torque_limit_mode='throttle')
+    from epicallypowerful.toolbox import TimedLoop
+    loop = TimedLoop(200)
+    acts.zero_encoder(2)
+    while loop():
+        res1 = acts.set_position(2, 0, 1, 0.04)
+        #res1 = acts.set_torque(2, 2)
+        print(acts.get_torque(2))
 
 
 

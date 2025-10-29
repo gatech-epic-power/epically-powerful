@@ -201,6 +201,7 @@ class CubeMarsServo(can.Listener, Actuator):
         self._connection_established = False
         self._reconnection_start_time = 0
         self.prev_command_time = 0
+        self._over_limit = False
 
     def on_message_received(self, msg: can.Message):
         """Handles a received CAN message.

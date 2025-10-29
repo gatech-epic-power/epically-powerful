@@ -92,7 +92,7 @@ class CubeMars(can.Listener, Actuator):
 
         rms_torque, over_limit = self.torque_monitor.update(self.data.current_torque)
         self.data.rms_torque = rms_torque
-        self._over_limit = over_limit
+        self._over_limit = self.torque_monitor.over_limit()
         return
 
     def call_response_latency(self) -> float:
