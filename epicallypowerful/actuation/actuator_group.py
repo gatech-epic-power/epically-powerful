@@ -15,6 +15,7 @@ from typing_extensions import Self, Optional
 import platform
 import functools
 from typing import Callable, Literal
+import math
 
 # ~~~~~ Logging Setup ~~~~~ #
 motorlog = logging.getLogger('motorlog')
@@ -105,7 +106,7 @@ class ActuatorGroup():
         can_args: Optional[dict] = None,
         enable_on_startup: bool = True,
         exit_manually: bool = False,
-        torque_limit_mode: Literal['warn', 'throttle', 'disable'] = 'warn',
+        torque_limit_mode: Literal['warn', 'throttle', 'saturate', 'disable'] = 'warn',
         torque_rms_window: float=20.0,
     ) -> None:
         _load_can_drivers()
@@ -129,9 +130,9 @@ class ActuatorGroup():
             self.actuators[actuator.can_id].torque_monitor.window = torque_rms_window
 
         self._torque_limit_mode = torque_limit_mode
-        if torque_limit_mode not in ['warn', 'throttle', 'disable']:
+        if torque_limit_mode not in ['warn', 'throttle', 'saturate', 'disable']:
             self.bus.shutdown()
-            raise ValueError("torque_limit_mode must be either 'warn', 'throttle', or 'disable'")
+            raise ValueError("torque_limit_mode must be either 'warn', 'throttle', 'saturate', or 'disable'")
         self._actuators_enabled = False
         self._priming_reconnection = False
         self._reconnection_start_time = 0
@@ -214,6 +215,9 @@ class ActuatorGroup():
             elif self._torque_limit_mode == 'throttle':
                 self.actuators[can_id].set_torque(0.0)
                 return
+            elif self._torque_limit_mode == 'saturate':
+                saturated_torque = math.copysign(self.actuators[can_id].torque_monitor.limit, torque)
+                self.actuators[can_id].set_torque(saturated_torque)
             elif self._torque_limit_mode == 'disable':
                 motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
                 self.disable_actuators()
@@ -250,6 +254,9 @@ class ActuatorGroup():
             elif self._torque_limit_mode == 'throttle':
                 self.actuators[can_id].set_torque(0.0)
                 return
+            elif self._torque_limit_mode == 'saturate':
+                saturated_torque = math.copysign(self.actuators[can_id].torque_monitor.limit, self.actuators[can_id].get_torque())
+                self.actuators[can_id].set_torque(saturated_torque)
             elif self._torque_limit_mode == 'disable':
                 motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
                 self.disable_actuators()
@@ -283,6 +290,9 @@ class ActuatorGroup():
             elif self._torque_limit_mode == 'throttle':
                 self.actuators[can_id].set_torque(0.0)
                 return
+            elif self._torque_limit_mode == 'saturate':
+                saturated_torque = math.copysign(self.actuators[can_id].torque_monitor.limit, self.actuators[can_id].get_torque())
+                self.actuators[can_id].set_torque(saturated_torque)
             elif self._torque_limit_mode == 'disable':
                 motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
                 self.disable_actuators()
@@ -303,6 +313,7 @@ class ActuatorGroup():
     def is_connected(self, can_id: int) -> bool:
         return self.actuators[can_id].data.responding
 
+    @_guard_connection
     def zero_encoder(self, can_id: int) -> None:
         """Zeros the encoder of the actuator with the given CAN ID.
 
