@@ -1,25 +1,25 @@
 import can
 import time
-from can import CanOperationError
 from epicallypowerful.actuation.motor_data import MotorData
 from epicallypowerful.actuation.actuator_abc import Actuator
+from epicallypowerful.actuation.torque_monitor import RMSTorqueMonitor
 import math
-from typing import Callable
-import functools
 import epicallypowerful.actuation.robstride.robstride_driver as rsd
 
+RAD2DEG = 180.0 / math.pi
+DEG2RAD = math.pi / 180.0
 class Robstride(can.Listener, Actuator):
-    """Class for controlling an individual CyberGear Micromotor. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
+    """Class for controlling an individual Robstride acutator. This class should always be initialized as part of an ActuatorGroup so that the can bus is appropriately shared between all motors.
     Alternatively, the bus can be set manually after initialization, however this is not recommended.
 
-    The CyberGears can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+    The Robstrides can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
 
     Example:
         .. code-block:: python
 
 
-            from epicpower.actuation2 import CyberGear, ActuatorGroup
-            motor = CyberGear(0x01)
+            from epicallypowerful.actuation import Robstride, ActuatorGroup
+            motor = Robstride(0x01)
             group = ActuatorGroup([motor])
 
             motor.set_torque(0.5)
@@ -30,7 +30,7 @@ class Robstride(can.Listener, Actuator):
 
     Args:
         can_id (int): CAN ID of the motor. This should be unique for each motor in the system, and can be set up with the RLink software.
-        motor_type (str, optional): A string representing the type of motor. TThis is not necessary as there is only one type of motor. Defaults to "cybergear".
+        motor_type (str, optional): A string representing the type of motor.
         invert (bool, optional): Whether to invert the motor direction. Defaults to False.
     """
     def __init__(self, can_id: int, motor_type: str, invert: bool=False):
@@ -46,6 +46,8 @@ class Robstride(can.Listener, Actuator):
             kp=0, kd=0, timestamp=-1,
             running_torque=(), rms_torque=0, rms_time_prev=0
         )
+        self.torque_monitor = RMSTorqueMonitor(limit=self.data.rated_torque_limits[0], window=20.0)
+        self._over_limit = False
 
         self._connection_established = False
         self._priming_reconnection = False
@@ -89,11 +91,20 @@ class Robstride(can.Listener, Actuator):
             self.data.current_temperature = temp
             self.data.timestamp = time.perf_counter()
 
+            rms_torque, over_limit = self.torque_monitor.update(self.data.current_torque)
+            self.data.rms_torque = rms_torque
+            self._over_limit = over_limit
+        return
 
     def _ping_actuator(self) -> None:
         self._bus.send(rsd.create_read_device_id_message(self.can_id))
 
     def _send_motion_command(self, can_id: int, position: float, velocity: float, torque: float, kp: float, kd: float) -> int:
+        # Account for inversion
+        position *= self.invert
+        velocity *= self.invert
+        torque *= self.invert
+
         self.data.commanded_position = position
         self.data.commanded_velocity = velocity
         self.data.commanded_torque = torque
@@ -108,9 +119,27 @@ class Robstride(can.Listener, Actuator):
     def call_response_latency(self) -> float:
         return self.data.last_command_time - self.data.timestamp
 
+    def set_control(self, pos: float, vel: float, torque: float, kp: float, kd: float, degrees: bool = False) -> None:
+        """Sets the control of the motor using full MIT control mode. This uses the built in capability to simultaneously use torque, as well as position and velocity control.
+
+        Args:
+            pos (float): Position to set the actuator to in radians or degrees depending on the ``degrees`` argument.
+            vel (float): Velocity to set the actuator to in radians or degrees depending on the ``degrees`` argument.
+            torque (float): Torque to set the actuator to in Newton-meters.
+            kp (float): Proportional gain to set the actuator to in Newton-meters per radian or Newton-meters per degree depending on the ``degrees`` argument.
+            kd (float): Derivative gain to set the actuator to in Newton-meters per radian per second or Newton-meters per degree per second depending on the ``degrees`` argument.
+            degrees (bool, optional): Whether the position and velocity are in degrees or radians. Defaults to False.
+        """
+        if degrees:
+            pos *= DEG2RAD
+            vel *= DEG2RAD
+            kp *= RAD2DEG
+            kd *= RAD2DEG
+        return self._send_motion_command(self.can_id, pos, vel, torque, kp, kd)
+
     def set_torque(self, torque: float) -> None:
         """Sets the torque of the motor in Newton-meters. This will saturate if the torque is outside the limits of the motor.
-        Positive and negative torques will spin the motor in opposite directions, and this direction will be reversed if the motor is inverted at intialization.
+        Positive and negative torques will spin the motor in opposite directions, and this direction will be reversed if the motor is inverted at initialization.
 
         Args:
             torque (float): The torque to set the motor to in Newton-meters.
@@ -118,7 +147,7 @@ class Robstride(can.Listener, Actuator):
         return self._send_motion_command(self.can_id, 0, 0, torque, 0, 0)
 
     def set_position(self, position: float, kp: float, kd: float, degrees: bool = False) -> None:
-        """Sets the position of the motor in radians. Positive and negative positions will spin the motor in opposite directions, and this direction will be reversed if the motor is inverted at intialization.
+        """Sets the position of the motor in radians. Positive and negative positions will spin the motor in opposite directions, and this direction will be reversed if the motor is inverted at initialization.
 
         Args:
             position (float): Position to set the actuator to in radians or degrees depending on the ``degrees`` argument.
@@ -126,16 +155,23 @@ class Robstride(can.Listener, Actuator):
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the position is in degrees or radians.
         """
+        if degrees:
+            position *= DEG2RAD
+            kp *= RAD2DEG
+            kd *= RAD2DEG
         return self._send_motion_command(self.can_id, position, 0, 0, kp, kd)
 
     def set_velocity(self, velocity: float, kd: float, degrees: bool = False) -> None:
-        """Sets the velocity of the motor in radians per second. Positive and negative velocities will spin the motor in opposite directions, and this direction will be reversed if the motor is inverted at intialization.
+        """Sets the velocity of the motor in radians per second. Positive and negative velocities will spin the motor in opposite directions, and this direction will be reversed if the motor is inverted at initialization.
 
         Args:
             velocity (float): Velocity to set the actuator to in radians per second or degrees per second depending on the ``degrees`` argument.
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the velocity is in degrees per second or radians per second.
         """
+        if degrees:
+            velocity *= DEG2RAD
+            kd *= RAD2DEG
         return self._send_motion_command(self.can_id, 0, velocity, 0, 0, kd)
 
     def zero_encoder(self):
@@ -196,7 +232,7 @@ class Robstride(can.Listener, Actuator):
         enable_motion_message = rsd.create_enable_motion_message(target_motor_id=self.can_id)
         res = self._bus.send(enable_motion_message)
         self._connection_established = True
-        self.data.intialized = True
+        self.data.initialized = True
 
     def _disable(self) -> None:
         """Disables the motor

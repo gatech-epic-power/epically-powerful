@@ -14,10 +14,22 @@ except ImportError:
     print("WARNING: TimedLoopC not found, using fallback implementation. This may not be as efficient.")
 
 def TimedLoop(rate, tolerance=0.1, verbose=True):
+    """Creates a TimedLoop object, which can be used to enforce a set loop frequency. This uses a "scheduled" sleep method to reduce busy looping, and will adjust the 
+    sleep time based on the actual time taken for each loop iteration to ensure average frequency is maintained. This means over time, the number of iterations will
+    tightly match the expected number of iterations.
+
+    Args:
+        rate (int): The desired loop frequency in Hz.
+        tolerance (float, optional): The acceptable time step error tolerance as a proportion of the time step. Defaults to 0.1.
+        verbose (bool, optional): Whether to print verbose output. Defaults to True.
+
+    Returns:
+        TimedLoopC: A TimedLoopC object configured with the specified parameters.
+    """
     return TimedLoopC(rate=rate, tolerance=tolerance, verbose=verbose)
 
 class LoopTimer:
-    """Class for creating a simple timed loop manager. This object will attempt to enforece a set frequency when used in a looped script.
+    """Class for creating a simple timed loop manager. This object will attempt to enforce a set frequency when used in a looped script.
     NOTE: this frequency cannot be guaranteed, and the actual frequency should be recorded if this is important for your application. Please
     see the benchmarks for expected maximum performance.
 
