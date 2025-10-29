@@ -103,7 +103,7 @@ MOTOR_PARAMS = {
         'position_limits': (-12.5, 12.5),
         'velocity_limits': (-30.0, 30.0),
         'torque_limits': (-12.0, 12.0),
-        'rated_torque_limits': (-1.0, 1.0),
+        'rated_torque_limits': (-4.0, 4.0),
         'kp_limits': (0, 500.0),
         'kd_limits': (0, 5.0),
         'super_type': 'Robstride',
