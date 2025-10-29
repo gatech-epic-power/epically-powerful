@@ -45,9 +45,9 @@ print(actuators.get_temperature(RIGHT))
 
 ```
 
-## T Motors
+## CubeMars Actuators
 ```{eval-rst}
-.. autoclass:: epicallypowerful.actuation.tmotor.TMotor
+.. autoclass:: epicallypowerful.actuation.cubemars.CubeMars
     :show-inheritance:
     :members:
     :undoc-members:
@@ -55,7 +55,7 @@ print(actuators.get_temperature(RIGHT))
 
 ```
 
-## Robstride Motors
+## RobStride Motors
 ```{eval-rst}
 .. autoclass:: epicallypowerful.actuation.robstride.Robstride
     :show-inheritance:

@@ -22,7 +22,8 @@ extensions = [
     'sphinx_design',
     'sphinx_copybutton',
     'sphinx.ext.todo',
-    'sphinxarg.ext'
+    'sphinxarg.ext',
+    'sphinx_argparse_cli',
 ]
 
 # Options for connecting other Sphinx projects

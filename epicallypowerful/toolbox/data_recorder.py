@@ -40,23 +40,36 @@ def resample_data_file(fpath, sample_rate):
 
 
 class DataRecorder():
+    """A class for recording data to a delimited text file (csv, tsv, etc.). This class records data to a buffer (defined by the `buffer_limit` argument) before writing to the file in a separate thread.
+    If you want to ensure data is written to the file as quickly as possible, use 1 for the buffer limit. By default the data recorder will record a time column, which is either relative to the start of recording or the device time.
+    The presence of files matching the provided file path will be checked upon initialization, and if a file already exists a new file will be created with an incremented index unless `overwrite` is set to True.
+
+    Example:
+        .. code-block:: python
+
+    
+            from epicallypowerful.toolbox import DataRecorder
+            recorder = DataRecorder('test_file.csv', ['sensor_1', 'sensor_2'], buffer_limit=100)
+            for i in range(1000):
+                recorder.save([i, i*2]) # Saves a new line with the current time, i, and i*2
+            recorder.finalize() # Ensures all data is written to the file and closes the file
+
+
+    Args:
+        file (str): The file path of the file to be saved. If the file already exists, a new file will be created with an incremented index.
+        headers (list): A list of strings that will be used as the header for the file.
+        delimiter (str, optional): Delimiter type to use. This is almost always ','. Defaults to ','.
+        overwrite (bool, optional): Whether to overwrite a file with the same name as the provided file path if the file already exists. Defaults to False.
+        time_as_relative (bool, optional): Whether the time recorded in the default `time` column should be relative to the first recording or device time. Defaults to True.
+        buffer_limit (int, optional): The number of lines to add before writing to the file. if an error occurs during operation, it is likley that this many lines will be lost
+            Passing ``None`` will not save any data to disk until :py:func:`finalize` is called. Defaults to 200.
+        verbose (bool, optional): Whether to print out information about the file being created and saved to. Defaults to False.
+
+    Raises:
+        TypeError: Raises if the headers are not a valid list of strings.
+        ValueError: Raises if the delimiter is not a valid delimiter.
+    """
     def __init__(self, file: str, headers: list, delimiter: str=',', overwrite: bool=False, time_as_relative: bool=True, buffer_limit: int=200, verbose: bool=False):
-        """_summary_
-
-        Args:
-            file (str): The file path of the file to be saved. If the file already exists, a new file will be created with an incremented index.
-            headers (list): A list of strings that will be used as the header for the file.
-            delimiter (str, optional): Delimiter type to use. This is almost always ','. Defaults to ','.
-            overwrite (bool, optional): Whether to overwrite a file with the same name as the provided file path if the file already exists. Defaults to False.
-            time_as_relative (bool, optional): Whether the time recorded in the default `time` column should be relative to the first recording or device time. Defaults to True.
-            buffer_limit (int, optional): The number of lines to add before writing to the file. if an error occurs during operation, it is likley that this many lines will be lost
-                Passing ``None`` will not save any data to disk until :py:func:`finalize` is called. Defaults to 200.
-            verbose (bool, optional): Whether to print out information about the file being created and saved to. Defaults to False.
-
-        Raises:
-            TypeError: Raises if the headers are not a valid list of strings.
-            ValueError: Raises if the delimiter is not a valid delimiter.
-        """
         self.time_as_relative = time_as_relative
         self.t0 = 0
         self.lines_written = 0

@@ -14,7 +14,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
-          pip install sphinx sphinx_rtd_theme myst_parser sphinxcontrib-youtube sphinxcontrib-video sphinx-copybutton sphinx-design furo sphinx-argparse
+          pip install sphinx sphinx_rtd_theme myst_parser sphinxcontrib-youtube sphinxcontrib-video sphinx-copybutton sphinx-design furo sphinx-argparse sphinx-argparse-cli
       - name: Sphinx build
         run: |
           sphinx-build docs/source docs/_build

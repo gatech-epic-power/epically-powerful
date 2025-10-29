@@ -8,10 +8,9 @@ def _rpi_or_jetson():
     elif "rpi" in machine_name or "bcm" in machine_name or "raspi" in machine_name:
         return "rpi"
 
-
-def collect_microstrain_imu_data():
-    """Run with command-line shortcut `ep-collect-imu-data` [ARGS]."""
+def _collect_microstrain_imu_data_parser():
     parser = argparse.ArgumentParser(
+        prog="collect_microstrain_imu_data",
         description="Collect MicroStrain IMU data",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -47,8 +46,11 @@ def collect_microstrain_imu_data():
         action="append",
         help="GPIO pins to use for remote sync channels. Use this argument multiple times to specify multiple channels",
     )
+    return parser
 
-
+def collect_microstrain_imu_data():
+    """Run with command-line shortcut `ep-collect-imu-data` [ARGS]."""
+    parser = _collect_microstrain_imu_data_parser()
     args = parser.parse_args()
     print(f"output name: {args.output}")
     print(f"MicroStrain serial IDs: {args.imu_serial_id}") # This is a list
@@ -63,11 +65,8 @@ def collect_microstrain_imu_data():
     remote_sync_channels = args.remote_sync_channel
 
     from epicallypowerful.sensing.microstrain.microstrain_imu import MicroStrainIMUs
-    from epicallypowerful.toolbox.clocking import timed_loop, TimedLoop
-    from epicallypowerful.toolbox.clocking import timed_loop, TimedLoop
+    from epicallypowerful.toolbox.clocking import timed_loop
     from epicallypowerful.toolbox.data_recorder import DataRecorder
-    import time
-    import time
 
     imus = MicroStrainIMUs(serial_ids)
 
@@ -125,13 +124,8 @@ def collect_microstrain_imu_data():
         buffer_limit=duration*200
     ) # Data is collected at 200Hz, and data is not saved until file is manually closed
 
-    print(f"Collecting data for {duration} seconds")
-    loop = TimedLoop(200)
-    t0 = time.perf_counter()
-    while loop.sleep():
-    loop = TimedLoop(200)
-    t0 = time.perf_counter()
-    while loop.sleep():
+    print(f"\nCollecting data for {duration} seconds...")
+    for _ in timed_loop(200, duration):
         row_data = []
         for serial_id in serial_ids:
             data = imus.get_data(serial_id)
@@ -170,10 +164,6 @@ def collect_microstrain_imu_data():
             for c in remote_sync_channels:
                 row_data.append(GPIO.input(c))
         recorder.save(row_data)
-        if time.perf_counter() - t0 > duration:
-            break
-        if time.perf_counter() - t0 > duration:
-            break
 
     # Finalize the data saving
     print("Saving data, do not power off device...")
@@ -181,8 +171,7 @@ def collect_microstrain_imu_data():
     print(f'Data saved to {outfile}')
     return 1
 
-def visualize_dummy_data():
-    """Run with command-line shortcut `ep-dummy-viz [ARGS]`."""
+def _visualize_dummy_data_parser():
     parser = argparse.ArgumentParser(
         description="Run dummy visualizer",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -200,6 +189,11 @@ def visualize_dummy_data():
         default=5556,
         help="UDP server port",
     )
+    return parser
+
+def visualize_dummy_data():
+    """Run with command-line shortcut `ep-dummy-viz [ARGS]`."""
+    parser = _visualize_dummy_data_parser()
 
     args = parser.parse_args()
     udp_server_ip_address = args.ip_address
@@ -243,13 +237,9 @@ def visualize_dummy_data():
 
         print('\033[A\033[A\033[A')
         print(f'| Time (s) |  Sine  | Cosine |')
-        print(f'| {test_data['timestamp']:^8.2f} | {test_data['example_data']['sine']:^6.2f} | {test_data['example_data']['cosine']:^6.2f} |')
+        print(f"| {test_data['timestamp']:^8.2f} | {test_data['example_data']['sine']:^6.2f} | {test_data['example_data']['cosine']:^6.2f} |")
 
-
-
-
-def stream_microstrain_imu_data():
-    """Run with command-line shortcut `ep-stream-microstrain-imu [ARGS]`."""
+def _stream_microstrain_imu_data_parser():
     parser = argparse.ArgumentParser(
         description="Stream MicroStrain IMU data",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -269,7 +259,11 @@ def stream_microstrain_imu_data():
         default=200,
         help="Operating frequency [Hz]",
     )
+    return parser
 
+def stream_microstrain_imu_data():
+    """Run with command-line shortcut `ep-stream-microstrain-imu [ARGS]`."""
+    parser = _stream_microstrain_imu_data_parser()
     args = parser.parse_args()
     serial_ids = args.imu_serial_id[0] # This is a list
     serial_ids = [str(s) for s in serial_ids.replace(" ", "").split(',')]
@@ -308,19 +302,11 @@ def stream_microstrain_imu_data():
             ms_data = microstrain_imus.get_data(imu_id)
             print(f"| {int(imu_id):^9} | {ms_data.acc_x:^15.2f} | {ms_data.acc_y:^15.2f} | {ms_data.acc_z:^15.2f} |")
 
-
-def stream_mpu9250_imu_data():
-    """Run with command-line shortcut `ep-stream-mpu9250-imu [ARGS]`."""
-    if _rpi_or_jetson() == "rpi":
-        DEFAULT_I2C_BUS = 1
-    elif _rpi_or_jetson() == "jetson":
-        DEFAULT_I2C_BUS = 7
-
+def _stream_mpu9250_imu_data_parser():
     parser = argparse.ArgumentParser(
         description="Stream MPU9250 IMU data",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-
     parser.add_argument(
         "--rate", '-r',
         nargs='+',
@@ -329,28 +315,35 @@ def stream_mpu9250_imu_data():
         default=250,
         help="Operating frequency [Hz]. Defaults to 250 Hz",
     )
-
     parser.add_argument(
         "--i2c-bus",
         type=int,
-        default=DEFAULT_I2C_BUS,
+        default=None,
         help="Which I2C bus the sensor is on (e.g., --i2c-bus 7). Defaults to 7 for NVIDIA Jetson Orin Nano or 1 for Raspberry Pi",
     )
-
     parser.add_argument(
         "--channel",
         type=int,
         default=-1,
         help="(If using multiplexer) channel sensor is on (e.g., --channel 1). Defaults to -1 (no multiplexer)",
     )
-
     parser.add_argument(
         "--address",
         type=int,
         default=68,
         help="I2C address of MPU9250 sensor (e.g., --address 68). Defaults to 68",
     )
+    return parser
 
+def stream_mpu9250_imu_data():
+    """Run with command-line shortcut `ep-stream-mpu9250-imu [ARGS]`."""
+    if _rpi_or_jetson() == "rpi":
+        DEFAULT_I2C_BUS = 1
+    elif _rpi_or_jetson() == "jetson":
+        DEFAULT_I2C_BUS = 7
+
+    parser = _stream_mpu9250_imu_data_parser()
+        
     args = parser.parse_args()
     bus = args.i2c_bus
     channel = args.channel
@@ -396,11 +389,9 @@ def stream_mpu9250_imu_data():
         for imu_id, connection in mpu9250_imu_ids.items():
             # Acceleration in x, y, z directions
             mpu_data = mpu9250_imus.get_data(imu_id)
-            print(f'| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |')
+            print(f"| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |")
 
-
-def stream_actuator_data():
-    """Run with command-line shortcut `ep-stream-actuator [ARGS]`."""
+def _stream_actuator_data_parser():
     parser = argparse.ArgumentParser(
         description="Stream actuator data",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -424,6 +415,11 @@ def stream_actuator_data():
         type=str,
         help="Actuator ID (CAN ID)",
     )
+    return parser
+
+def stream_actuator_data():
+    """Run with command-line shortcut `ep-stream-actuator [ARGS]`."""
+    parser = _stream_actuator_data_parser()
 
     args = parser.parse_args()
     rate = args.rate # This is an int [Hz]
@@ -457,9 +453,7 @@ def stream_actuator_data():
             act_data = actuators.get_data(can_id)
             print(f'| {int(can_id):^8} | {act_data.current_position:^14.2f} | {act_data.current_velocity:^16.2f} | {act_data.current_torque:^11.2f} |')
 
-
-def impedance_control_actuator():
-    """Run with command-line shortcut `ep-sample-impedance-ctrl [ARGS]`."""
+def _impedance_control_actuator_parser():
     parser = argparse.ArgumentParser(
         description="Run impedance controller on an actuator",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -483,7 +477,11 @@ def impedance_control_actuator():
         type=int,
         help="Actuator ID (CAN ID)",
     )
+    return parser
 
+def impedance_control_actuator():
+    """Run with command-line shortcut `ep-sample-impedance-ctrl [ARGS]`."""
+    parser = _impedance_control_actuator_parser()
     args = parser.parse_args()
     rate = args.rate # This is an int [Hz]
     actuator_type = args.actuator_type
@@ -533,9 +531,7 @@ def impedance_control_actuator():
 
         print(f'| {int(actuator_id):^5} | {act_data.current_position:^14.2f} | {act_data.current_velocity:^16.2f} | {act_data.current_torque:^11.2f} |')
 
-
-def position_control_actuator():
-    """Run with command-line shortcut `ep-sample-position-ctrl [ARGS]`."""
+def _position_control_actuator_parser():
     parser = argparse.ArgumentParser(
         description="Run impedance-based position control on an actuator",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -559,6 +555,11 @@ def position_control_actuator():
         type=int,
         help="Actuator ID (CAN ID)",
     )
+    return parser
+
+def position_control_actuator():
+    """Run with command-line shortcut `ep-sample-position-ctrl [ARGS]`."""
+    parser = _position_control_actuator_parser()
 
     args = parser.parse_args()
     rate = args.rate # This is an int [Hz]
@@ -616,11 +617,9 @@ def position_control_actuator():
 
         print(f'| {int(actuator_id):^5} | {act_data.current_position:^14.2f} | {act_data.current_velocity:^16.2f} | {act_data.current_torque:^11.2f} |')
 
-
-def position_control_actuator_with_visualizer():
-    """Run with command-line shortcut `ep-sample-actuator-viz [ARGS]`."""
+def _position_control_actuator_with_visualizer_parser():
     parser = argparse.ArgumentParser(
-        description="Run impedance-based position control on an actuator",
+        description="Run impedance-based position control on an actuator with visualization",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -655,6 +654,11 @@ def position_control_actuator_with_visualizer():
         default=5556,
         help="UDP server port",
     )
+    return parser
+
+def position_control_actuator_with_visualizer():
+    """Run with command-line shortcut `ep-sample-actuator-viz [ARGS]`."""
+    parser = _position_control_actuator_with_visualizer_parser()
 
     args = parser.parse_args()
     rate = args.rate # This is an int [Hz]
@@ -753,9 +757,7 @@ def position_control_actuator_with_visualizer():
         }
         pj_client.send(viz_data)
 
-
-def imu_control_actuator():
-    """Run with command-line shortcut `ep-sample-imu-ctrl`."""
+def _imu_control_actuator_parser():
     parser = argparse.ArgumentParser(
         description="Run actuator with IMU as controller input",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -787,6 +789,11 @@ def imu_control_actuator():
         type=int,
         help="Actuator ID (CAN ID)",
     )
+    return parser
+
+def imu_control_actuator():
+    """Run with command-line shortcut `ep-sample-imu-ctrl`."""
+    parser = _imu_control_actuator_parser()
 
     args = parser.parse_args()
     serial_id = args.imu_serial_id[0] # This is a list
@@ -853,17 +860,7 @@ def imu_control_actuator():
         # Print out updated results
         print(f'| {int(actuator_id):^8} | {act_data.current_torque:^11.2f} | {serial_id[0]:^9} | {imu_data.gyro_x:^16.2f} |')
 
-
-def install_mscl_python():
-    """Run with command-line shortcut `ep-install-mscl`."""
-    import os
-    import sys
-    import argparse
-    import shutil
-    import glob
-
-    CURRENT_VERSION = "67.1.0"
-
+def _install_mscl_python_parser():
     parser = argparse.ArgumentParser(
         description="Install MSCL Python package",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -880,6 +877,20 @@ def install_mscl_python():
         default=False,
         help="Install MSCL Python package to the current Python environment as well as the system-wide Python environment. This is useful if you want to use the MSCL Python package in a virtual environment or a specific Python environment.",
     )
+    return parser
+
+def install_mscl_python():
+    """Run with command-line shortcut `ep-install-mscl`."""
+    import os
+    import sys
+    import argparse
+    import shutil
+    import glob
+
+    CURRENT_VERSION = "67.1.0"
+
+    parser = _install_mscl_python_parser()
+
     args = parser.parse_args()
     
     # Download the MSCL Python package from GitHub Release.
