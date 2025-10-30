@@ -9,7 +9,7 @@ EpicallyPowerful assumes a basic familiarity with some concepts like Python, ele
    ```console
    $ pip install epicallypowerful
    ```
-3) Set up your actuators CAN ID, and connect your actuator to [power and the CAN interface on your Pi](Actuators) 
+3) [Set up your actuators CAN ID](Actuators) , and connect your actuator to power and the CAN interface on your Pi.
 4) Run the basic demo script
    ```console
    $ ep-stream-actuator --id <CAN ID>
@@ -26,7 +26,9 @@ EpicallyPowerful assumes a basic familiarity with some concepts like Python, ele
 * Inertial Measurement Unit Reading
 * Data Recording & Basic Control Loop Structuring
 
+:::{note}
+We highly recommend that you read through the setup and tutorial pages relevant to your application **before** you try to write your code or collect data.
+:::
 
-We highly recommend however that you read through the setup and tutorial pages relevant to your application **before** you try to write your code or collect data.
 
 

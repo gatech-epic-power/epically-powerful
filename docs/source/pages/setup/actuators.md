@@ -101,7 +101,9 @@ The CubeMars actuators can optionally be operated in "servo mode" allowing for d
 5.  Set the COM port to the right serial connection for the R-Link unit
      ![tmotor23](/res/tmotor2_3.png){width="700"}
       
-6. 
+      
+:::{note} If your actuator is set to Servo mode but commanded using MIT mode, it will stay powered but **will not** respond. Similarly, if your actuator is set to MIT mode but commanded using Servo mode, it **will not** respond. Ensure consistency in your setup and communication method.
+:::
 
 ## RobStride Actuators & CyberGear Micromotors
 The RobStride and CyberGear branded actuators use the same underlying control protocol, so for all setup steps they will be identical. However, you should note that these actuators of course may have different specifications (such as peak and rated torque, required voltage, etc.). The RobStride & CyberGear Micromotor Actuators utilize a CAN bus protocol for control, and are set up to work correctly with the provided library out of the box. Each actuator has a pre-programmed CAN ID, which defaults to 127. In order to address more than one actuator simultaneously, you will need to re-configure the actuator IDs. 

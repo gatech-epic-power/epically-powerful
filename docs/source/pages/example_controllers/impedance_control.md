@@ -1,40 +1,79 @@
 (ImpedanceControl)=
 # Impedance Control
 
+This example demonstrates a simple PD-style impedance controller that commands actuator torque to maintain a particular position. It shows how to initialize an ActuatorGroup, zero the encoder, read position, compute PD torque, and send torque commands at a fixed control frequency.
+
+
 ```python
-# IMPORTS
-from epicallypowerful import actuation, toolbox
+#/usr/bin/env python3
+"""
+This script will run the actuator output shaft position through 
+a sinusoidal pattern using a PD controller.
+"""
 
-# ACTUATOR SETUP
-right_hip = 0x1
-left_hip = 0x2
-actuator_type = 'AK80-9'
-actuator_dict_to_init = {left_hip:actuator_type, right_hip:actuator_type}
-actuator_group = actuation.ActuatorGroup.from_dict(actuator_dict_to_init)
+from epicallypowerful.actuation import ActuatorGroup
+from epicallypowerful.toolbox import TimedLoop
 
-# CLOCKING
-operating_rate = 200
-clocking_loop = toolbox.TimedLoop(operating_rate)
 
-# IMPEDANCE PARAMETERS
-stiffness = 1
-damping = 0.1
-position_des = 0
+##################################################################
+# SET CLOCK SPECIFICATIONS
+##################################################################
 
-# MAIN LOOP
-while clocking_loop.continue_loop():
+# Set control loop frequency
+OPERATING_FREQ = 200 # [Hz]
+clocking_loop = TimedLoop(rate=OPERATING_FREQ)
 
-    # UPDATE TORQUES - LEFT
-    position_curr_L = actuator_group.get_position(can_id=left_hip)
-    velocity_curr_L = actuator_group.get_velocity(can_id=left_hip)
-    impedance_torque_L = (position_des-position_curr_L)*stiffness + velocity_curr_L*damping
-    actuator_group.set_torque(can_id=left_hip, torque=impedance_torque_L)
+##################################################################
+# INITIALIZE DEVICES & VISUALIZER
+##################################################################
 
-    # UPDATE TORQUES - RIGHT
-    position_curr_R = actuator_group.get_position(can_id=right_hip)
-    velocity_curr_R = actuator_group.get_velocity(can_id=right_hip)
-    impedance_torque_R = (position_des-position_curr_R)*stiffness + velocity_curr_R*damping
-    actuator_group.set_torque(can_id=right_hip, torque=impedance_torque_R)
+# Determine number of connected actuators. This assumes a uniform actuator type (i.e. all are AK80-9)
+actuator_type = input(
+    "\nSpecify actuator type (see actuation.motor_data for possible types): "
+)
 
-actuator_group.cleanup()
+# Get actuator IDs
+actuator_id = input("Specify actuator id: ")
+actuator_id = int(actuator_id)
+initialization_dict = {actuator_id:actuator_type}
+
+# Initialize actuator object from dictionary
+acts = ActuatorGroup.from_dict(initialization_dict)
+
+##################################################################
+# SET CONTROLLER PARAMETERS (PLAY AROUND WITH THESE!)
+##################################################################
+
+GAIN_KP = 2 # proportional gain
+GAIN_KD = 0.1 # derivative gain
+error_current = 0 # initialize, will change in loop
+prev_error = 0 # initialize, will change in loop
+position_desired = 0 # [rad]
+
+##################################################################
+# MAIN OPERATING LOOP
+##################################################################
+
+# Zero actuator encoder
+acts.zero_encoder(actuator_id)
+
+# Run control loop at set frequency
+while clocking_loop():
+    print('\033[A\033[A\033[A')
+    print(f'| Actuator | Position [rad] | Velocity [rad/s] | Torque [Nm] |')
+
+    # Get data from actuator
+    act_data = acts.get_data(ACT_ID)
+
+    # Update position error
+    position_current = acts.get_position(can_id=ACT_ID, degrees=False)
+    prev_error = error_current
+    error_current = position_desired - position_current
+    errordot_right = (error_current - prev_error) / (1 / OPERATING_FREQ)
+
+    # Update torques
+    torque_desired = GAIN_KP*error_current + GAIN_KD*errordot_right
+    acts.set_torque(can_id=ACT_ID, torque=torque_desired)
+
+    print(f'| {int(ACT_ID):^5} | {act_data.current_position:^14.2f} | {act_data.current_velocity:^16.2f} | {act_data.current_torque:^11.2f} |')
 ```

@@ -6,6 +6,7 @@ The mechatronic system to run actuators with your computer can be broken down in
 2.  **Actuator:** CubeMars AK-series actuator (which requires 20/24V, depending on the model), CyberGear Micromotor (~24V), or RobStride actuator (~24V)
 3.  **Batteries:** Either a uniform power source (powers both computer and actuators) or two separate power sources
 
+
 ## Power System
 
 **What you will need:**
@@ -26,7 +27,6 @@ Additionally, we recommend adding XT30 male/female connections in your wiring se
 
 
 REC - TRIM DOWN FUSE CABLES
-BUCK CONVERTER BIDIRECTIONAL?
 ![tmotor1](/res/power_entiresetup.png)
 
 ### Power - Battery Connections
@@ -43,7 +43,7 @@ If you're using a...
 ![tmotor1](/res/power_battery.png){width="700"}
 
 ### Power - Actuator Connections
-:::{tip}  If you order the recommended fuse holders, we recommend trimming the included red wire because it is significantly less flexible that the generic 12-gauge red/black wire.
+:::{tip}  If you order the recommended fuse holders from our [Ordering Guide](https://docs.google.com/spreadsheets/d/1C3gL_t8qy4Z1Y0Z88K9UOk3GDusG5Bix34zb_12FyFI/edit?usp=sharing), we recommend trimming the included red wire because it is significantly less flexible that the generic 12-gauge red/black wire.
 :::
 
 First, you will need to check which XT30 connector your actuator uses. For older models of the CubeMars AK-Series, this is a standard XT30 connector. However, the V3 devices along with the RobStride and CyberGear devices use an XT30 2+2 design, where the CAN bus wiring is directly integrated with the power connector.
@@ -70,35 +70,15 @@ If you're using
 - Fuse holder and fuse
 - Computer power cable (barrel jack, micro-USB, OR USB-C)
 
+Depending on your choice of computer, you will need to set the output voltage of your buck converter accordlingly. Our recommended buck converter in the [Ordering Guide](https://docs.google.com/spreadsheets/d/1C3gL_t8qy4Z1Y0Z88K9UOk3GDusG5Bix34zb_12FyFI/edit?usp=sharing) allows you to adjust the output using a Phillips head screwdriver. Connect the input side to your battery and the output side to a multimeter measuring DC voltage, then adjust the potentiometer on the buck converter with a screwdriver until the output voltage matches your computer's input (Jetson - 19V, Raspberry Pi - 5V).
+
+:::{important} Adjust voltage output **before** connecting your computer to avoid any risk of overvolting.
+
+Also note that standard buck converters are **unidirectional**, so if using unified power for computer and actuators, ensure the battery is connected to the input side and the computer is connected to the output.
+:::
+
 
 ## Actuator Communication System
 
 ![install_ep](/res/comms_entiresetup.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-TODO: TUNE BUCK CONVERTER??
- 
 

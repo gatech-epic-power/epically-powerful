@@ -11,7 +11,7 @@ Everything you need to get your Epically Powerful system up and running is in th
 * Wiring supplies (heat shrink tubing, wire cutters + strippers, soldering flux, dupont jumper wires, 24-28 gauge spare wire)
 
 ## First Steps - Get Your Gear
-Before you dive into the tutorials and using Epically Powerful, it's important you decide exactly what you will be working with. The [Part Picker](PartPicker) can help you determine what specific devices fit your use case.  The key components that you will need to decide on (and the compatible options that we've incorporated) are listed below:
+Before you dive into the tutorials and using Epically Powerful, it's important you decide exactly what you will be working with. The [Part Picker](PartPicker) can help you determine what specific devices fit your use case, and the [Ordering Guide](https://docs.google.com/spreadsheets/d/1C3gL_t8qy4Z1Y0Z88K9UOk3GDusG5Bix34zb_12FyFI/edit?usp=sharing) contains links and prices for recommended parts. The key components that you will need to decide on (and the compatible options that we've incorporated) are listed below:
 
 1) **Computer** (Raspberry Pi, NVIDIA Jetson Orin Nano)
 2) **Power source** (drill battery, LiPo battery, power bank for separate computer power if desired)

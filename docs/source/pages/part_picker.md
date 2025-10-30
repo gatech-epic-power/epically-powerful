@@ -1,6 +1,15 @@
 (PartPicker)=
 # Part Picker
 
+:::{important}
+**ORDERING GUIDE**
+
+For a one-stop list of recommended part options, suppliers, prices, and ordering links for developing with Epically Powerful, please reference the ordering sheet below.
+
+**[Ordering Guide — Epically Powerful Starter Kit](https://docs.google.com/spreadsheets/d/1C3gL_t8qy4Z1Y0Z88K9UOk3GDusG5Bix34zb_12FyFI/edit?usp=sharing)**
+
+:::
+
 <!-- ```{toctree}
 :glob:
 
@@ -12,11 +21,11 @@ The single board computer will act as the 'brain' for the device.  The computer 
 
 ### *Choice 1: Raspberry Pi*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
-A Raspberry Pi is the most affordable of the two options.  Raspberry Pi's don't have native CAN communication (which is how they must communicate with the actuators), so you will also need to get the PiCAN3 board, which fits on a Raspberry Pi and enables CAN.
+A Raspberry Pi is the most affordable of the two options.  Raspberry Pi's don't have native CAN communication (which is how they must communicate with the actuators), so you will also need to get the Waveshare RS485 CAN Hat board, which fits on a Raspberry Pi and enables CAN.
 
 **Order:**
 - Raspberry Pi (Tested on models 3B/B+ and 4B/B+)
-- PiCAN3 CAN hat
+- Waveshare RS485 CAN Hat
 - Raspberry Pi power cable (see note below)
 
 :::{important} 
@@ -143,7 +152,6 @@ All of the listed actuators are commercially-available quasi-direct drive actuat
 
 ### *Choice 1: CubeMars AK-Series Actuators*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
-
 CubeMars has a variety of AK-Series actuators available.  We recommend specifically considering actuator mass, rated torque, and peak torque, as they have a large variety of actuators and the desired specifications will be specific to your use case.  All actuator options are listed in the ordering sheet.  This is our recommendation because this is the actuator that our lab has used the most extensively over the last 5 years. However, these are the more expensive of the possible actuators listed here.
 
 **Order:**
