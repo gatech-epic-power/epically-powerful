@@ -1,23 +1,21 @@
-from epicallypowerful.actuation.tmotor.tmotor_v3 import TmotorV3
-from epicallypowerful.actuation import ActuatorGroup
-import time
+from epicallypowerful.actuation.cubemars.cubemars_v3 import CubeMarsV3
+from epicallypowerful.actuation.actuator_group import ActuatorGroup
+import numpy as np
+ACT_ID = 1
+#acts = ActuatorGroup([Cybergear(2)])
+acts = ActuatorGroup([CubeMarsV3(ACT_ID, 'AK80-9-V3')])
 
-
-ID = 1 # Make this whatever you need
-
-cmd_torque = 0.0 # Nm
-cmd_position = 0.0 # rad
-cmd_velocity = 0.0 # rad/s
-cmd_kp = 0.0 # Nms/rad
-cmd_kd = 0.0 # Nms/rad/s
-
-acts = ActuatorGroup( TmotorV3(ID, "AK80-9-V3") )
-
-acts.enable()
-
+t0 = time.perf_counter()
+cmds = []
+measured = []
 while True:
-    acts.set_torque(ID, cmd_torque)
-    # acts.set_position(ID, cmd_position, cmd_kp, cmd_kd)
-    # acts.set_velocity(ID, cmd_velocity)
-    time.sleep(1)
-    print(f'{acts.get_torque(ID)} Nm, {acts.get_position(ID)} rad, {acts.get_velocity(ID)} rad/s, {acts.get_temperature(ID)} C')
+    #acts.set_position(ACT_ID, 0, 2, 0.1)
+    #acts.set_velocity(ACT_ID, 3, 2) 
+    acts.set_torque(ACT_ID, 2)
+    print(f'{acts.get_position(ACT_ID):.2f}, {acts.get_velocity(ACT_ID):.2f}, {acts.get_torque(ACT_ID):.2f}')
+    if time.perf_counter() - t0 > 10:
+        break
+    time.sleep(0.01)
+print("Stopping")
+acts.set_torque(ACT_ID, 0)
+print("Done")
