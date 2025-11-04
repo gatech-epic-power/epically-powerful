@@ -1,6 +1,7 @@
 from epicallypowerful.actuation.cubemars.cubemars_v3 import CubeMarsV3
 from epicallypowerful.actuation.actuator_group import ActuatorGroup
 import numpy as np
+import time
 ACT_ID = 1
 #acts = ActuatorGroup([Cybergear(2)])
 acts = ActuatorGroup([CubeMarsV3(ACT_ID, 'AK80-9-V3')])
