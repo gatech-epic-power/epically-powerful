@@ -530,10 +530,9 @@ if __name__ == '__main__':
     cmds = []
     measured = []
     while True:
-        current_cmd = 1
         #acts.set_position(ACT_ID, 0, 2, 0.1)
         #acts.set_velocity(ACT_ID, 3, 2) 
-        acts.set_torque(1, 1)
+        acts.set_torque(ACT_ID, 2)
         print(f'{acts.get_position(ACT_ID):.2f}, {acts.get_velocity(ACT_ID):.2f}, {acts.get_torque(ACT_ID):.2f}')
         if time.perf_counter() - t0 > 10:
             break
