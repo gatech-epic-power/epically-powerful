@@ -127,7 +127,8 @@ class ActuatorGroup():
             actuator._bus = self.bus
             self.actuators[actuator.can_id] = actuator
             self.notifier.add_listener(actuator)
-            self.actuators[actuator.can_id].torque_monitor.window = torque_rms_window
+            if self.actuators[actuator.can_id].torque_monitor is not None:
+                self.actuators[actuator.can_id].torque_monitor.window = torque_rms_window
 
         self._torque_limit_mode = torque_limit_mode
         if torque_limit_mode not in ['warn', 'throttle', 'saturate', 'disable', 'silent']:
@@ -212,7 +213,7 @@ class ActuatorGroup():
             torque (float): Torque to set the actuator to in Newton-meters.
         """
         expected_torque_command = torque
-
+        
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
             self.actuators[can_id].data.responding = False
@@ -242,10 +243,10 @@ class ActuatorGroup():
                 return -1
 
 
-
         self.actuators[can_id].data.last_command_time = time.perf_counter()
         self.actuators[can_id].set_torque(torque)
         self.actuators[can_id].data.responding = True
+
         return 1
 
     @_guard_connection
@@ -261,8 +262,9 @@ class ActuatorGroup():
         """
         expected_torque_command = kp * (position - self.actuators[can_id].get_position()) - kd * (self.actuators[can_id].get_velocity())
         #print(f'{expected_torque_command:.3f}, {self.actuators[can_id].get_torque():.3f}')
-        
+        print(self.actuators[can_id].call_response_latency()) 
         if self.actuators[can_id].call_response_latency() > 0.25:
+            #print("here1")
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
             self.actuators[can_id].data.responding = False
             self.actuators[can_id].data.last_command_time = time.perf_counter()
@@ -447,6 +449,12 @@ class ActuatorGroup():
                 actuators[a] = actuators[a].replace("-servo", "")
             else:
                 servomode = False
+
+            if "v3" in actuators[a].lower():
+                v3_mode = True
+            else:
+                v3_mode = False
+
             if a in invert:
                 inv = True
             else:
@@ -454,6 +462,8 @@ class ActuatorGroup():
             if actuators[a] in cubemars_types:
                 if (servomode):
                     act_list.append(CubeMarsServo(a, actuators[a], invert=inv))
+                elif (v3_mode):
+                    act_list.append(CubeMarsV3(a, actuators[a], invert=inv))
                 else:
                     act_list.append(CubeMars(a, actuators[a], invert=inv))
             elif actuators[a] in robstride_types:
@@ -509,14 +519,27 @@ class ActuatorGroup():
 
 
 if __name__ == '__main__':
-    acts = ActuatorGroup([Robstride(2, 'Cybergear')], torque_limit_mode='throttle')
-    from epicallypowerful.toolbox import TimedLoop
-    loop = TimedLoop(200)
-    acts.zero_encoder(2)
-    while loop():
-        res1 = acts.set_position(2, 0, 1, 0.04)
-        #res1 = acts.set_torque(2, 2)
-        print(acts.get_torque(2))
+    from epicallypowerful.actuation.cubemars.cubemars_v3 import CubeMarsV3
+    #acts = ActuatorGroup([Cybergear(2)])
+    #acts = ActuatorGroup([CubeMarsV3(1, 'AK80-9-V3')])
+    import numpy as np
+    import random
+    loop = TimedLoop(100)
+    t0 = time.perf_counter()
+    cmds = []
+    measured = []
+    while True:
+        current_cmd = 1
+        #acts.set_position(1, 0, 2, 0.1)
+        acts.set_velocity(3, 3) 
+        acts.set_torque(1, 1)
+        #print(acts.get_position(67))
+        if time.perf_counter() - t0 > 10:
+            break
+        time.sleep(0.01)
+    print("Stopping")
+    acts.set_torque(67, 0)
+    print("Done")
 
 
 

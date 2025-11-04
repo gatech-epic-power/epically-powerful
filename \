@@ -97,12 +97,14 @@ class CubeMarsV3(can.Listener, Actuator):
     def on_message_received(self, msg: can.Message) -> None:
         if msg.arbitration_id == ((0x29 << 8) | (self.can_id)):
             [pos, vel, cur, temp, err] = _read_cubemars_message(msg)
+            #print(pos, vel, cur)
             self.data.current_position = pos * self.invert
             self.data.current_velocity = vel * self.invert * self.data.erpm_to_rpm / DEGPERSEC2RPM * DEG2RAD
             self.data.current_torque = cur * self.invert
             self.data.temperature = temp
             self.data.error_code = err
             self.data.timestamp = time.perf_counter()
+            
             rms_torque, _ = self.torque_monitor.update(self.data.current_torque)
             self.data.rms_torque = rms_torque
             self._over_limit = self.torque_monitor.over_limit()
@@ -180,17 +182,17 @@ class CubeMarsV3(can.Listener, Actuator):
         return self.data
     
     def get_torque(self) -> float:
-        return self.data.current_torque
+        return self.data.current_torque * self.invert
     
     def get_position(self, degrees=False) -> float:
         if degrees:
-            return self.data.current_position * RAD2DEG
-        return self.data.current_position
+            return self.data.current_position * RAD2DEG * self.invert
+        return self.data.current_position * self.invert
     
     def get_velocity(self, degrees=False) -> float:
         if degrees:
-            return self.data.current_velocity * RAD2DEG
-        return self.data.current_velocity
+            return self.data.current_velocity * RAD2DEG * self.invert
+        return self.data.current_velocity * self.invert
     
     def get_temperature(self) -> float:
         return self.data.temperature
@@ -200,7 +202,7 @@ class CubeMarsV3(can.Listener, Actuator):
         self._bus.send(msg)
 
     def _enable(self) -> None:
-        #if (time.perf_counter() - self.data.timestamp) > 0.1: return
+        if (time.perf_counter() - self.data.timestamp) > 0.1: return
         zero_trq_msg = _create_mit_message(
             self.can_id, 0, 0,
             0, 0, 0, self.data
@@ -225,17 +227,3 @@ class CubeMarsV3(can.Listener, Actuator):
             0, 0, 0, self.data
         )
         self._bus.send(msg)
-
-if __name__ == '__main__':
-    from epicallypowerful.actuation.actuator_group import _load_can_drivers
-    _load_can_drivers()
-    can_id = 67
-    motor_data = MotorData(can_id, 'AKE-60-8')
-    msg = _create_mit_message(can_id, 0, 0, 2, 0.1, 0, motor_data)
-    bus = can.Bus(interface='socketcan', channel='can0')
-    import time
-    while True:
-        time.sleep(0.01)
-        bus.send(msg)
-
-

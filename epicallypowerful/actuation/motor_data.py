@@ -24,6 +24,18 @@ AK10_9_V2_0 = 'AK10-9-V2.0'
 
 
 MOTOR_PARAMS = { # Listed with increasing
+    'AKE-60-8': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-40.0, 40.0),
+        'torque_limits': (-15.0, 15.0),
+        'rated_torque_limits': (-5.0, 5.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'pole_pairs': 14,
+        'gear_ratio': 8,
+        'super_type': 'TMotorV3'
+
+    },
     'AK80-9-V3': {
         'position_limits': (-12.56, 12.56),
         'velocity_limits': (-65.0, 65.0),

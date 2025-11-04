@@ -202,6 +202,7 @@ class CubeMarsServo(can.Listener, Actuator):
         self._reconnection_start_time = 0
         self.prev_command_time = 0
         self._over_limit = False
+        self.torque_monitor = None
 
     def on_message_received(self, msg: can.Message):
         """Handles a received CAN message.
@@ -233,6 +234,12 @@ class CubeMarsServo(can.Listener, Actuator):
             torque (float): The current to set the motor to in Amperes.
         """
         torque = torque * self.invert
+        self.commanded_torque = torque
+        self.commanded_position = 0
+        self.commanded_velocity = 0
+        self.kp = 0
+        self.kd = 0
+
         msg = make_current_loop_message(self.can_id, torque)
         self._bus.send(msg)
         self.data.commanded_torque = torque
@@ -241,31 +248,51 @@ class CubeMarsServo(can.Listener, Actuator):
         """Sets the position of the motor in position control mode. Range is -36000 to 36000 degrees.
 
         Args:
-            position (float): The position to set the motor to.
+            position (float): The position to set the motor to (defaults to radians).
             kp (float): Dummy variable for compatibility, not used in servo mode. To adjust these gains, use the RLink software.
             kd (float): Dummy variable for compatibility, not used in servo mode. To adjust these gains, use the RLink software.
             degrees (bool, optional): Whether the position is in degrees. Defaults to False.
         """
-        position = position * self.invert
+        position = position * self.invert 
+        
         if not degrees:
-            position = position * RAD2DEG
-        msg = make_position_mode_message(self.can_id, position)
+            pos_deg = position * RAD2DEG
+        else:
+            pos_deg = position
+
+        self.commanded_torque = 0
+        self.commanded_position = pos_deg * DEG2RAD
+        self.commanded_velocity = 0
+        self.kp = 0
+        self.kd = 0
+        
+
+        msg = make_position_mode_message(self.can_id, pos_deg)
         self._bus.send(msg)
 
     def set_velocity(self, velocity, kp: float, degrees = False):
         """Sets the velocity of the motor in velocity control mode. Range varies per motor.
 
         Args:
-            velocity (float): The velocity to set the motor to.
+            velocity (float): The velocity to set the motor to (defaults to radians/second).
             kp (float): Dummy variable for compatibility, not used in servo mode. To adjust these gains, use the RLink software.
             degrees (bool, optional): Whether the velocity is in degrees per second. Defaults to False.
         """
         velocity = velocity * self.invert
         if not degrees:
-            velocity = velocity * RAD2DEG
+            vel_deg_per_sec = velocity * RAD2DEG
+        else:
+            vel_deg_per_sec = velocity
+
+        self.commanded_torque = 0
+        self.commanded_position = 0
+        self.commanded_velocity = vel_deg_per_sec * DEG2RAD
+        self.kp = 0
+        self.kd = 0
+
         # CONVERT DEG per SEC to RPM then to eRPM
-        velocity = velocity * DEGPERSEC2RPM / self.data.erpm_to_rpm
-        msg = make_velocity_mode_message(self.can_id, velocity)
+        vel_to_send = vel_deg_per_sec * DEGPERSEC2RPM / self.data.erpm_to_rpm
+        msg = make_velocity_mode_message(self.can_id, vel_to_send)
         self._bus.send(msg)
 
     def get_data(self) -> MotorData:
@@ -282,7 +309,7 @@ class CubeMarsServo(can.Listener, Actuator):
         Returns:
             float: The measured current of the motor (Amps).
         """
-        return self.data.current_torque
+        return self.data.current_torque * self.invert
     
     def get_position(self, degrees = False):
         """Returns the current position of the motor.
@@ -293,7 +320,7 @@ class CubeMarsServo(can.Listener, Actuator):
         Returns:
             float: The current position of the motor.
         """
-        return self.data.current_position if not degrees else self.data.current_position * 180.0 / 3.14159265359
+        return self.data.current_position * self.invert if not degrees else self.data.current_position * self.invert * 180.0 / 3.14159265359
     
     def get_velocity(self, degrees = False):
         """Returns the current velocity of the motor.
@@ -304,7 +331,7 @@ class CubeMarsServo(can.Listener, Actuator):
         Returns:
             float: The current velocity of the motor.
         """
-        return self.data.current_velocity if not degrees else self.data.current_velocity * 180.0 / 3.14159265359
+        return self.data.current_velocity * self.invert if not degrees else self.data.current_velocity* self.invert * 180.0 / 3.14159265359
     
     def get_temperature(self):
         """Returns the current temperature of the motor.
@@ -327,7 +354,9 @@ class CubeMarsServo(can.Listener, Actuator):
     def _disable(self):
         """Disables the motor by sending a current brake message with zero current.
         """
-        self._bus.send(make_current_brake_message(self.can_id, 0))
+        os.write("disabling")
+        self.set_torque(0)
+        #self._bus.send(make_current_loop_message(self.can_id, 0))
 
     def _set_zero_torque(self):
         """Sets the motor torque to zero.
