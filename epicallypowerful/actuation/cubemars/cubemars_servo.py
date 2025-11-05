@@ -1,8 +1,8 @@
 import can
-import struct
 from epicallypowerful.actuation.actuator_abc import Actuator
 from epicallypowerful.actuation.motor_data import MotorData
-import math
+from epicallypowerful.actuation.torque_monitor import RMSTorqueMonitor
+
 # Servo Mode Functions
 DUTY_CYCLE_MODE = 0
 CURRENT_LOOP_MODE = 1
@@ -14,7 +14,7 @@ POSITION_VELOCITY_LOOP_MODE = 6
 
 DEG2RAD = 3.14159265359/180.0
 RAD2DEG = 180.0/3.14159265359
-DEGPERSEC2RPM = 1/6
+DEGPERSEC2RPM = 1.0/6.0
 
 def read_servo_message(msg: can.Message) -> list[float]:
     pos = int.from_bytes(msg.data[0:2], byteorder="big", signed=True) * 0.1 * DEG2RAD
@@ -202,7 +202,7 @@ class CubeMarsServo(can.Listener, Actuator):
         self._reconnection_start_time = 0
         self.prev_command_time = 0
         self._over_limit = False
-        self.torque_monitor = None
+        self.torque_monitor = RMSTorqueMonitor(limit=abs(self.data.rated_torque_limits[1]), window=20)
 
     def on_message_received(self, msg: can.Message):
         """Handles a received CAN message.
@@ -354,9 +354,8 @@ class CubeMarsServo(can.Listener, Actuator):
     def _disable(self):
         """Disables the motor by sending a current brake message with zero current.
         """
-        os.write("disabling")
-        self.set_torque(0)
-        #self._bus.send(make_current_loop_message(self.can_id, 0))
+        # self.set_torque(0)
+        self._bus.send(make_current_loop_message(self.can_id, 0))
 
     def _set_zero_torque(self):
         """Sets the motor torque to zero.
@@ -370,7 +369,6 @@ if __name__ == "__main__":
     import statistics
     from scipy.signal import chirp
     import numpy as np
-    import plotext as plt
     ACT_ID = 104
     TARGET_FREQ = 20
     FREQ = 200
@@ -405,8 +403,8 @@ if __name__ == "__main__":
         itter += 1
         if itter == SAMPLES: break
     recorder.finalize()
-    plt.plot(times, signal, label="target")
-    plt.plot(times, curs, label="measured")
-    plt.show()
+    # plt.plot(times, signal, label="target")
+    # plt.plot(times, curs, label="measured")
+    # plt.show()
     #print(statistics.mean(curs))
     #print(time.perf_counter() - t0)
