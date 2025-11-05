@@ -46,7 +46,7 @@ class Robstride(can.Listener, Actuator):
             kp=0, kd=0, timestamp=-1,
             running_torque=(), rms_torque=0, rms_time_prev=0
         )
-        self.torque_monitor = RMSTorqueMonitor(limit=self.data.rated_torque_limits[0], window=20.0)
+        self.torque_monitor = RMSTorqueMonitor(limit=self.data.rated_torque_limits[1], window=20.0)
         self._over_limit = False
 
         self._connection_established = False
@@ -84,16 +84,16 @@ class Robstride(can.Listener, Actuator):
         if communication_type == rsd.RESPONSE_MOTION:
             pos, vel, trq, temp, can_id, motor_mode, cal_fault, hall_enc_fault, mag_enc_fault, overtemp_fault, overcurr_fault, undervolt_fault = rsd.parse_motion_response(msg, self.data.motor_type)
             if can_id != self.can_id: return -1
-            self.data.current_position = pos
-            self.data.current_velocity = vel
-            self.data.current_torque = trq
+            self.data.current_position = pos * self.invert
+            self.data.current_velocity = vel * self.invert
+            self.data.current_torque = trq * self.invert
             self.data.motor_mode = motor_mode
             self.data.current_temperature = temp
             self.data.timestamp = time.perf_counter()
 
             rms_torque, over_limit = self.torque_monitor.update(self.data.current_torque)
             self.data.rms_torque = rms_torque
-            self._over_limit = over_limit
+            self._over_limit = self.torque_monitor.over_limit()
         return
 
     def _ping_actuator(self) -> None:
@@ -191,7 +191,7 @@ class Robstride(can.Listener, Actuator):
         Returns:
             float: The current torque of the motor in Newton-meters.
         """
-        return self.data.current_torque * self.invert
+        return self.data.current_torque
 
     def get_position(self, degrees: bool = False) -> float:
         """Returns the current position of the motor in radians. Functionally equivalent to the property ``position`` or ``get_data().current_position``.
@@ -202,8 +202,8 @@ class Robstride(can.Listener, Actuator):
         Returns:
             float: The current position of the motor in radians or degrees.
         """
-        if degrees: return self.data.current_position * self.invert * 180/math.pi
-        else: return self.data.current_position * self.invert
+        if degrees: return self.data.current_position * 180/math.pi
+        else: return self.data.current_position
 
     def get_velocity(self, degrees: bool = False) -> float:
         """Returns the current velocity of the motor in radians per second. Functionally equivalent to the property ``velocity`` or ``get_data().current_velocity``.
@@ -214,8 +214,8 @@ class Robstride(can.Listener, Actuator):
         Returns:
             float: The current velocity of the motor in radians per second or degrees per second.
         """
-        if degrees: return self.data.current_velocity * self.invert * 180/math.pi
-        else: return self.data.current_velocity * self.invert
+        if degrees: return self.data.current_velocity * 180/math.pi
+        else: return self.data.current_velocity
 
     def get_temperature(self) -> float:
         """Returns the current temperature of the motor in degrees Celsius.

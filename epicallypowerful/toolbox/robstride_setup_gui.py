@@ -36,7 +36,7 @@ def select_actuator(event):
 
 def update_act_type(value):
     actuator_type = value
-    position_limits, velocity_limits, torque_limits, _, kp_limits, kd_limits, _ = get_motor_limits(actuator_type)
+    position_limits, velocity_limits, torque_limits, _, kp_limits, kd_limits, _ = get_motor_details(actuator_type)
 
 async def update_dropdown_options():
     # Simulate updating dropdown options
@@ -114,5 +114,5 @@ def main():
     update_act_type(actuator_type)  # Initialize sliders with default actuator type
     app.on_shutdown(lambda: print('Shutting down...'))
     #ui.run(title='Robstride Setup', dark=True, native=True, reload=False, window_size=(1280, 720))
-    ui.run(title='Robstride Setup', dark=True, show_welcome_message=False)
+    ui.run(title='Robstride Setup', dark=True, show_welcome_message=True, reload=False)
 

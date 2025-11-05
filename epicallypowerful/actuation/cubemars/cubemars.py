@@ -85,14 +85,14 @@ class CubeMars(can.Listener, Actuator):
 
         _, pos, vel, torque = tmd._unpack_motor_message(msg, motor=self.data)
 
-        self.data.current_position = pos
-        self.data.current_velocity = vel
-        self.data.current_torque = torque
+        self.data.current_position = pos * self.invert
+        self.data.current_velocity = vel * self.invert
+        self.data.current_torque = torque * self.invert
         self.data.timestamp = time.perf_counter()
 
         rms_torque, over_limit = self.torque_monitor.update(self.data.current_torque)
         self.data.rms_torque = rms_torque
-        self._over_limit = over_limit
+        self._over_limit = self.torque_monitor.over_limit()
         return
 
     def call_response_latency(self) -> float:
@@ -213,10 +213,6 @@ class CubeMars(can.Listener, Actuator):
         """
 
         data = self.data
-        data.current_position *= self.invert
-        data.current_velocity *= self.invert
-        data.current_torque *= self.invert
-
         return data
 
     def get_torque(self) -> float:
@@ -225,7 +221,7 @@ class CubeMars(can.Listener, Actuator):
         Returns:
             float: The current torque of the motor in Newton-meters.
         """
-        return self.data.current_torque * self.invert
+        return self.data.current_torque
 
     def get_position(self, degrees: bool = False) -> float:
         """Returns the current position of the motor in radians. Functionally equivalent to or ``get_data().current_position``.
@@ -236,8 +232,8 @@ class CubeMars(can.Listener, Actuator):
         Returns:
             float: The current position of the motor in radians or degrees.
         """
-        if degrees: return self.data.current_position * self.invert * RAD2DEG
-        else: return self.data.current_position * self.invert
+        if degrees: return self.data.current_position * RAD2DEG
+        else: return self.data.current_position
 
     def get_velocity(self, degrees: bool = False) -> float:
         """Returns the current velocity of the motor in radians per second. Functionally equivalent to ``get_data().current_velocity``.
@@ -248,8 +244,8 @@ class CubeMars(can.Listener, Actuator):
         Returns:
             float: The current velocity of the motor in radians per second or degrees per second.
         """
-        if degrees: return self.data.current_velocity * self.invert * RAD2DEG
-        else: return self.data.current_velocity * self.invert
+        if degrees: return self.data.current_velocity * RAD2DEG
+        else: return self.data.current_velocity
 
     def get_temperature(self) -> float:
         """Returns the current temperature of the motor in degrees Celsius. This is not currently implemented and will ALWAYS return 0 for T Motors.
