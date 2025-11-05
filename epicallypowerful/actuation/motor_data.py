@@ -179,7 +179,7 @@ MOTOR_PARAMS = {
 
     },
     'RS01': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-44.0, 44.0),
         'torque_limits': (-17.0, 17.0),
         'rated_torque_limits': (-6.0, 6.0),
@@ -188,7 +188,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS02': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-44.0, 44.0),
         'torque_limits': (-17.0, 17.0),
         'rated_torque_limits': (-6.0, 6.0),
@@ -197,7 +197,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS03': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-20.0, 20.0),
         'torque_limits': (-60.0, 60.0),
         'rated_torque_limits': (-20.0, 20.0),
@@ -206,7 +206,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS04': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-15.0, 15.0),
         'torque_limits': (-120.0, 120.0),
         'rated_torque_limits': (-40.0, 40.0),
@@ -215,7 +215,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS05': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-50.0, 50.0),
         'torque_limits': (-5.5, 5.5),
         'rated_torque_limits': (-1.6, 1.6),
@@ -224,7 +224,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS06': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-50.0, 50.0),
         'torque_limits': (-36.0, 36.0),
         'rated_torque_limits': (-11.0, 11.0),
