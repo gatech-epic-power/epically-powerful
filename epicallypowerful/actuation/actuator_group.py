@@ -2,8 +2,7 @@ from epicallypowerful.actuation.actuator_abc import Actuator
 from epicallypowerful.actuation.cubemars import CubeMars
 from epicallypowerful.actuation.cubemars import CubeMarsServo
 from epicallypowerful.actuation.robstride import Robstride
-from epicallypowerful.actuation.cybergear import Cybergear
-from epicallypowerful.actuation.motor_data import MotorData, cubemars, cybergears, robstrides
+from epicallypowerful.actuation.motor_data import MotorData, cubemars, robstrides
 import can
 from can import CanOperationError
 import time
@@ -263,6 +262,59 @@ class ActuatorGroup():
         return 1
 
     @_guard_connection
+    def set_control(self, can_id: int, pos: float, vel: float, torque: float, kp: float, kd: float, degrees: bool = False):
+        """Sets the control of the motor using full MIT control mode. This uses the built in capability to simultaneously use torque, as well as position and velocity control.
+
+        Args:
+            can_id (int): CAN ID of the actuator. This should be set by the appropriate manufacturer software.
+            pos (float): Position to set the actuator to in radians or degrees depending on the ``degrees`` argument.
+            vel (float): Velocity to set the actuator to in radians or degrees depending on the ``degrees`` argument.
+            torque (float): Torque to set the actuator to in Newton-meters.
+            kp (float): Proportional gain to set the actuator to in Newton-meters per radian or Newton-meters per degree depending on the ``degrees`` argument.
+            kd (float): Derivative gain to set the actuator to in Newton-meters per radian per second or Newton-meters per degree per second depending on the ``degrees`` argument.
+            degrees (bool, optional): Whether the position and velocity are in degrees or radians. Defaults to False.
+        """
+        expected_torque_command = torque + kp * (pos - self.actuators[can_id].get_position(degrees=degrees)) + kd * (vel - self.actuators[can_id].get_velocity(degrees=degrees))
+        if self.actuators[can_id].call_response_latency() > 0.25:
+            motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
+            self.actuators[can_id].data.responding = False
+            self.actuators[can_id].data.last_command_time = time.perf_counter()
+            self.actuators[can_id]._enable()
+            return -1
+        
+        if self.actuators[can_id]._over_limit:
+            if self._torque_limit_mode == 'warn':
+                print(f"WARNING: Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Halt operation or decrease load.")
+            elif self._torque_limit_mode == 'throttle':
+                self.actuators[can_id].set_torque(0.0)
+                return
+            elif self._torque_limit_mode == 'saturate':
+                saturated_torque = math.copysign(self.actuators[can_id].torque_monitor.limit, expected_torque_command)
+                if abs(saturated_torque) < abs(expected_torque_command):
+                    torque_to_use = saturated_torque
+                    self.actuators[can_id].set_torque(torque_to_use)
+                    self.actuators[can_id].data.responding = True
+                    self.actuators[can_id].data.last_command_time = time.perf_counter()
+                    return
+                else:
+                    torque_to_use = expected_torque_command
+            elif self._torque_limit_mode == 'disable':
+                motorlog.warning(f"Motor CAN ID {can_id} exceeded torque limits ({self.actuators[can_id].torque_monitor.limit} Nm). Disabling all motors.")
+                self.disable_actuators()
+                self.auto_disabled = True
+                return -1
+            elif self._torque_limit_mode == 'silent':
+                pass
+        
+
+        self.actuators[can_id].data.last_command_time = time.perf_counter()
+        self.actuators[can_id].set_control(pos, vel, torque, kp, kd, degrees)
+        self.actuators[can_id].data.responding = True
+
+        return 1
+
+
+    @_guard_connection
     def set_torque(self, can_id: int, torque: float) -> int:
         """Sets the torque of the actuator with the given CAN ID.
 
@@ -320,7 +372,7 @@ class ActuatorGroup():
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the position is in degrees or radians.
         """
-        expected_torque_command = kp * (position - self.actuators[can_id].get_position()) - kd * (self.actuators[can_id].get_velocity())
+        expected_torque_command = kp * (position - self.actuators[can_id].get_position(degrees=degrees)) - kd * (self.actuators[can_id].get_velocity(degrees=degrees))
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
             self.actuators[can_id].data.responding = False
@@ -368,7 +420,7 @@ class ActuatorGroup():
             degrees (bool): Whether the velocity is in degrees per second or radians per second.
         """
         
-        expected_torque_command = -kd * (self.actuators[can_id].get_velocity())
+        expected_torque_command = kd * (velocity - self.actuators[can_id].get_velocity(degrees=degrees))
         
         if self.actuators[can_id].call_response_latency() > 0.25:
             motorlog.error(f'Latency for motor {can_id} is too high, skipping command and attempting to enable')
@@ -606,7 +658,3 @@ if __name__ == '__main__':
     print("Stopping")
     acts.set_torque(ACT_ID, 0)
     print("Done")
-
-
-
-
