@@ -19,17 +19,10 @@ actuators = ActuatorGroup.from_dict({
 }, invert=[LEFT])
 
 ### Control ---
-actuators[LEFT].set_torque(0.5)
-actuators[RIGHT].set_position(0, 0.5, 0.1, 0.1, degrees=True)
-# OR
 actuators.set_torque(LEFT, 0.5)
 actuators.set_position(RIGHT, 0, 0.5, 0.1, 0.1, degrees=True)
 
 ### Data ---
-print(actuators[LEFT].get_torque())
-print(actuators[RIGHT].get_position())
-print(actuators[RIGHT].get_temperature())
-# OR
 print(actuators.get_torque(LEFT))
 print(actuators.get_position(RIGHT))
 print(actuators.get_temperature(RIGHT))
@@ -53,6 +46,17 @@ print(actuators.get_temperature(RIGHT))
     :undoc-members:
     :member-order: bysource
 
+.. autoclass:: epicallypowerful.actuation.cubemars.CubeMarsServo
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :member-order: bysource
+
+.. autoclass:: epicallypowerful.actuation.cubemars.CubeMarsV3
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :member-order: bysource
 ```
 
 ## RobStride Motors
