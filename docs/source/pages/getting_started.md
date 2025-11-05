@@ -4,7 +4,7 @@ EpicallyPowerful assumes a basic familiarity with some concepts like Python, ele
 
 
 ## Quickstart
-1) Set up your [Raspberry Pi](RPiSetup)
+1) Set up your [Raspberry Pi](RPiSetup) or [Jetson Orin](JetsonSetup)
 2) Install EpicallyPowerful Python package. In newer versions of ubuntu, you will likely need some form of virtual environment ([see here](PythonEnvs)).
    ```console
    $ pip install epicallypowerful
@@ -18,9 +18,10 @@ EpicallyPowerful assumes a basic familiarity with some concepts like Python, ele
 5) [Optional] Install MSCL library
    ```console
    $ ep-install-mscl
-   $ ep-stream-imu --serial_id <IMU serial ID (last 6 digits)>
+   $ ep-stream-microstrain-imu --serial_id <IMU serial ID (last 6 digits)>
    ```
-6) Check out the [example controllers](https://github.com/gatech-epic-power/epically-powerful/tree/main/examples) and start writing your own!
+6) Check out the [example controllers](ExampleControllers) and start writing your own!
+   
 ## What does EpicallyPowerful Provide
 * Actuator Control
 * Inertial Measurement Unit Reading

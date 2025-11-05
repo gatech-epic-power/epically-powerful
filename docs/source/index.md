@@ -47,10 +47,10 @@ JK Leestma, S Mathur, M Anderton, GS Sawicki, and AJ Young, [Dynamic duo: Design
     :maxdepth: 1
 
     Getting Started</pages/getting_started.md>
-    Part Picker</pages/part_picker.md>
     Guide</pages/tutorials.md>
     Detailed Instructions</pages/setup.md>
     Example Controllers</pages/example_controllers.md>
+    Part Picker</pages/part_picker.md>
     API</pages/api.md>
     FAQ</pages/faqs.md>
 ::::
