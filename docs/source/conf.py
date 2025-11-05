@@ -137,13 +137,6 @@ html_title = 'Epically Powerful'
 pygments_style = "manni"
 pygments_dark_style = "gruvbox-dark"
 
-
-
-
-
-
-
-
 copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}:"
 copybutton_prompt_is_regexp = True
 
