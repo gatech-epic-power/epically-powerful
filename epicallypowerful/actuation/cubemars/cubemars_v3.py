@@ -96,7 +96,7 @@ class CubeMarsV3(can.Listener, Actuator):
 
     def on_message_received(self, msg: can.Message) -> None:
         if msg.arbitration_id == ((0x29 << 8) | (self.can_id)):
-            [pos, vel, cur, temp, err] = _read_cubemars_message(msg)
+            pos, vel, cur, temp, err = _read_cubemars_message(msg)
             self.data.current_position = pos * self.invert
             self.data.current_velocity = vel * self.invert * self.data.erpm_to_rpm / DEGPERSEC2RPM * DEG2RAD
             self.data.current_torque = cur * self.invert
