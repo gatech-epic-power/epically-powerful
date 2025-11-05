@@ -230,7 +230,7 @@ def visualize_dummy_data():
 
         print('\033[A\033[A\033[A')
         print(f'| Time (s) |  Sine  | Cosine |')
-        print(f'| {test_data['timestamp']:^8.2f} | {test_data['example_data']['sine']:^6.2f} | {test_data['example_data']['cosine']:^6.2f} |')
+        print(f"| {test_data['timestamp']:^8.2f} | {test_data['example_data']['sine']:^6.2f} | {test_data['example_data']['cosine']:^6.2f} |")
 
 
 
@@ -383,7 +383,7 @@ def stream_mpu9250_imu_data():
         for imu_id, connection in mpu9250_imu_ids.items():
             # Acceleration in x, y, z directions
             mpu_data = mpu9250_imus.get_data(imu_id)
-            print(f'| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |')
+            print(f"| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |")
 
 
 def stream_actuator_data():
