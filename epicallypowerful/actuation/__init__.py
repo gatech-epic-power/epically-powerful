@@ -8,7 +8,7 @@ import epicallypowerful.actuation.motor_data
 from .actuator_group import ActuatorGroup
 from .cubemars import CubeMars
 from .cubemars import CubeMarsServo
-from .cybergear import Cybergear
+from .cybergear import CyberGear
 from .robstride import Robstride
 from .motor_data import MotorData
 

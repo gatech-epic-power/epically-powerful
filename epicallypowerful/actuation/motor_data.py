@@ -12,7 +12,9 @@ Units of below limits:
 """
 
 TMOTOR = 'TMotor'
+TMOTOR_V3 = 'TMotorV3'
 CUBEMARS = 'CubeMars'
+ROBSTRIDE = 'Robstride'
 AK80_9 = 'AK80-9'
 AK80_8 = 'AK80-8'
 AK80_6 = 'AK80-6'
@@ -22,6 +24,64 @@ AK10_9_V2_0 = 'AK10-9-V2.0'
 
 
 MOTOR_PARAMS = {
+    'AKE80-8-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-20.0, 20.0),
+        'torque_limits': (-35.0, 35.0),
+        'rated_torque_limits': (-12.0, 12.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'pole_pairs': 14,
+        'gear_ratio': 8,
+        'super_type': 'CubeMars'
+    },
+    'AKE60-8-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-40.0, 40.0),
+        'torque_limits': (-15.0, 15.0),
+        'rated_torque_limits': (-5.0, 5.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'pole_pairs': 14,
+        'gear_ratio': 8,
+        'super_type': 'CubeMars'
+    },
+    'AK80-9-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-65.0, 65.0),
+        'torque_limits': (-18.0, 18.0),
+        'rated_torque_limits': (-9.0, 9.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'super_type': 'CubeMars'
+    },
+    'AK70-9-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-30.0, 30.0),
+        'torque_limits': (-32.0, 32.0),
+        'rated_torque_limits': (-8.5, 8.5),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'super_type': 'CubeMars'
+    },
+    'AK60-6-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-60.0, 60.0),
+        'torque_limits': (-12.0, 12.0),
+        'rated_torque_limits': (-3.0, 3.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'super_type': 'CubeMars'
+    },
+    'AK10-9-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-28.0, 28.0),
+        'torque_limits': (-54.0, 54.0),
+        'rated_torque_limits': (-18.0, 18.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'super_type': 'CubeMars'
+    },
     'AK10-9-V2.0': { # 24V/48V operation
         'position_limits': (-12.5, 12.5),
         'velocity_limits': (-50.0, 50.0),
@@ -99,7 +159,7 @@ MOTOR_PARAMS = {
         'gear_ratio': 64,
         'super_type': 'CubeMars',
     },
-    'Cybergear': {
+    'CyberGear': {
         'position_limits': (-12.5, 12.5),
         'velocity_limits': (-30.0, 30.0),
         'torque_limits': (-12.0, 12.0),
@@ -119,7 +179,7 @@ MOTOR_PARAMS = {
 
     },
     'RS01': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-44.0, 44.0),
         'torque_limits': (-17.0, 17.0),
         'rated_torque_limits': (-6.0, 6.0),
@@ -128,7 +188,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS02': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-44.0, 44.0),
         'torque_limits': (-17.0, 17.0),
         'rated_torque_limits': (-6.0, 6.0),
@@ -137,7 +197,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS03': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-20.0, 20.0),
         'torque_limits': (-60.0, 60.0),
         'rated_torque_limits': (-20.0, 20.0),
@@ -146,7 +206,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS04': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-15.0, 15.0),
         'torque_limits': (-120.0, 120.0),
         'rated_torque_limits': (-40.0, 40.0),
@@ -155,7 +215,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS05': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-50.0, 50.0),
         'torque_limits': (-5.5, 5.5),
         'rated_torque_limits': (-1.6, 1.6),
@@ -164,7 +224,7 @@ MOTOR_PARAMS = {
         'super_type': 'Robstride'
     },
     'RS06': {
-        'position_limits': (-12.7, 12.7),
+        'position_limits': (-12.57, 12.57),
         'velocity_limits': (-50.0, 50.0),
         'torque_limits': (-36.0, 36.0),
         'rated_torque_limits': (-11.0, 11.0),
