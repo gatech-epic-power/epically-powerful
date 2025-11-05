@@ -23,8 +23,19 @@ AK70_10 = 'AK70-10'
 AK10_9_V2_0 = 'AK10-9-V2.0'
 
 
-MOTOR_PARAMS = { # Listed with increasing
-    'AKE-60-8': {
+MOTOR_PARAMS = {
+    'AKE80-8-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-20.0, 20.0),
+        'torque_limits': (-35.0, 35.0),
+        'rated_torque_limits': (-12.0, 12.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'pole_pairs': 14,
+        'gear_ratio': 8,
+        'super_type': 'TMotorV3'
+    },
+    'AKE60-8-V3': {
         'position_limits': (-12.56, 12.56),
         'velocity_limits': (-40.0, 40.0),
         'torque_limits': (-15.0, 15.0),
@@ -34,13 +45,39 @@ MOTOR_PARAMS = { # Listed with increasing
         'pole_pairs': 14,
         'gear_ratio': 8,
         'super_type': 'TMotorV3'
-
     },
     'AK80-9-V3': {
         'position_limits': (-12.56, 12.56),
         'velocity_limits': (-65.0, 65.0),
         'torque_limits': (-18.0, 18.0),
         'rated_torque_limits': (-9.0, 9.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'super_type': 'TMotorV3'
+    },
+    'AK70-9-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-30.0, 30.0),
+        'torque_limits': (-32.0, 32.0),
+        'rated_torque_limits': (-8.5, 8.5),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'super_type': 'TMotorV3'
+    },
+    'AK60-6-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-60.0, 60.0),
+        'torque_limits': (-12.0, 12.0),
+        'rated_torque_limits': (-3.0, 3.0),
+        'kp_limits': (0.0, 500.0),
+        'kd_limits': (0.0, 5.0),
+        'super_type': 'TMotorV3'
+    },
+    'AK10-9-V3': {
+        'position_limits': (-12.56, 12.56),
+        'velocity_limits': (-28.0, 28.0),
+        'torque_limits': (-54.0, 54.0),
+        'rated_torque_limits': (-18.0, 18.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
         'super_type': 'TMotorV3'

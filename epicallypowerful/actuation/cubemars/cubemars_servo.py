@@ -309,7 +309,7 @@ class CubeMarsServo(can.Listener, Actuator):
         Returns:
             float: The measured current of the motor (Amps).
         """
-        return self.data.current_torque * self.invert
+        return self.data.current_torque
     
     def get_position(self, degrees = False):
         """Returns the current position of the motor.
@@ -320,7 +320,7 @@ class CubeMarsServo(can.Listener, Actuator):
         Returns:
             float: The current position of the motor.
         """
-        return self.data.current_position * self.invert if not degrees else self.data.current_position * self.invert * 180.0 / 3.14159265359
+        return self.data.current_position if not degrees else self.data.current_position * 180.0 / 3.14159265359
     
     def get_velocity(self, degrees = False):
         """Returns the current velocity of the motor.
@@ -331,7 +331,7 @@ class CubeMarsServo(can.Listener, Actuator):
         Returns:
             float: The current velocity of the motor.
         """
-        return self.data.current_velocity * self.invert if not degrees else self.data.current_velocity* self.invert * 180.0 / 3.14159265359
+        return self.data.current_velocity if not degrees else self.data.current_velocity * 180.0 / 3.14159265359
     
     def get_temperature(self):
         """Returns the current temperature of the motor.
