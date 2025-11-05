@@ -33,7 +33,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 14,
         'gear_ratio': 8,
-        'super_type': 'TMotorV3'
+        'super_type': 'CubeMars'
     },
     'AKE60-8-V3': {
         'position_limits': (-12.56, 12.56),
@@ -44,7 +44,7 @@ MOTOR_PARAMS = {
         'kd_limits': (0.0, 5.0),
         'pole_pairs': 14,
         'gear_ratio': 8,
-        'super_type': 'TMotorV3'
+        'super_type': 'CubeMars'
     },
     'AK80-9-V3': {
         'position_limits': (-12.56, 12.56),
@@ -53,7 +53,7 @@ MOTOR_PARAMS = {
         'rated_torque_limits': (-9.0, 9.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotorV3'
+        'super_type': 'CubeMars'
     },
     'AK70-9-V3': {
         'position_limits': (-12.56, 12.56),
@@ -62,7 +62,7 @@ MOTOR_PARAMS = {
         'rated_torque_limits': (-8.5, 8.5),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotorV3'
+        'super_type': 'CubeMars'
     },
     'AK60-6-V3': {
         'position_limits': (-12.56, 12.56),
@@ -71,7 +71,7 @@ MOTOR_PARAMS = {
         'rated_torque_limits': (-3.0, 3.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotorV3'
+        'super_type': 'CubeMars'
     },
     'AK10-9-V3': {
         'position_limits': (-12.56, 12.56),
@@ -80,7 +80,7 @@ MOTOR_PARAMS = {
         'rated_torque_limits': (-18.0, 18.0),
         'kp_limits': (0.0, 500.0),
         'kd_limits': (0.0, 5.0),
-        'super_type': 'TMotorV3'
+        'super_type': 'CubeMars'
     },
     'AK10-9-V2.0': { # 24V/48V operation
         'position_limits': (-12.5, 12.5),
@@ -159,7 +159,7 @@ MOTOR_PARAMS = {
         'gear_ratio': 64,
         'super_type': 'CubeMars',
     },
-    'Cybergear': {
+    'CyberGear': {
         'position_limits': (-12.5, 12.5),
         'velocity_limits': (-30.0, 30.0),
         'torque_limits': (-12.0, 12.0),
