@@ -14,19 +14,26 @@ class Robstride(can.Listener, Actuator):
 
     The Robstrides can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
 
+    Availabe `motor_type` strings are:
+        * 'CyberGear'
+        * 'RS00'
+        * 'RS01'
+        * 'RS02'
+        * 'RS03'
+        * 'RS04'
+        * 'RS05'
+        * 'RS06'
+
+    
     Example:
         .. code-block:: python
 
 
             from epicallypowerful.actuation import Robstride, ActuatorGroup
-            motor = Robstride(0x01)
+            motor = Robstride(1, 'RS02')
             group = ActuatorGroup([motor])
 
-            motor.set_torque(0.5)
-            # OR
-            group[0x01].set_torque(0.5)
-            # OR
-            group.set_torque(0x01, 0.5)
+            group.set_torque(1, 0.5)
 
     Args:
         can_id (int): CAN ID of the motor. This should be unique for each motor in the system, and can be set up with the RLink software.

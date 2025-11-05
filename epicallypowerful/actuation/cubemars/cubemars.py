@@ -17,24 +17,29 @@ class CubeMars(can.Listener, Actuator):
     """Class for controlling an individual CubeMars actuator. This class should always be initialized as part of an :py:class:`ActuatorGroup` so that the can bus is appropriately shared between all motors.
     Alternatively, the bus can be set manually after initialization, however this is not recommended. If you want to implement it this way, please consult the `python-can documentation <https://python-can.readthedocs.io/en/stable/>`_.
 
-    This class supports all motors from the AK series. Before use with this package, please follow :ref:`the tutorial for using RLink <Tutorials>` to
+    This class supports all motors from the AK series. Before use with this package, please follow :ref:`the tutorial for using RLink <Actuators>` to
     properly configure the motor and CAN IDs.
 
     The CubeMars actuators can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+
+    Availabe `motor_type` strings are:
+        * 'AK10-9-V2.0'
+        * 'AK60-6-V1.1'
+        * 'AK70-10'
+        * 'AK80-6'
+        * 'AK80-8'
+        * 'AK80-9'
+        * 'AK80-64'
 
     Example:
         .. code-block:: python
 
 
             from epicallypowerful.actuation import CubeMars, ActuatorGroup
-            motor = CubeMars(0x01, 'AK80-9')
+            motor = CubeMars(1, 'AK80-9')
             group = ActuatorGroup([motor])
 
-            motor.set_torque(0.5)
-            # OR
-            group[0x01].set_torque(0.5)
-            # OR
-            group.set_torque(0x01, 0.5)
+            group.set_torque(1, 0.5)
 
 
     Args:

@@ -65,7 +65,7 @@ class ActuatorGroup():
 
     Please see the :py:class:`~epicallypowerful.actuation.CubeMars` and :py:class:`~epicallypowerful.actuation.Robstride` classes for more information on the methods available for each actuator and specific relevant details.
 
-    You can also create an ActuatorGroup from a dictionary, where the key is the CAN ID and the value is the actuator type.
+    You can also create an ActuatorGroup from a dictionary, where the key is the CAN ID and the value is the actuator type, using the :py:meth:`from_dict`.
 
     For a list of all supported actuator types, you can import and use the :py:func:`epicallypowerful.actuation.available_actuator_types` function.
     
@@ -86,7 +86,7 @@ class ActuatorGroup():
 
             ### Control ---
             actuators.set_torque(1, 0.5)
-            actuators.set_position(2, 0, 0.5, 0.1, 0.1, degrees=True)
+            actuators.set_position(2, 0, 0.05, 0.1, degrees=True)
 
             ### Data ---
             print(actuators.get_torque(1))
@@ -99,7 +99,7 @@ class ActuatorGroup():
             This is only needed if your system does not use SocketCAN as described in the tutorials. Defaults to None.
         enable_on_startup (bool, optional): Whether to attempt to enable the actuators when the object is created. If set False, :py:func:`enable_actuators` needs to be called before any other commands. Defaults to True.
         exit_manually (bool, optional): Whether to handle graceful exit manually. If set to False, the program will attempt to disable the actuators and shutdown the CAN bus on SIGINT or SIGTERM (ex. Ctrl+C). Defaults to False.
-        torque_limit_mode (Literal['warn', 'throttle', 'saturate', 'disable', 'silent'], optional): The mode to use when a motor exceeds its torque limits. Defaults to 'warn'.
+        torque_limit_mode (Literal['warn', 'throttle', 'saturate', 'disable', 'silent'], optional): The mode to use when a motor exceeds its torque limits. 'warn' prints a warning to the terminal. 'throttle' drops commanded torque to zero. 'saturate' saturates the torque at the rated torque for the motor type. 'disable' shuts down the motors and will not reinitialize them. Defaults to 'warn'.
         torque_rms_window (float, optional): The window size in seconds to use for torque RMS monitoring. Defaults to 20.0 seconds.
     """
     def __init__(self,
@@ -537,11 +537,32 @@ class ActuatorGroup():
         which can allow for higher output torques as direct current control can be used. Please see the :py:class:`~epicallypowerful.actuation.CubeMarsServo` class for more information.
         Make sure to match the actuator type exactly, including the version if applicable (e.g. "AK10-9-V2.0" is different from "AK10-9-V3").
 
+        Available strings for the actuator types are
+            * 'AK10-9-V2.0'
+            * 'AK60-6-V1.1'
+            * 'AK70-10'
+            * 'AK80-6'
+            * 'AK80-8'
+            * 'AK80-9'
+            * 'AK80-64'
+            * 'AK80-9-V3'
+            * 'AK70-9-V3'
+            * 'AK60-6-V3'
+            * 'AK10-9-V3'
+            * 'CyberGear'
+            * 'RS00'
+            * 'RS01'
+            * 'RS02'
+            * 'RS03'
+            * 'RS04'
+            * 'RS05'
+            * 'RS06'
+
         Example:
             .. code-block:: python
 
 
-                actuators = ActuatorGroup.from_dict({ 0x1: 'AK80-9', 0x2: 'AK70-10' })
+                actuators = ActuatorGroup.from_dict({ 1: 'AK80-9', 2: 'AK70-10', 3: 'CyberGear', 4: 'AK10-9-V3', '5': 'RS02' }, invert=[2,4])
 
         Args:
             actuators (dict[int, str]): A dictionary where the key is the CAN ID and the value is the actuator type.

@@ -74,6 +74,44 @@ def _create_set_origin_message(can_id: int) -> can.Message:
     )
 
 class CubeMarsV3(can.Listener, Actuator):
+    """Class for controlling an individual V3 CubeMars actuator. This class should always be initialized as part of an :py:class:`ActuatorGroup` so that the can bus is appropriately shared between all motors.
+    Alternatively, the bus can be set manually after initialization, however this is not recommended. If you want to implement it this way, please consult the `python-can documentation <https://python-can.readthedocs.io/en/stable/>`_.
+
+    This class supports all V3 motors from the AK series. Before use with this package, please follow :ref:`the tutorial for using RLink <Actuators>` to
+    properly configure the motor and CAN IDs.
+
+    It is important to note that for V3 actuators , the *reply* current values are signed in a "braking/assisting" convention, and do not indicate the actual clockwise/counterclockwise direction of torque. Commanded values however are in the standard convention. Please refer to the motor datasheet for more information.
+
+    Additionally, values read using the "get_torque" method actually return current values in Amperes.
+
+    The CubeMars V3 actuators can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+
+    Availabe `motor_type` strings are:
+        * 'AK80-9-V3'
+        * 'AK70-9-V3'
+        * 'AK60-6-V3'
+        * 'AK10-9-V3'
+
+    Example:
+        .. code-block:: python
+
+
+            from epicallypowerful.actuation import CubeMars, ActuatorGroup
+            motor = CubeMarsV3(1, 'AK80-9-V3')
+            group = ActuatorGroup([motor])
+
+            group.set_torque(1, 0.5)
+
+
+    Args:
+        can_id (int): CAN ID of the motor. This should be unique for each motor in the system, and can be set up with the RLink software.
+        motor_type (str): A string representing the type of motor. This is used to set the appropriate limits for the motor. These will always end with -V3 for these actuators.
+        invert (bool, optional): Whether to invert the motor direction. Defaults to False.
+
+
+    Attributes:
+        data (MotorData): Data from the actuator. Contains up-to-date information from the actuator as of the last time a message was sent to the actuator.
+    """
     def __init__(self, can_id: int, motor_type: str, invert: bool = False):
         self.can_id = can_id
         self.motor_type = motor_type
@@ -99,7 +137,7 @@ class CubeMarsV3(can.Listener, Actuator):
             pos, vel, cur, temp, err = _read_cubemars_message(msg)
             self.data.current_position = pos * self.invert
             self.data.current_velocity = vel * self.invert * self.data.erpm_to_rpm / DEGPERSEC2RPM * DEG2RAD
-            self.data.current_torque = cur * self.invert
+            self.data.current_torque = cur
             self.data.temperature = temp
             self.data.error_code = err
             self.data.timestamp = time.perf_counter()

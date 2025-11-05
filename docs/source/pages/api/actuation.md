@@ -71,7 +71,7 @@ print(actuators.get_temperature(RIGHT))
 
 ## CyberGear Motors
 ```{eval-rst}
-.. autoclass:: epicallypowerful.actuation.cybergear.Cybergear
+.. autoclass:: epicallypowerful.actuation.cybergear.CyberGear
     :show-inheritance:
     :members:
     :undoc-members:
