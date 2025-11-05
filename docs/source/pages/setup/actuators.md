@@ -3,7 +3,7 @@
 This section outlines the setup process required for the supported acutator brands, CubeMars & RobStride/CyberGear. Each has its own initial setup process, but operation in EpicallyPowerful will view them as approximately the same, and different brands and motor types can be operated simultaneously in the same setup.
 
 ## CubeMars AK Series Actuators
-The CubeMars actuators in the system should run right out of the box with no issue. Each one has a default ID for CAN communication (usually CAN_ID = 0 or 1 by default). If there are multiple actuators in the system that are all connected over the same CAN wiring network, their CAN IDs must be differentiated so that commands to one are not interpreted by another. Each actuator's CAN ID can be set from 0-127 using the custom flashing software and serial port module (called Rubik Link or R-Link) from CubeMars. The version of the R-Link module and flashing software to use depends on the version of AK-series actuator being configured (be sure to align actuator and R-Link version as described in the [Part Picker](PartPicker) section). The possible versions are V1.0, V2.0, or V3.0 (which may include additional versions in the future). To determine which one the actuator is, simply check the CAN port on the actuator (see below). If the port has two CAN pins, the actuator is V1.0. If it has four pins, the actuator is V2.0. If it has a combined two CAN/power port, the actuator is V3.0. See the diagram below for images of these ports.
+The CubeMars actuators in the system should run right out of the box with no issue. Each one has a default ID for CAN communication (usually CAN_ID = 0 or 1 by default). If there are multiple actuators in the system that are all connected over the same CAN wiring network, their CAN IDs must be differentiated so that commands to one are not interpreted by another. Each actuator's CAN ID can be set from 0-127 using the custom flashing software and serial port module (called Rubik Link or R-Link) from CubeMars. The version of the R-Link module and flashing software to use depends on the version of AK-series actuator being configured (be sure to align actuator and R-Link version as described in the [Part Picker](PartPicker) section). The possible versions are V1.0, V2.0, or V3.0. To determine which one the actuator is, simply check the CAN port on the actuator (see below). If the port has two CAN pins, the actuator is V1.0. If it has four pins, the actuator is V2.0. If it has a combined two CAN/power port, the actuator is V3.0. See the diagram below for images of these ports.
 
 ![tmotor1](/res/tmotor1.png){height="200"}
 
@@ -85,25 +85,55 @@ To change CAN IDs, the following components and packages are required:
 
 ### V2.0 actuators in Servo Mode
 The CubeMars actuators can optionally be operated in "servo mode" allowing for direct current control. These instructions are based off of this [video from CubeMars](https://www.youtube.com/watch?v=k4ClvZlc7JI), which we recommend viewing as well.
-1. Download the most up to date firmware for your actuator from the [CubeMars discord server](https://www.cubemars.com/technical-support-and-software-download.html).
-
-2.  Connect the R-Link module to the computer via USB and to the actuator's CAN and UART ports
+1.  Connect the R-Link module to the computer via USB and to the actuator's CAN and UART ports
     ![tmotor21](/res/tmotor2_1.png){width="700"}
 
-3.  To start up the configuration software:
+2.  To start up the configuration software:
       * Open Command Prompt (WIN+R and type `cmd` then hit ENTER)
       * Navigate to the directory in which the software is stored: `cd [CONFIGURATION DIRECTORY]`
       * If the executable ends with ".downloading", it can still run. For formality, the executable can be renamed by deleting the ".downloading" portion. As long as the filetype is still ".exe", then it can be executed without issue.
       * Run the executable (Example: `CubeMarstool_V1.32.exe` + ENTER)
-4.  Change the application language from Mandarin to English (if you don't speak Mandarin)
+3.  Change the application language from Mandarin to English (if you don't speak Mandarin)
      ![tmotor22](/res/tmotor2_2.png){width="700"}
 
-5.  Set the COM port to the right serial connection for the R-Link unit
+4.  Set the COM port to the right serial connection for the R-Link unit
      ![tmotor23](/res/tmotor2_3.png){width="700"}
       
-      
+5.  Once connected, set the actuator to Servo Mode using the mode switch section.
+6.  For our setup, we will need the motors to continously stream data. To do this, **first press READ PARAMETERS**. Then go into "Application Funtions" and set the CAN ID, response rate, and select the "send status over CAN" checkbox.
+    
+    ![tmotor_servo](/res/CubeMarsServo.png){width="400"}
+     
+7. Once you've entered your desired settings, press "WRITE PARAMETERS".
 :::{note} If your actuator is set to Servo mode but commanded using MIT mode, it will stay powered but **will not** respond. Similarly, if your actuator is set to MIT mode but commanded using Servo mode, it **will not** respond. Ensure consistency in your setup and communication method.
 :::
+
+
+### Setps for setting up V3.0 actuators
+The V3 CubeMars actuators use the V3 setup GUI available at the [CubeMars Technical Support and Downloads page](https://www.cubemars.com/technical-support-and-software-download.html). Please download the tool and ensure you have the [R-Link V3.0](https://www.cubemars.com/product/rubik-link-v-3-0.html). More detailed instructions and complete troubleshooting can be found in the [V3 driver board manual](https://www.cubemars.com/images/file/20241217/1734428582786471.pdf).
+
+1. Connect the R-Link Module to the UART pins on V3.0 series motor
+2. Connect the power connector to an appropriate power source. More information can be found in the [Mechatronics Setup Page](Mechatronics). Note that although the V3 devices use a combined power and CAN bus cable, the CAN bus does not need to be fully wired for the setup step.
+3. Unzip the download from the CubeMars website and run the executable inside. You'll be greeted with this page.
+   
+   ![rlinkv3_1](/res/RLinkV3_1.png){width="700"}
+4. Use the language switch to select the language you need.
+   
+   ![rlinkv3_2](/res/RLinkV3_2.png){width="300"}
+5. Once the R-Link & motor are connected to the computer, refresh the available connnections and select the correct COM port, then press connect. You should see a stream of data in the charts and in the bottom left corner.
+   
+   ![rlinkv3_3](/res/RLinkV3_3.png){width="300"} ![rlinkv3_4](/res/RLinkV3_4.png){width="350"}
+
+6. On the left side under application configuration, **first press read** to update the software with the devices internal settings. Then, set the the desired CAN ID, and the desired feedback rate. You can set this to whatever you would like, but at your expected commanded frequency is a generally safe option.
+7. Once the settings are at your desired options, press write.
+   
+   ![rlinkv3_5](/res/RLinkV3_5.png){width="400"}
+
+8. You can test the two control modes (Servo & MIT) using the control pannel on the right side. Using MIT mode and changing the CAN id can help double check that the CAN id has been appropriately set.
+
+:::{note} By default, the AK motors are calibrated before you receive them. If you have redone some of the internal wiring, you need to run the calibration steps, in page 23/24 of the manual
+::: 
+
 
 ## RobStride Actuators & CyberGear Micromotors
 The RobStride and CyberGear branded actuators use the same underlying control protocol, so for all setup steps they will be identical. However, you should note that these actuators of course may have different specifications (such as peak and rated torque, required voltage, etc.). The RobStride & CyberGear Micromotor Actuators utilize a CAN bus protocol for control, and are set up to work correctly with the provided library out of the box. Each actuator has a pre-programmed CAN ID, which defaults to 127. In order to address more than one actuator simultaneously, you will need to re-configure the actuator IDs. 
@@ -117,6 +147,8 @@ Because RobStride requires an additional adapter for configuring CAN IDs, we cre
       * This will attempt to find all actuators connected to the bus and their CAN IDs
       * If this fails to find your device, you likely have a wiring issue
 5. Use the bottom selector to change the CAN ID to a new desired one
+
+    ![robstride_setup](/res/RobstrideSetup.png){width="800"}
 
 At this point, your actuator will be ready to use with the set CAN ID using the EpicallyPowerful actuator utilities.
 
