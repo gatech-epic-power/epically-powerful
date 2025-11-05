@@ -10,11 +10,6 @@ For a one-stop list of recommended part options, suppliers, prices, and ordering
 
 :::
 
-<!-- ```{toctree}
-:glob:
-
-part_picker/*
-``` -->
 
 ## Single Board Computer
 The single board computer will act as the 'brain' for the device.  The computer will run a Linux OS and is where you will write and run your controllers.
@@ -211,9 +206,9 @@ MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fra
 | Item              	|Notes |
 | :---------------- 	| :---- |
 | 12-gauge black/red wire | Cable that will be used to connect all powered components in system |
-| XT30 connectors       | Recommended to add disconnection/break points in power cables in all possible configurations, needed for CubeMars actuator connection |
+| XT30 connectors       | Recommended to add disconnection/break points in power cables in all possible configurations, needed for CubeMars V1/V2 actuator connection |
 | XT60 connectors       | Only needed if using lipo batteries |
-| XT30 2+2 connectors    | Only needed for CyberGear and RobStride actuators |
+| XT30 2+2 connectors    | Needed for V3 CubeMars, CyberGear, and RobStride actuators |
 
 ### Actuator Communication System
 
