@@ -1,6 +1,6 @@
 (Actuators)=
 # Actuators
-This section outlines the setup process required for the supported acutator brands, CubeMars & RobStride/CyberGear. Each has its own initial setup process, but operation in EpicallyPowerful will view them as approximately the same, and different brands and motor types can be operated simultaneously in the same setup.
+This section outlines the setup process required for the supported actuator brands: CubeMars, RobStride, and CyberGear. Each has its own initial setup process, but operation in Epically Powerful will view them as approximately the same, and different brands and motor types can be operated simultaneously in the same setup.
 
 ## CubeMars AK Series Actuators
 The CubeMars actuators in the system should run right out of the box with no issue. Each one has a default ID for CAN communication (usually CAN_ID = 0 or 1 by default). If there are multiple actuators in the system that are all connected over the same CAN wiring network, their CAN IDs must be differentiated so that commands to one are not interpreted by another. Each actuator's CAN ID can be set from 0-127 using the custom flashing software and serial port module (called Rubik Link or R-Link) from CubeMars. The version of the R-Link module and flashing software to use depends on the version of AK-series actuator being configured (be sure to align actuator and R-Link version as described in the [Part Picker](PartPicker) section). The possible versions are V1.0, V2.0, or V3.0. To determine which one the actuator is, simply check the CAN port on the actuator (see below). If the port has two CAN pins, the actuator is V1.0. If it has four pins, the actuator is V2.0. If it has a combined two CAN/power port, the actuator is V3.0. See the diagram below for images of these ports.
@@ -75,7 +75,7 @@ To change CAN IDs, the following components and packages are required:
 9.  In the "Waveform display" tab, check that actuator data is streaming and responding to movement of the output shaft (follow the instructions in the image)
      ![tmotor28](/res/tmotor2_8.png){width="700"}
 
-10. Check two-way communication and command changes
+10.  Check two-way communication and command changes
       * Set "des P" = 0.5, "KP" = 1, "KD" = 0.1, keep other boxes ("des S", "des T") set to 0
       * If you don't get responses from these values, you can slowly increase them, starting with "KP"
 
@@ -104,7 +104,7 @@ The CubeMars actuators can optionally be operated in "servo mode" allowing for d
     
     ![tmotor_servo](/res/CubeMarsServo.png){width="400"}
      
-7. Once you've entered your desired settings, press "WRITE PARAMETERS".
+7.  Once you've entered your desired settings, press "WRITE PARAMETERS".
 :::{note} If your actuator is set to Servo mode but commanded using MIT mode, it will stay powered but **will not** respond. Similarly, if your actuator is set to MIT mode but commanded using Servo mode, it **will not** respond. Ensure consistency in your setup and communication method.
 :::
 
@@ -150,7 +150,7 @@ Because RobStride requires an additional adapter for configuring CAN IDs, we cre
 
     ![robstride_setup](/res/RobstrideSetup.png){width="800"}
 
-At this point, your actuator will be ready to use with the set CAN ID using the EpicallyPowerful actuator utilities.
+At this point, your actuator will be ready to use with the set CAN ID using the Epically Powerful actuator utilities.
 
 RobStride provides a tool to configure the actuator IDs, along with other parameters, and to use this you will need the CAN bus USB adapter. If you want additional functionality that this provides (configure additional parameters, alter internal torque limits or current gains, etc.), you will need to use their tool.
 
