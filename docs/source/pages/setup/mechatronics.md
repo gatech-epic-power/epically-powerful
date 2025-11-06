@@ -8,6 +8,9 @@ The mechatronic system to run actuators with your computer can be broken down in
 
 ![powersetup](/res/Hardware.png)
 
+::::{youtube} fhiH9PkrNj4
+::::
+
 ## Power System
 
 **What you will need:**

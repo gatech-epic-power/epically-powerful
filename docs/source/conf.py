@@ -9,7 +9,7 @@
 project = 'Epically Powerful'
 copyright = '2025, EPIC Lab'
 author = 'EPIC Lab'
-release = '0.1.0'
+release = '1.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

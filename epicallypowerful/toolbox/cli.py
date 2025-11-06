@@ -400,7 +400,7 @@ def stream_mpu9250_imu_data():
             for imu_id, connection in mpu9250_imu_ids.items():
                 # Acceleration in x, y, z directions
                 mpu_data = mpu9250_imus.get_data(imu_id)
-                print(f'| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |')
+                print(f"| {int(connection['bus']):^7} | {int(connection['channel']):^7} | {int(connection['address']):^9} | {mpu_data.acc_x:^15.2f} | {mpu_data.acc_y:^15.2f} | {mpu_data.acc_z:^15.2f} |")
 
     except KeyboardInterrupt:
         print("\nClosing MPU9250 IMUs.")
