@@ -24,6 +24,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinxarg.ext',
     'sphinx_argparse_cli',
+    'sphinxcontrib.googleanalytics'
 ]
 
 # Options for connecting other Sphinx projects
