@@ -186,6 +186,14 @@ The MicroStrain IMUs provide extensive features on top of their basic accelerome
 **Order:**
 - MicroStrain 3DM-GX5-25 [Mouser link from HBK page](https://www.mouser.com/ProductDetail/MicroStrain-by-HBK/3DM-GX5-AHRS?qs=A6eO%252BMLsxmRQvdAwtoW2wA%3D%3D). Comes with micro DB9-to-USB A connectors in the box
 
+### *OpenIMUs*
+OpenIMUs offer ...
+
+**Order:**
+- Ampseal connectors [Amazon link]()
+- Ampseal pins [Amazon link]()
+- OpenIMU300RI [Mouser link]()
+
 ### *MPU9250 IMUs*
 MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fraction of the price of more expensive units, though their orientation data are more prone to drift than other models.
 
