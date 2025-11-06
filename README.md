@@ -26,6 +26,7 @@ Epically Powerful was built by robotics researchers to make wearable robotics de
 
 In short, Epically Powerful turns “getting your robot to run” from a multi-week endevour into a single-day setup.
 
+![software](docs/source/res/Software.png)
 ---
 
 ### 🛠️ Installation

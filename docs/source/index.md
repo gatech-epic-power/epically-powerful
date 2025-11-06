@@ -22,7 +22,7 @@ Our goal is to lower the barriers to designing custom wearable and other robotic
 
 This project was driven by a team of robotics PhD students at Georgia Tech.  We are members of the Exoskeleton and Prosthetic Intelligent Controls (EPIC) Lab and the Physiology of Wearable Robotics (PoWeR) Lab.  Our primary use of Epically Powerful has been in building exoskeleton and prosthetic systems for human assistance and augmentation.
 
-Authors of Epically Powerful include: <sup>#</sup>Jennifer K. Leestma, <sup>#</sup>Siddharth Nathella, <sup>#</sup>Christoph Nuesslein, Snehil Mathur, Gregory S. Sawicki, and Aaron J. Young
+Authors of Epically Powerful include: <sup>#</sup>Jennifer K. Leestma, <sup>#</sup>Siddharth R. Nathella, <sup>#</sup>Christoph Nuesslein, Snehil Mathur, Gregory S. Sawicki, and Aaron J. Young
 
 
 <sup>#</sup>These authors contributed equally to this work

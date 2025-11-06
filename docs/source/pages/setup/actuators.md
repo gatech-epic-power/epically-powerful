@@ -84,7 +84,7 @@ To change CAN IDs, the following components and packages are required:
       :::
 
 ### V2.0 actuators in Servo Mode
-The CubeMars actuators can optionally be operated in "servo mode" allowing for direct current control. These instructions are based off of this [video from CubeMars](https://www.youtube.com/watch?v=k4ClvZlc7JI), which we recommend viewing as well.
+The CubeMars actuators can optionally be operated in "Servo mode" allowing for direct current control. These instructions are based off of this [video from CubeMars](https://www.youtube.com/watch?v=k4ClvZlc7JI), which we recommend viewing as well. We recommend using MIT mode (see above), as it operates within the recommended CubeMars specifications. In Servo, mode the Epically Powerful code will not automatically warn or saturate when rated torques are reached.
 1.  Connect the R-Link module to the computer via USB and to the actuator's CAN and UART ports
     ![tmotor21](/res/tmotor2_1.png){width="700"}
 
@@ -109,11 +109,16 @@ The CubeMars actuators can optionally be operated in "servo mode" allowing for d
 :::
 
 
-### Setps for setting up V3.0 actuators
+### Steps for setting up V3.0 actuators
 The V3 CubeMars actuators use the V3 setup GUI available at the [CubeMars Technical Support and Downloads page](https://www.cubemars.com/technical-support-and-software-download.html). Please download the tool and ensure you have the [R-Link V3.0](https://www.cubemars.com/product/rubik-link-v-3-0.html). More detailed instructions and complete troubleshooting can be found in the [V3 driver board manual](https://www.cubemars.com/images/file/20241217/1734428582786471.pdf).
 
 1. Connect the R-Link Module to the UART pins on V3.0 series motor
+
 2. Connect the power connector to an appropriate power source. More information can be found in the [Mechatronics Setup Page](Mechatronics). Note that although the V3 devices use a combined power and CAN bus cable, the CAN bus does not need to be fully wired for the setup step.
+    ![rlinkv3_1](/res/RLinkV3physical.jpg){width="700"}
+:::{note}
+Your actuator likley will not look like the one in the photo, this is an AKE series device that requries a custom housing.
+:::
 3. Unzip the download from the CubeMars website and run the executable inside. You'll be greeted with this page.
    
    ![rlinkv3_1](/res/RLinkV3_1.png){width="700"}
