@@ -51,7 +51,7 @@ Full documentation (including API, part picker, hardware setup, and usage exampl
 
 * **Actuators:** CubeMars AK series, RobStride series, CyberGear Micromotor
 * **Single-board computers (SBCs):** NVIDIA Jetson Orin Nano and Raspberry Pi
-* **IMUs:** MicroStrain (MSCL) and MPU-9250 (I²C) (todo!!! Christoph OpenIMUS?)
+* **IMUs:** MicroStrain (MSCL), MPU-9250 (I²C), and OpenIMUS
 * **Power:** Li-Ion drill batteries and LiPo options
 
 See the full **Part Picker** and **Setup** pages in the documentation for model-specific recommendations, wiring diagrams, accommodating components (e.g. CAN transceivers, fuses, safety pouches, etc.).
@@ -62,7 +62,7 @@ See the full **Part Picker** and **Setup** pages in the documentation for model-
 
 If you use *Epically Powerful* in your research or publications, please cite:
 
-JK Leestma, SR Nathella, CPA Nuesslein, S Mathur, GS Sawicki, and AJ Young, "Epically Powerful: An open-source software and mechatronics infrastructure for wearable robotic systems", *(in review at IEEE Access)*. DOI: [placeholder] todo!!!!
+JK Leestma, SR Nathella, CPA Nuesslein, S Mathur, GS Sawicki, and AJ Young, "Epically Powerful: An open-source software and mechatronics infrastructure for wearable robotic systems", *(in review at IEEE Access)*. DOI: [placeholder]
 
 ---
 
@@ -81,6 +81,7 @@ This project is released under the [GPLv3 License](LICENSE).
 ### 👩🏼‍💻 Papers Powered by Epically Powerful
 
 * JK Leestma, S Mathur, M Anderton, GS Sawicki, and AJ Young, [Dynamic duo: Design and validation of an autonomous frontal and sagittal actuating hip exoskeleton for step placement modulation during perturbed locomotion](https://doi.org/10.1109/LRA.2024.3371290), *Robotics and Automation Letters*, 2024.
+
 
 
 
