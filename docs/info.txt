@@ -1,0 +1,6 @@
+
+
+conda activate ep
+cd into docs folder within epicallypowerful
+(optional) delete build folder
+sphinx-build docs/source docs/_build

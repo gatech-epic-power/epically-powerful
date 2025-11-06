@@ -1,0 +1,64 @@
+[build-system]
+
+requires = ["setuptools>=74.1", "cython"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools]
+packages = ["epicallypowerful"]
+ext-modules = [
+    {name = "epicallypowerful.toolbox._clocking", sources = ["epicallypowerful/toolbox/_clocking.pyx"]}
+]
+
+[project]
+requires-python = ">=3.9"
+name = "epicallypowerful"
+version = "0.1.0"
+description = "A library for controling actuators and reading sensors for scientific and robotics applications."
+authors = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
+maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
+dependencies = [
+    "numpy",
+    "python-can",
+    "scipy",
+    "msgspec",
+    "nicegui",
+    "smbus2",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Private :: Do Not Upload", # Remove this line to upload to PyPI
+]
+
+
+[project.optional-dependencies]
+rpi = ["RPi.GPIO"]
+jetson = ["Jetson.GPIO"]
+
+[project.scripts]
+ep-collect-imu-data = "epicallypowerful.toolbox.cli:collect_microstrain_imu_data"
+ep-install-mscl = "epicallypowerful.toolbox.cli:install_mscl_python"
+ep-robstride-setup = "epicallypowerful.toolbox.robstride_setup_gui:main"
+ep-dummy-viz = "epicallypowerful.toolbox.cli:visualize_dummy_data"
+ep-stream-microstrain-imu = "epicallypowerful.toolbox.cli:stream_microstrain_imu_data"
+ep-stream-mpu9250-imu = "epicallypowerful.toolbox.cli:stream_mpu9250_imu_data"
+ep-stream-open-imu = "epicallypowerful.toolbox.cli:stream_open_imu_data"
+ep-stream-actuator = "epicallypowerful.toolbox.cli:stream_actuator_data"
+ep-sample-impedance-ctrl = "epicallypowerful.toolbox.cli:impedance_control_actuator"
+ep-sample-position-ctrl = "epicallypowerful.toolbox.cli:position_control_actuator"
+ep-sample-imu-ctrl = "epicallypowerful.toolbox.cli:imu_control_actuator"
+ep-sample-actuator-viz = "epicallypowerful.toolbox.cli:position_control_actuator_with_visualizer"
+
+
+[project.urls] # Make sure to update these to your project's URLs
+Homepage = "https://example.com"
+Documentation = "https://readthedocs.org"
+Repository = "https://github.com/me/spam.git"
+Issues = "https://github.com/me/spam/issues"
+Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
