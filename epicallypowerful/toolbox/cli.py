@@ -406,9 +406,7 @@ def stream_mpu9250_imu_data():
         print("\nClosing MPU9250 IMUs.")
 
 
-def stream_open_imu_data():
-    """Run with command-line shortcut `ep-stream-open-imu [ARGS]`."""
-
+def _stream_open_imu_data():
     parser = argparse.ArgumentParser(
         description="Stream OpenIMU data",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -429,7 +427,13 @@ def stream_open_imu_data():
         default='128',
         help="OpenIMU CAN ID (multiple can be specified and separated by comma) (e.g., --imu-can-id 128)",
     )
+    return parser
 
+
+def stream_open_imu_data():
+    """Run with command-line shortcut `ep-stream-open-imu [ARGS]`."""
+    parser = _stream_open_imu_data()
+    
     args = parser.parse_args()
     open_imu_ids = args.imu_can_id
     open_imu_ids = [int(s) for s in open_imu_ids.replace(" ", "").split(',')]
