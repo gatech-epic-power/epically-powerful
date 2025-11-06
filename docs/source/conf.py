@@ -6,10 +6,19 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Epically Powerful'
+# project = 'Epically Powerful'
 copyright = '2025, EPIC Lab'
 author = 'EPIC Lab'
-release = '1.0.0'
+
+from importlib.metadata import version, PackageNotFoundError
+
+project = "epicallypowerful"
+try:
+    release = version(project)
+except PackageNotFoundError:
+    release = "0.0.0"
+
+version = ".".join(release.split(".")[:2])
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

@@ -60,8 +60,7 @@ ep-sample-actuator-viz = "epicallypowerful.toolbox.cli:position_control_actuator
 
 
 [project.urls] # Make sure to update these to your project's URLs
-Homepage = "https://example.com"
-Documentation = "https://readthedocs.org"
-Repository = "https://github.com/me/spam.git"
-Issues = "https://github.com/me/spam/issues"
-Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+Homepage = "https://github.com/gatech-epic-power/epically-powerful"
+Documentation = "https://gatech-epic-power.github.io/epically-powerful/"
+Repository = "https://github.com/gatech-epic-power/epically-powerful"
+Issues = "https://github.com/gatech-epic-power/epically-powerful/issues"
