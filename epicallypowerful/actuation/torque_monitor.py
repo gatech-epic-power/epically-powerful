@@ -44,4 +44,7 @@ class RMSTorqueMonitor:
         Returns:
             bool: True if the RMS torque is over the limit, False otherwise.
         """
+        now = time.perf_counter()
+        if (now - self.vals[0][1]) < (self.window*0.8): # Check for sufficient torque values in buffer
+            return False
         return self.rms > self.limit

@@ -34,7 +34,7 @@ try:
     MSCL_AVAILABLE = True
 except:
     MSCL_AVAILABLE = False
-    print(f"Could not import `mscl` package. Is it visible on your Python path?")
+    #print(f"Could not import `mscl` package. Is it visible on your Python path?")
 
 # Set constants
 TARE_ON_STARTUP = False

@@ -2,7 +2,7 @@ import can
 import time
 from epicallypowerful.actuation.motor_data import MotorData
 from epicallypowerful.actuation.actuator_abc import Actuator
-import epicallypowerful.actuation.tmotor.tmotor_driver as tmd
+import epicallypowerful.actuation.cubemars.cubemars_driver as tmd
 from epicallypowerful.actuation.torque_monitor import RMSTorqueMonitor
 import logging
 import math
@@ -12,22 +12,22 @@ motorlog = logging.getLogger('motorlog')
 RAD2DEG = 180.0 / math.pi
 DEG2RAD = math.pi / 180.0
 
-# ~~~~~ T Motor Class ~~~~~ #
-class TMotor(can.Listener, Actuator):
-    """Class for controlling an individual TMotor. This class should always be initialized as part of an :py:class:`ActuatorGroup` so that the can bus is appropriately shared between all motors.
+# ~~~~~ Cube Mars Class ~~~~~ #
+class CubeMars(can.Listener, Actuator):
+    """Class for controlling an individual CubeMars actuator. This class should always be initialized as part of an :py:class:`ActuatorGroup` so that the can bus is appropriately shared between all motors.
     Alternatively, the bus can be set manually after initialization, however this is not recommended. If you want to implement it this way, please consult the `python-can documentation <https://python-can.readthedocs.io/en/stable/>`_.
 
     This class supports all motors from the AK series. Before use with this package, please follow :ref:`the tutorial for using RLink <Tutorials>` to
     properly configure the motor and CAN IDs.
 
-    The TMotors can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
+    The CubeMars actuators can be intialized to be inverted by default, which will reverse the default Clockwise/Counter-Clockwise direction of the motor.
 
     Example:
         .. code-block:: python
 
 
-            from epicpower.actuation2.tmotor import TMotor
-            motor = TMotor(0x01, 'AK80-9')
+            from epicallypowerful.actuation import CubeMars, ActuatorGroup
+            motor = CubeMars(0x01, 'AK80-9')
             group = ActuatorGroup([motor])
 
             motor.set_torque(0.5)
@@ -85,14 +85,14 @@ class TMotor(can.Listener, Actuator):
 
         _, pos, vel, torque = tmd._unpack_motor_message(msg, motor=self.data)
 
-        self.data.current_position = pos
-        self.data.current_velocity = vel
-        self.data.current_torque = torque
+        self.data.current_position = pos * self.invert
+        self.data.current_velocity = vel * self.invert
+        self.data.current_torque = torque * self.invert
         self.data.timestamp = time.perf_counter()
 
         rms_torque, over_limit = self.torque_monitor.update(self.data.current_torque)
         self.data.rms_torque = rms_torque
-        self._over_limit = over_limit
+        self._over_limit = self.torque_monitor.over_limit()
         return
 
     def call_response_latency(self) -> float:
@@ -109,7 +109,7 @@ class TMotor(can.Listener, Actuator):
             kd (float): Derivative gain to set the actuator to in Newton-meters per radian per second or Newton-meters per degree per second depending on the ``degrees`` argument.
             degrees (bool, optional): Whether the position and velocity are in degrees or radians. Defaults to False.
         """
-        # Alter values from degrees to radians (the TMotor needs to be commanded in radians)
+        # Alter values from degrees to radians (the CubeMars actuator needs to be commanded in radians)
         if degrees:
             pos = pos * DEG2RAD
             vel = vel * DEG2RAD
@@ -160,7 +160,7 @@ class TMotor(can.Listener, Actuator):
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the position is in degrees or radians.
         """
-        # Alter values from degrees to radians (the TMotor needs to be commanded in radians)
+        # Alter values from degrees to radians (the CubeMars actuator needs to be commanded in radians)
         if degrees:
             position = position * DEG2RAD
             kp = kp * RAD2DEG
@@ -187,10 +187,10 @@ class TMotor(can.Listener, Actuator):
             kd (float): Set the derivative gain (damping) of the actuator in Newton-meters per radian per second.
             degrees (bool): Whether the velocity is in degrees per second or radians per second.
         """
-        # Alter values from degrees to radians (the TMotor needs to be commanded in radians)
+        # Alter values from degrees to radians (the CubeMars actuator needs to be commanded in radians)
         if degrees:
             velocity = velocity * DEG2RAD
-            kd = kd * DEG2RAD
+            kd = kd * RAD2DEG
 
         velocity = velocity * self.invert
 
@@ -205,13 +205,6 @@ class TMotor(can.Listener, Actuator):
         )
         self._bus.send(_packed_message)
 
-    def set_control(self, torque: float, velocity: float, kp: float, kd: float, degrees: bool = False) -> None:
-        """Uses the built in capability to simultaneously use torque, as well as position and velocity control. It is highly recommended you consult
-        the appropriate documentation for the motor controller to understand how to properly use this function, and it is likely in most scenarios direct control through
-        ``set_torque``, ``set_position``, and ``set_velocity`` will be more appropriate. For the TMotors, you can find this diagram in the AK series manual.
-        """
-        raise NotImplementedError("Control mode not implemented for TMotors")
-        
     def get_data(self) -> MotorData:
         """Returns the current data of the motor
 
@@ -220,10 +213,6 @@ class TMotor(can.Listener, Actuator):
         """
 
         data = self.data
-        data.current_position *= self.invert
-        data.current_velocity *= self.invert
-        data.current_torque *= self.invert
-
         return data
 
     def get_torque(self) -> float:
@@ -232,7 +221,7 @@ class TMotor(can.Listener, Actuator):
         Returns:
             float: The current torque of the motor in Newton-meters.
         """
-        return self.data.current_torque * self.invert
+        return self.data.current_torque
 
     def get_position(self, degrees: bool = False) -> float:
         """Returns the current position of the motor in radians. Functionally equivalent to or ``get_data().current_position``.
@@ -243,8 +232,8 @@ class TMotor(can.Listener, Actuator):
         Returns:
             float: The current position of the motor in radians or degrees.
         """
-        if degrees: return self.data.current_position * self.invert * RAD2DEG
-        else: return self.data.current_position * self.invert
+        if degrees: return self.data.current_position * RAD2DEG
+        else: return self.data.current_position
 
     def get_velocity(self, degrees: bool = False) -> float:
         """Returns the current velocity of the motor in radians per second. Functionally equivalent to ``get_data().current_velocity``.
@@ -255,8 +244,8 @@ class TMotor(can.Listener, Actuator):
         Returns:
             float: The current velocity of the motor in radians per second or degrees per second.
         """
-        if degrees: return self.data.current_velocity * self.invert * RAD2DEG
-        else: return self.data.current_velocity * self.invert
+        if degrees: return self.data.current_velocity * RAD2DEG
+        else: return self.data.current_velocity
 
     def get_temperature(self) -> float:
         """Returns the current temperature of the motor in degrees Celsius. This is not currently implemented and will ALWAYS return 0 for T Motors.

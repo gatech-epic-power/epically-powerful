@@ -5,7 +5,7 @@ a MicroStrain IMU's Euler angle (x) using a PD controller.
 """
 
 from epicallypowerful.actuation import ActuatorGroup
-from epicallypowerful.actuation.tmotor import TMotor
+from epicallypowerful.actuation.cubemars import CubeMars
 from epicallypowerful.toolbox import TimedLoop
 from epicallypowerful.sensing import MicroStrainIMUs
 

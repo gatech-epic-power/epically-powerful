@@ -230,7 +230,7 @@ def visualize_dummy_data():
 
         print('\033[A\033[A\033[A')
         print(f'| Time (s) |  Sine  | Cosine |')
-        print(f'| {test_data['timestamp']:^8.2f} | {test_data['example_data']['sine']:^6.2f} | {test_data['example_data']['cosine']:^6.2f} |')
+        print(f"| {test_data['timestamp']:^8.2f} | {test_data['example_data']['sine']:^6.2f} | {test_data['example_data']['cosine']:^6.2f} |")
 
 
 

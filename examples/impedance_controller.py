@@ -1,7 +1,6 @@
 #/usr/bin/env python3
 """
-This script will run the actuator output shaft position through 
-a sinusoidal pattern using a PD controller.
+This script will control the output shaft to a set position using the input positional and velocity gains
 """
 
 from epicallypowerful.actuation import ActuatorGroup

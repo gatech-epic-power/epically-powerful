@@ -11,7 +11,7 @@ import time
 try:
     from epicallypowerful.toolbox._clocking import TimedLoopC
 except ImportError:
-    pass
+    print("WARNING: TimedLoopC not found, using fallback implementation. This may not be as efficient.")
 
 def TimedLoop(rate, tolerance=0.1, verbose=True):
     """Creates a TimedLoop object, which can be used to enforce a set loop frequency. This uses a "scheduled" sleep method to reduce busy looping, and will adjust the 
