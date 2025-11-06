@@ -147,9 +147,8 @@ html_theme_options = {
     },
 }
 
-
-
-
+googleanalytics_id = "G-2WX639ZRYJ"
+googleanalytics_enabled = True
 
 
 
