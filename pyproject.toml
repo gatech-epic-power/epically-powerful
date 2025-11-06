@@ -10,6 +10,13 @@ ext-modules = [
     {name = "epicallypowerful.toolbox._clocking", sources = ["epicallypowerful/toolbox/_clocking.pyx"]}
 ]
 
+# [tool.cibuildwheel]
+# skip = "pp*"
+
+[tool.cibuildwheel.linux]
+# Build manylinux wheels (default)
+archs = ["x86_64", "aarch64"]
+
 [project]
 requires-python = ">=3.9"
 name = "epicallypowerful"

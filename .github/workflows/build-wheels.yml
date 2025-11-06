@@ -30,10 +30,10 @@ jobs:
           python-version: "3.11"
 
       - name: Install cibuildwheel
-        run: pip install cibuildwheel
+        run: pip install cibuildwheel 
 
       - name: Build wheels
-        run: cibuildwheel --output-dir dist
+        run: cibuildwheel --platform=linux --output-dir dist --archs x86_64 aarch64
 
       - uses: actions/upload-artifact@v4
         with:
