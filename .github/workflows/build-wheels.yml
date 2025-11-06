@@ -34,7 +34,15 @@ jobs:
       - name: Build wheels
         run: cibuildwheel --output-dir dist
 
+      - name: Install build package
+        run: pip install build
+      - name: Build Source Distribution
+        run: python -m build --sdist --outdir dist
       - uses: actions/upload-artifact@v4
         with:
           name: wheels
-          path: dist/*
+          path: dist/*.whl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: source-distribution
+          path: dist/*.tar.gz
