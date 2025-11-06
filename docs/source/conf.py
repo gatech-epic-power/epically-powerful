@@ -121,7 +121,21 @@ napoleon_attr_annotations = True
 #     },
 # }
 
+# html_theme_options = {
+#     "dark_css_variables": {
+#         "color-brand-primary": "#EA6432",
+#         "color-brand-content": "#EA6432",
+#     },
+#     "light_css_variables": {
+#         "color-brand-primary": "#B02317",
+#         "color-brand-content": "#B02317",
+#     },
+# }
+
+
+# Now with Google Analytics
 html_theme_options = {
+    "analytics_id": "G-2WX639ZRYJ",
     "dark_css_variables": {
         "color-brand-primary": "#EA6432",
         "color-brand-content": "#EA6432",
@@ -131,6 +145,11 @@ html_theme_options = {
         "color-brand-content": "#B02317",
     },
 }
+
+
+
+
+
 
 
 html_title = 'Epically Powerful'
@@ -161,12 +180,5 @@ if html_theme == 'pydata_sphinx_theme':
 else:
     html_logo = "res/EPLogoCaps.png"
 
-
-# Google Analytics
-# conf.py
-html_theme = "furo"
-html_theme_options = {
-    "analytics_id": "G-2WX639ZRYJ"
-}
 
 
