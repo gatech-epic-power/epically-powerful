@@ -103,7 +103,7 @@ The power source from your computer can be shared with the actuators or independ
 
 ### *Choice 1: Pull Power from Actuator Power Source*
 <span style="display: inline-block; background: linear-gradient(to right, #E20000, #FFA800); color: black; padding: 2px; border-radius: 3px; font-size: 1.0em; margin-left: 2px;">**EP's Recommendation**</span>
-If you want to pull power from the same source as your actuators, we have included a few components that you will need.  A buck converter is used to step down the battery voltage to a level that is appropriate for your computer.  We also recommend including a fuse between your battery and computer to protect the computer from excessive currents.
+If you want to pull power from the same source as your actuators, we have included a few components that you will need.  A buck converter is used to step down the battery voltage to a level that is appropriate for your computer.  We also recommend including a fuse between your battery and computer to protect the system from excessive currents.
 
 **Order:**
 - Buck converter
