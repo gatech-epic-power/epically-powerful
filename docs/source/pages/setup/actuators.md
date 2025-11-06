@@ -17,7 +17,7 @@ To change CAN IDs, the following components and packages are required:
       * If V2.0: The silver metal serial port module will say "R-Link V2.0" on it
       * If V3.0: The silver metal serial port module will say "R-Link V3.0" on it
 5.  Actuator configuration software
-    Various versions of the CubeMars configuration tool may or may not be available via the CubeMars website. We have all versions of the download on our [GitHub](https://github.com/gatech-epic-power/epically-powerful) page in the "CubeMars Configuration" folder.
+    Various versions of the CubeMars configuration tool may or may not be available via the CubeMars website. We have all versions of the download on our [GitHub](https://github.com/gatech-epic-power/epically-powerful) page in the "setup" folder.
 
 ### Steps for Setting Up V1.0 Actuators
 
