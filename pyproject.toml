@@ -5,10 +5,12 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.setuptools]
-packages = ["epicallypowerful"]
+# packages = ["epicallypowerful"]
+packages = {find = {}}
 ext-modules = [
     {name = "epicallypowerful.toolbox._clocking", sources = ["epicallypowerful/toolbox/_clocking.pyx"]}
 ]
+
 
 [tool.cibuildwheel.linux]
 # Build manylinux wheels (default)
@@ -39,6 +41,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 readme = "README.md"
+
 
 [project.optional-dependencies]
 rpi = ["RPi.GPIO"]

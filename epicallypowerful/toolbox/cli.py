@@ -512,8 +512,8 @@ def stream_actuator_data():
     actuator_type = args.actuator_type
     actuator_ids = [int(s) for s in args.actuator_id.replace(" ","").split(',')]
     
-    from epicallypowerful.actuation import ActuatorGroup
-    from epicallypowerful.toolbox import TimedLoop
+    from epicallypowerful.actuation.actuator_group import ActuatorGroup
+    from epicallypowerful.toolbox.clocking import TimedLoop
     
     # Set control loop frequency
     operating_freq = 200 # [Hz]
@@ -577,8 +577,8 @@ def impedance_control_actuator():
     actuator_type = args.actuator_type
     actuator_id = int(args.actuator_id)
 
-    from epicallypowerful.actuation import ActuatorGroup
-    from epicallypowerful.toolbox import TimedLoop
+    from epicallypowerful.actuation.actuator_group import ActuatorGroup
+    from epicallypowerful.toolbox.clocking import TimedLoop
     
     # Set control loop frequency
     operating_freq = 200 # [Hz]
@@ -656,8 +656,8 @@ def position_control_actuator():
     actuator_type = args.actuator_type
     actuator_id = int(args.actuator_id)
 
-    from epicallypowerful.actuation import ActuatorGroup
-    from epicallypowerful.toolbox import TimedLoop
+    from epicallypowerful.actuation.actuator_group import ActuatorGroup
+    from epicallypowerful.toolbox.clocking import TimedLoop
     import time # only necessary for sine position control implementation
     import math # only necessary for sine position control implementation
     
@@ -757,8 +757,8 @@ def position_control_actuator_with_visualizer():
     udp_server_ip_address = args.ip_address
     port = args.port
 
-    from epicallypowerful.actuation import ActuatorGroup
-    from epicallypowerful.toolbox import TimedLoop
+    from epicallypowerful.actuation.actuator_group import ActuatorGroup
+    from epicallypowerful.toolbox.clocking import TimedLoop
     from epicallypowerful.toolbox.visualization import PlotJugglerUDPClient
     import time # only necessary for sine position control implementation
     import math # only necessary for sine position control implementation
@@ -893,9 +893,9 @@ def imu_control_actuator():
     actuator_type = args.actuator_type
     actuator_id = int(args.actuator_id)
 
-    from epicallypowerful.actuation import ActuatorGroup
-    from epicallypowerful.toolbox import TimedLoop
-    from epicallypowerful.sensing import MicroStrainIMUs
+    from epicallypowerful.actuation.actuator_group import ActuatorGroup
+    from epicallypowerful.toolbox.clocking import TimedLoop
+    from epicallypowerful.sensing.microstrain.microstrain_imu import MicroStrainIMUs
 
     # Set control loop frequency
     operating_freq = 200 # [Hz]
