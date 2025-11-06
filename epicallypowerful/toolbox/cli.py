@@ -341,11 +341,19 @@ def stream_mpu9250_imu_data():
         DEFAULT_I2C_BUS = 1
     elif _rpi_or_jetson() == "jetson":
         DEFAULT_I2C_BUS = 7
+    else:
+        DEFAULT_I2C_BUS = 0
 
     parser = _stream_mpu9250_imu_data_parser()
         
     args = parser.parse_args()
     bus = args.i2c_bus
+
+    if args.i2c_bus is not None:
+        bus = args.i2c_bus
+    else:
+        bus = DEFAULT_I2C_BUS
+
     channel = args.channel
     address = int('0x'+str(args.address), 0) # Convert multi-digit address into hex, then int
     rate = int(args.rate[0]) # This is an int [Hz]

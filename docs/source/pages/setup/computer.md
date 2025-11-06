@@ -100,7 +100,7 @@ While everything can be run using the system python environment, we highly recom
 While it's possible to install this and other packages without a virtual environment, we (and official Linux developers) do not recommend doing so because it can break your operating system. If that's not enough to motivate you, recent Raspbian releases now require you to use a virtual environment to use `pip install`.
 :::
 
-### Microstrain Communication Library Setup
+### MicroStrain Communication Library Setup
 :::{note}
 If you do not use the MicroStrain IMUs in your application, you can skip this.
 :::

@@ -190,9 +190,9 @@ The MicroStrain IMUs provide extensive features on top of their basic accelerome
 OpenIMUs offer ...
 
 **Order:**
+- OpenIMU300RI [Mouser link]()
 - Ampseal connectors [Amazon link]()
 - Ampseal pins [Amazon link]()
-- OpenIMU300RI [Mouser link]()
 
 ### *MPU9250 IMUs*
 MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fraction of the price of more expensive units, though their orientation data are more prone to drift than other models.

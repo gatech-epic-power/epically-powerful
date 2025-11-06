@@ -11,7 +11,7 @@ This example demonstrates a simple PD-style impedance controller that commands a
 
 ```python
 """
-This script will control the output shaft to a set position using the input positional and velocity gains
+This script will control the output shaft to a set position using the input positional and velocity gains.
 """
 
 from epicallypowerful.actuation import ActuatorGroup
