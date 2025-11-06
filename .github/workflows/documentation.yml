@@ -14,7 +14,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
-          pip install sphinx sphinx_rtd_theme myst_parser sphinxcontrib-youtube sphinxcontrib-video sphinx-copybutton sphinx-design furo sphinx-argparse sphinx-argparse-cli sphinx-contrib-googleanalytics==0.4
+          pip install sphinx sphinx_rtd_theme myst_parser sphinxcontrib-youtube sphinxcontrib-video sphinx-copybutton sphinx-design furo sphinx-argparse sphinx-argparse-cli git+https://github.com/sphinx-contrib/googleanalytics.git
       - name: Sphinx build
         run: |
           sphinx-build docs/source docs/_build
