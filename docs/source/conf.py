@@ -160,3 +160,13 @@ if html_theme == 'pydata_sphinx_theme':
     html_logo = "res/EPLogoCaps.png"
 else:
     html_logo = "res/EPLogoCaps.png"
+
+
+# Google Analytics
+# conf.py
+html_theme = "furo"
+html_theme_options = {
+    "analytics_id": "G-2WX639ZRYJ"
+}
+
+
