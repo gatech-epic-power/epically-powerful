@@ -1,13 +1,11 @@
-"""
-Epically Powerful header. TODO: complete.
+"""epically-powerful module for managing IMUs.
+
+This module contains the classes and commands for initializing
+and reading from OpenIMUs.
 
 Reference info:
 - OpenIMU ReadTheDocs page: https://openimu.readthedocs.io/en/latest/index.html
 - OpenIMU CAN bus usage and breakdown: https://medium.com/@mikehorton/what-can-a-can-bus-imu-do-to-make-an-autonomous-vehicle-safer-e93f748569f6
-
-TODO:
-- Complete header
-- Create functionality to ensure that CAN bus is not instantiated if actuators have already done so (also that actuators and these IMUs MUST NOT have overlapping names).
 """
 
 import time
@@ -104,11 +102,6 @@ class OpenIMUs(IMU):
             imu_ids = [imu_ids]
 
         self.imu_ids = imu_ids
-        
-        # TROUBLESHOOTING: TODO: fix `mag` functionality so we can disable this
-        if any([c for c in components if 'mag' in c]):
-            print(f"Troubleshooting catch! `mag` functionality is not currently enabled. Defaulting to just `acc` and `gyro` components.")
-            components = [c for c in components if not 'mag' in c]
 
         self.components = components
         self.rate = rate

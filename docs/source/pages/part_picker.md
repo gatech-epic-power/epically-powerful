@@ -187,12 +187,13 @@ The MicroStrain IMUs provide extensive features on top of their basic accelerome
 - MicroStrain 3DM-GX5-25 [Mouser link from HBK page](https://www.mouser.com/ProductDetail/MicroStrain-by-HBK/3DM-GX5-AHRS?qs=A6eO%252BMLsxmRQvdAwtoW2wA%3D%3D). Comes with micro DB9-to-USB A connectors in the box
 
 ### *OpenIMUs*
-OpenIMUs offer ...
+OpenIMUs combine the benefits of commercially supported hardware with open-sourced software and orientation algorithms.
 
 **Order:**
-- OpenIMU300RI [Mouser link]()
-- Ampseal connectors [Amazon link]()
-- Ampseal pins [Amazon link]()
+- OpenIMU335RI [Mouser link](https://www.mouser.com/ProductDetail/ACEINNA/OpenIMU335RI?qs=iLbezkQI%252Bsipr2EaSJAU%252Bw%3D%3D)
+- OpenIMU300RI [Mouser link](https://www.mouser.com/ProductDetail/ACEINNA/OpenIMU300RI?qs=PzGy0jfpSMtvxhQUqE3L1A%3D%3D)
+- TE Connectivity (Ampseal) 6-pin connector [Amazon link](https://www.amazon.com/Connectivity-Plug-Socket-Connector-Housing/dp/B00DDG5A3U?crid=15NZORI82KHZ3&dib=eyJ2IjoiMSJ9.nLCjLC7AAAbPEIQ-DTBEaFNWialhlHIw1SByyI_LtCxqG_Jh9OfGvr0GCTl9WaZcM0kgwXF8VoZUNS2KmsYy8LGgBTBo8yXS8CLMTxB4fDDky9rFHOxxQGp_Dqpr6bx7xmszrZKGGFjtjJkd-6pOvoVvJo2ZwyG9gkPPz26TpG6nmOZcdAUncTmNFinXoJzECSRXdFgbfVKVJF3vC9K_WYXmMXD15WfTLgWC51YSS78.UXPw8-xZcwct_PhbqYTGHe49txK3_z0S4fWY4eeV3ro&dib_tag=se&keywords=TE+Connectivity+776531-1&qid=1762405626&sprefix=te+connectivity+776531-1%2Caps%2C68&sr=8-1)
+- Ampseal pins [TE link](https://www.te.com/en/product-CAT-AM7801-T273.html?r=0&compatible=776531-1)
 
 ### *MPU9250 IMUs*
 MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fraction of the price of more expensive units, though their orientation data are more prone to drift than other models.
@@ -201,7 +202,6 @@ MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fra
 - MPU9250 IMU [Amazon link](https://www.amazon.com/HiLetgo-Gyroscope-Acceleration-Accelerator-Magnetometer/dp/B01I1J0Z7Y?dib=eyJ2IjoiMSJ9.H8rPQB0pzcqcejL12LryTrfaawvinmIg3oXfm3omCbvZ8DRGfgSizDcByakTUZO3aTIU3H6KYQsGBcEmOSt-Fv63u-HU6X8cu-8rDoYw5hCb9Tg69Xq_0lZnc6mVdwOfmt7fyIodPzpu5d6MZ9v9uCyRv6Lva_LRKIeOY9f1uKneguuhGeTDf_QBCPEw1IS658mwZowzp8HWfHQ5qv8G4K40-wB9gq-Mq3gSRICnLYk.a1bqqcOhq27x7foPwikzjRUb1NmOSBhqgPU4T2EHXbs&dib_tag=se&keywords=hiletgo%2Bmpu9250%2Bimu&qid=1760737737&sr=8-1&th=1)
 - TCA9548A multiplexer [Amazon link](https://www.amazon.com/dp/B06XXG5G3L?ref=nb_sb_ss_w_as-reorder_k0_1_8&amp=&crid=3NXPOA65KQZDW&amp=&sprefix=tca9548a)
 - DuPont jumper cable kit [Amazon link](https://www.amazon.com/Elegoo-EL-CP-004-Multicolored-Breadboard-arduino/dp/B01EV70C78?crid=29G5RBEXYSINA&dib=eyJ2IjoiMSJ9.tjHxIQLJsk16_0YVtUGN6b3pM1t_83I8NWCCan5QgtAb7wPk_xNEOF5Oro49HwBOyPc0kJgs1e7VUCDqxPaPjoh-RSZTd6TR-zPdsWAFFWspKXmJEaB2pKxzOjmRCuEW0JdKYd7gWwlneB2AwFR8uTU-8dxAcEnDgWG3_MT0Fm2Hh_00Nx9gWPoqazonY89oGerbY-nvNoS0qw0hNTck1rpFJ5OIm6KqFFPrxAtcpQ8.dlS7XRp-JS_LaKrOSHRhCcNfTuZe_cb-LUTN2QFNkRQ&dib_tag=se&keywords=dupont+jumper+cable+kit&qid=1760737522&sprefix=dupont+jumper+cable+kit%2Caps%2C118&sr=8-1)
-
 
 
 ## Additional + Standard Mechatronics Materials
