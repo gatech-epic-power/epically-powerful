@@ -1,6 +1,6 @@
 [build-system]
 
-requires = ["setuptools>=74.1", "cython"]
+requires = ["setuptools>=74.1", "wheel", "cython"]
 build-backend = "setuptools.build_meta"
 
 
@@ -17,7 +17,7 @@ archs = ["x86_64", "aarch64"]
 [project]
 requires-python = ">=3.9"
 name = "epicallypowerful"
-version = "0.1.0"
+version = "1.0.0"
 description = "A library for controling actuators and reading sensors for scientific and robotics applications."
 authors = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
 maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
