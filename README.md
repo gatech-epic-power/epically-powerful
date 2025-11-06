@@ -43,7 +43,7 @@ That’s it! You’re ready to build something *(ba dum tss)* epically powerful.
 
 ### 📘 Documentation
 
-Full documentation (including API, part picker, hardware setup, and usage examples) can be found in the [documentation website](DOC WEBSITE HERE) todo!!!.
+Full documentation (including API, part picker, hardware setup, and usage examples) can be found in the [documentation website](https://gatech-epic-power.github.io/epically-powerful/).
 
 ---
 
@@ -81,3 +81,5 @@ This project is released under the [GPLv3 License](LICENSE).
 ### 👩🏼‍💻 Papers Powered by Epically Powerful
 
 * JK Leestma, S Mathur, M Anderton, GS Sawicki, and AJ Young, [Dynamic duo: Design and validation of an autonomous frontal and sagittal actuating hip exoskeleton for step placement modulation during perturbed locomotion](https://doi.org/10.1109/LRA.2024.3371290), *Robotics and Automation Letters*, 2024.
+
+
