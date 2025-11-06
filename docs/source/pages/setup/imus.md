@@ -19,7 +19,8 @@ We recommend using the Epically Powerful installer, but in case you need the man
 2.  Once this is installed, running `sudo dpkg -i MSCL_<architecture>_Python<version>_v<release>.deb` (specifying your computer's architecture, Python version, and release) will install the package to the base Python installation inside its dist-packages folder. If you are not using a virtual environment, this is all you need to do, after which you can move on to actually building your robot!
 3.  If you have a virtual environment, you will need to copy the installed files into one of the folders in that path. If you are using venv or miniforge, the appropriate command will be `cp /usr/share/python3.<version>/dist-packages/*mscl* <path/to/env>`.
 
-Once this MSCL dependency is handled, you should be all ready to go with your Epically Powerful powered robot!
+Once this MSCL dependency is handled, you should be all ready to go. To verify that things are set up properly, you can open up a terminal on your single-board computer, then type `ep-stream-microstrain-imu --imu-serial-id [SERIAL_ID]`, where your SERIAL ID is the ID of the MicroStrain IMU (last 6 digits of the serial number, e.g. `133932`).
+
 
 ## OpenIMU
 OpenIMUs require per-unit setup, but have a number of well-documented resources online that make this process easier to follow. For regular operation, they use the same CAN protocol as the Epically Powerful-supported actuators, so follow the CAN setup steps for each single-board computer on the [Computer](Computer) page to get these working.
@@ -29,14 +30,15 @@ In these setup steps, we will configure an OpenIMU300RI sensor. To set up a new 
 1. In Google Chrome (other browsers won't work) to ACEINNA's [web development studio](https://developers.aceinna.com) and click "Get Started"
 2. Download the webserver for your operating system from their [Devices/Connect page](https://developers.aceinna.com/devices/connect) and run it in your terminal
 3. Connect your IMU. If the IMU connects, you should see a readout like this:
-    ![openimu_webserver.png](){width="700"}
+    ![openimu_webserver](/res/openimu_webserver.png){width="700"}
 4. On the web development studio, keep reloading the webserver until your IMU shows up. You should be able to stream data from it to a graph visualizer on the page. (Hint: make sure to set the configurable packet rate dropdown box to more than 0 Hz).
-    ![openimu_dev_studio.png](){width="700"}
+    ![openimu_dev_studio](/res/openimu_dev_studio.png){width="700"}
 5. Go to the [IMU app page](https://developers.aceinna.com/code/apps) and download whichever IMU model-specific .bin firmware file you'd like from the available selection
-6. Go to the [Firmware Upgrade](https://developers.aceinna.com/devices/tools/upgrade) page of the web development studio, select your connected sensor and upload the new firmware .bin file. Once it uploads, you're good to go!
+    ![openimu_firmware_apps](/res/openimu_firmware_apps.png){width="700"}
+6. Go to the [Firmware Upgrade](https://developers.aceinna.com/devices/tools/upgrade) page of the web development studio, select your connected sensor and upload the new firmware .bin file. Once it uploads, you can try reading from it on your device!
+    ![openimu_firmware_upgrade](/res/openimu_firmware_upgrade.png){width="700"}
+7. Open up a terminal on your single-board computer, then type `ep-stream-open-imu --imu-can-id [CAN_ID]`, where your CAN ID is the ID of the newly flashed OpenIMU. It should start publishing the data, at which point you're good to go!
 
-### Streaming data from OpenIMUs
-Open up a terminal on your single-board computer, then type `ep-stream-open-imu --imu-can-id [CAN_ID]`, where your CAN ID is the ID of the newly flashed OpenIMU.
 
 ## MPU-9250
 The MPU-9250 IMU series is easy to use, but requires some setup and checks to ensure that I2C buses are configured appropriately.
@@ -67,7 +69,7 @@ The pins you use for the second I2C bus may not be the ones you think. The GPIO 
 ### Steps to set up a single IMU
 Once you've enabled all necessary I2C buses, you can set up your sensors. To connect to an MPU-9250, follow the below steps:
 1. Using DuPont (jumper) pins, connect the MPU-9250's VCC (power), GND (ground), SCL (clock) and SDA (data) pins to the corresponding pins of your I2C bus on the 40-pin layout
-    ![mpu9250_1.png](){width="700"}
+    ![mpu9250_single](/res/mpu9250_wire_single_unit.png){width="700"}
 2. On your single-board computer, run the command `i2cdetect -y -r [I2C_BUS]`, putting the number for your I2C bus. If you've connected the MPU-9250 pins with the above step, you should see `68` show up on the terminal readout
 3. To verify that you can stream data from this sensor, run the Epically Powerful command `ep-stream-mpu9250-imu --i2c-bus [I2C_BUS] --address [ADDRESS]` in your terminal, with `[I2C_BUS]` as your I2C bus and `[ADDRESS]` as the I2C address of the IMU (here 68).
 
@@ -77,10 +79,9 @@ On a Raspberry Pi, the default I2C bus number is 1. On a Jetson Orin Nano, the d
 
 ### Reading from more than one IMU
 How many sensors you'd like to simultaneously read from will dictate your layout steps:
-* Only 1: Just plug the power, ground, SDA (data) and SCL (clock) lines from the IMU into your GPIO I2C bus pins!
 * 2-4: For the fastest communication, set up two sensors per I2C bus. As each IMU has the same I2C address by default, you will need to set the address of one IMU per bus from the baseline `0x68` to `0x69` (hex format, 104 and 105 in base 10). You can do so by shorting the VCC and AD0 pins on the IMU, as shown here:
-    ![mpu9250_2.png](){width="700"}
-* 5-16: Connect a multiplexer between your IMUs and one of the connected I2C buses, leaving the IMUs on the other bus alone. Epically Powerful provides support for the PCA9548A, a common I2C multiplexer unit that is a variant of the TCA9548A (another common unit). Instead of plugging all your IMUs from one bus directly into its GPIO pins, now you plug the SDA and SCL lines of each unit into a separate 'channel' on the multiplexer, for a maximum of two sensors per channel (as long as the AD0 pin on one is pulled high to give it the non-default `0x69` address). Then, you plug the multiplexer into the bus. Using this configuration, you can go from streaming data from 2 units per I2C bus to 16 units per I2C bus.
+    ![mpu9250_multiple](/res/mpu9250_wire_multiple_units.png){width="700"}
+* 5-16: Connect a multiplexer between your IMUs and one of the connected I2C buses, leaving the IMUs on the other bus alone. Epically Powerful provides support for the TCA9548A, a common I2C multiplexer unit. Instead of plugging all your IMUs from one bus directly into its GPIO pins, now you plug the SDA and SCL lines of each unit into a separate 'channel' on the multiplexer, for a maximum of two sensors per channel (as long as the AD0 pin on one is pulled high to give it the non-default `0x69` address). Then, you plug the multiplexer into the bus. Using this configuration, you can go from streaming data from 2 units per I2C bus to 16 units per I2C bus.
 
 :::{note}
 Multiplexers function by switching sequentially between channels, so adding more sensors on more channels will reduce the rate at which you can stream data over I2C. As a reference point, we validated streaming data at rates at or slightly greater than 100 Hz on a Raspberry pi connected to two IMUs on one bus and four IMUs (two per channel) on another bus with a multiplexer.

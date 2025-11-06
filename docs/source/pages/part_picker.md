@@ -153,6 +153,7 @@ OpenIMUs combine the benefits of commercially supported hardware with open-sourc
 
 **Order:**
 - OpenIMU
+- USB-to-RS232 adapter
 
 ### *MPU9250 IMUs*
 MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fraction of the price of more expensive units, though their orientation data are more prone to drift than other models.
