@@ -69,7 +69,7 @@ The pins you use for the second I2C bus may not be the ones you think. The GPIO 
 ### Steps to set up a single IMU
 Once you've enabled all necessary I2C buses, you can set up your sensors. To connect to an MPU-9250, follow the below steps:
 1. Using DuPont (jumper) pins, connect the MPU-9250's VCC (power), GND (ground), SCL (clock) and SDA (data) pins to the corresponding pins of your I2C bus on the 40-pin layout
-    ![mpu9250_single](/res/mpu9250_wire_single_unit.png){width="700"}
+    ![mpu9250_single](/res/mpu9250_wire_single_unit.png){width="450"}
 2. On your single-board computer, run the command `i2cdetect -y -r [I2C_BUS]`, putting the number for your I2C bus. If you've connected the MPU-9250 pins with the above step, you should see `68` show up on the terminal readout
 3. To verify that you can stream data from this sensor, run the Epically Powerful command `ep-stream-mpu9250-imu --i2c-bus [I2C_BUS] --address [ADDRESS]` in your terminal, with `[I2C_BUS]` as your I2C bus and `[ADDRESS]` as the I2C address of the IMU (here 68).
 
@@ -80,7 +80,7 @@ On a Raspberry Pi, the default I2C bus number is 1. On a Jetson Orin Nano, the d
 ### Reading from more than one IMU
 How many sensors you'd like to simultaneously read from will dictate your layout steps:
 * 2-4: For the fastest communication, set up two sensors per I2C bus. As each IMU has the same I2C address by default, you will need to set the address of one IMU per bus from the baseline `0x68` to `0x69` (hex format, 104 and 105 in base 10). You can do so by shorting the VCC and AD0 pins on the IMU, as shown here:
-    ![mpu9250_multiple](/res/mpu9250_wire_multiple_units.png){width="700"}
+    ![mpu9250_multiple](/res/mpu9250_wire_multiple_units.png){width="450"}
 * 5-16: Connect a multiplexer between your IMUs and one of the connected I2C buses, leaving the IMUs on the other bus alone. Epically Powerful provides support for the TCA9548A, a common I2C multiplexer unit. Instead of plugging all your IMUs from one bus directly into its GPIO pins, now you plug the SDA and SCL lines of each unit into a separate 'channel' on the multiplexer, for a maximum of two sensors per channel (as long as the AD0 pin on one is pulled high to give it the non-default `0x69` address). Then, you plug the multiplexer into the bus. Using this configuration, you can go from streaming data from 2 units per I2C bus to 16 units per I2C bus.
 
 :::{note}

@@ -16,7 +16,7 @@ Before you dive into the tutorials and using Epically Powerful, it's important y
 1) **Computer** (Raspberry Pi, NVIDIA Jetson Orin Nano)
 2) **Power source** (drill battery, LiPo battery, power bank for separate computer power if desired)
 3) **Actuator** (CubeMars AK-Series, CyberGear Micromotor, RobStride)
-4) **Sensors** (Microstrain IMUs, MPU9250 IMUs)
+4) **Sensors** (Microstrain IMUs, OpenIMUs, MPU9250 IMUs)
 
 ## Set Up Your Single Board Computer
 

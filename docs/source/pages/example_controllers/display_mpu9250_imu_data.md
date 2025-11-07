@@ -1,6 +1,6 @@
 (DisplayMPU9250Data)=
 # Display MPU9250 IMU Data
-This example will stream data from a specific MPU9250 to the terminal, displaying the accelerometer data in the x, y, and z directions. In this examples, you can see how to initialize a MPU9250 IMU and read data from it in a loop.
+This example will stream data from a specific MPU-9250 to the terminal, displaying the accelerometer data in the x, y, and z directions. In this examples, you can see how to initialize a MPU-9250 IMU and read data from it in a loop.
 
 ## Demo Video
 ::::{youtube} eSRS-K47a7s
@@ -11,7 +11,7 @@ This example will stream data from a specific MPU9250 to the terminal, displayin
 #/usr/bin/env python3
 
 """
-To Initialize the MPU9250 IMUs, you need to create a dictionary of 
+To Initialize the MPU-9250 IMUs, you need to create a dictionary of 
 each IMU you're connecting containing its I2C bus, address, and 
 channel if you're using a multiplexer to handle multiple units.
 """
@@ -35,7 +35,7 @@ OPERATING_FREQ = 200 # operation frequency [Hz]
 clocking_loop = TimedLoop(OPERATING_FREQ)
 
 ##################################################################
-# SET UP MPU9250 IMUS
+# SET UP MPU-9250 IMUS
 ##################################################################
 
 # Set MPU9250 IMU IDs
@@ -50,7 +50,7 @@ MPU9250_IMU_IDS = {
 # Change IMU operation options (each one has a default)
 COMPONENTS = ['acc', 'gyro'] # Which components to sample. Can be `acc`, `gyro`, or `mag`
 
-# Instantiate instance of MPU9250 IMU manager
+# Instantiate instance of MPU-9250 IMU manager
 mpu9250_imus = MPU9250IMUs(
     imu_ids=MPU9250_IMU_IDS,
     components=COMPONENTS,

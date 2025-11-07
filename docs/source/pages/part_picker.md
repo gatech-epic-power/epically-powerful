@@ -153,6 +153,7 @@ OpenIMUs combine the benefits of commercially supported hardware with open-sourc
 
 **Order:**
 - OpenIMU
+- TE Connectivity Ampseal connectors
 - USB-to-RS232 adapter
 
 ### *MPU9250 IMUs*
@@ -169,7 +170,7 @@ MPU9250 IMUs provide excellent raw accelerometer and gyroscope readings at a fra
 ### Power System
 
 - XT30 connector set
-- XT60 connector set (if using lipo battery)
+- XT60 connector set (if using LiPo battery)
 
 | Item              	|Notes |
 | :---------------- 	| :---- |

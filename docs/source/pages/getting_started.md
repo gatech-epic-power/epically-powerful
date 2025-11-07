@@ -1,15 +1,15 @@
 (GettingStarted)=
 # Getting Started
-EpicallyPowerful assumes a basic familiarity with some concepts like Python, electrical actuation, Linux computers, and inertial sensing. An in depth knowledge is not needed, but it can be helpful to search around for some basic refreshers.
+EpicallyPowerful assumes a basic familiarity with some concepts like Python, electrical actuation, Linux computers, and inertial sensing. In-depth knowledge is not needed, but it can be helpful to search around for some basic refreshers.
 
 
 ## Quickstart
-1) Set up your [Raspberry Pi](RPiSetup) or [Jetson Orin](JetsonSetup)
-2) Install EpicallyPowerful Python package. In newer versions of ubuntu, you will likely need some form of virtual environment ([see here](PythonEnvs)).
+1) Set up your [Raspberry Pi](RPiSetup) or [Jetson Orin Nano](JetsonSetup)
+2) Install Epically Powerful Python package. In newer versions of Ubuntu, you will likely need some form of ([virtual environment](PythonEnvs)).
    ```console
    $ pip install epicallypowerful
    ```
-3) [Set up your actuators CAN ID](Actuators) , and connect your actuator to power and the CAN interface on your Pi.
+3) [Set up your actuator's CAN ID](Actuators), then connect your actuator to power and the CAN interface on your single-board computer.
 4) Run the basic demo script
    ```console
    $ ep-stream-actuator --id <CAN ID>
@@ -22,7 +22,7 @@ EpicallyPowerful assumes a basic familiarity with some concepts like Python, ele
    ```
 6) Check out the [example controllers](ExampleControllers) and start writing your own!
    
-## What does EpicallyPowerful Provide
+## What Epically Powerful Provides
 * Actuator Control
 * Inertial Measurement Unit Reading
 * Data Recording & Basic Control Loop Structuring

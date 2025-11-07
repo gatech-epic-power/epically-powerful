@@ -5,7 +5,7 @@
 Epically Powerful is an open-source robotics infrastructure that streamlines the core framework of robotic systems — handling communication, timing, actuator monitoring, visualization, and data logging — so researchers can focus on controllers, experiments, and science.
 
 Built for modularity, it unifies power systems, single-board computers, actuators, and IMUs into a cohesive plug-and-play setup.  Designed for modularity and speeding up the custom build process, it offers:
-* Python-based coding interfaces for easy integration with commercial QDD actuators and common IMU sensors
+* Python-based coding interfaces for easy integration with commercial quasi direct drive (QDD) actuators and common IMU sensors
 * Parts lists, compatibility guides, and tutorials for rapid hardware and software setup
 * Example controllers and real-time visualization through PlotJuggler
 * Extensive documentation on every step of the setup process
@@ -13,6 +13,14 @@ Built for modularity, it unifies power systems, single-board computers, actuator
 Epically Powerful lowers the barrier to building custom robotic systems without enforcing a pre-specified form factor, enabling researchers to go from raw hardware to modular, robust devices quickly and effectively.
 
 ---
+
+### 🚀 Launchpad
+* [Setup guide](Setup)
+* [API](API)
+* [Example controllers](ExampleControllers)
+* [Part picking guide](PartPicker)
+* [Component sheet](https://docs.google.com/spreadsheets/d/1C3gL_t8qy4Z1Y0Z88K9UOk3GDusG5Bix34zb_12FyFI/edit?usp=sharing)
+* [Video tutorial playlist](https://www.youtube.com/watch?v=TPDbrZND5xw&list=PLpoS8Arl9MxfbMvvfZNv9yS5zY06kI1Cy&pp=gAQB)
 
 ### 🤨 Why use it?
 
@@ -24,14 +32,14 @@ Epically Powerful was built by robotics researchers to make wearable robotics de
 * **Built for iteration:** Swap hardware and test new controllers with minimal reconfiguration.
 * **Open and vetted:** Maintained by a research community actively extending its capabilities across new hardware platforms and verified by multiple research groups.
 
-In short, Epically Powerful turns “getting your robot to run” from a multi-week endevour into a single-day setup.
+In short, Epically Powerful turns “getting your robot up and running” from a multi-week endeavor into a single-day setup.
 
 ![software](docs/source/res/Software.png)
 ---
 
 ### 🛠️ Installation
 
-You can install EpicallyPowerful via PyPI using pip by running:
+You can install Epically Powerful via PyPI using pip by running:
 
 `pip install epicallypowerful`
 
@@ -51,10 +59,10 @@ Full documentation (including API, part picker, hardware setup, and usage exampl
 
 * **Actuators:** CubeMars AK series, RobStride series, CyberGear Micromotor
 * **Single-board computers (SBCs):** NVIDIA Jetson Orin Nano and Raspberry Pi
-* **IMUs:** MicroStrain (MSCL) and MPU-9250 (I²C) (todo!!! Christoph OpenIMUS?)
+* **IMUs:** MicroStrain (MSCL), MPU-9250 (I²C), and OpenIMU (CAN)
 * **Power:** Li-Ion drill batteries and LiPo options
 
-See the full **Part Picker** and **Setup** pages in the documentation for model-specific recommendations, wiring diagrams, accommodating components (e.g. CAN transceivers, fuses, safety pouches, etc.).
+See the full **[Part Picker](PartPicker)** and **[Setup](Setup)** pages in the documentation for model-specific recommendations, wiring diagrams, and supporting components (e.g. CAN transceivers, fuses, safety pouches, etc.).
 
 ---
 
@@ -62,7 +70,7 @@ See the full **Part Picker** and **Setup** pages in the documentation for model-
 
 If you use *Epically Powerful* in your research or publications, please cite:
 
-JK Leestma, SR Nathella, CPA Nuesslein, S Mathur, GS Sawicki, and AJ Young, "Epically Powerful: An open-source software and mechatronics infrastructure for wearable robotic systems", *(in review at IEEE Access)*. DOI: [placeholder] todo!!!!
+JK Leestma, SR Nathella, CPO Nuesslein, S Mathur, GS Sawicki, and AJ Young, "Epically Powerful: An open-source software and mechatronics infrastructure for wearable robotic systems", *(in review at IEEE Access)*. DOI: [placeholder] todo!!!!
 
 ---
 

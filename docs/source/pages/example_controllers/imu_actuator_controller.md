@@ -1,5 +1,5 @@
 (IMUActuatorController)=
-# Gryoscope Controlled Actuation
+# Gyroscope-Controlled Actuation
 This example uses the gyroscope data from an IMU to control the rotation of an actuator. In this example, you can see how to configure and enable your actuators, and use sensor data from the IMU devices to control it in a loop.
 
 ## Demo Video
