@@ -37,7 +37,7 @@ Epically Powerful was built by robotics researchers to make wearable robotics de
 
 In short, Epically Powerful turns “getting your robot up and running” from a multi-week endeavor into a single-day setup.
 
-![software](docs/source/res/Software.png)
+![software](https://raw.githubusercontent.com/gatech-epic-power/epically-powerful/refs/heads/main/docs/source/res/Software.png)
 ---
 
 ### 🛠️ Installation
@@ -65,7 +65,7 @@ Full documentation (including API, part picker, hardware setup, and usage exampl
 * **IMUs:** MicroStrain (MSCL), MPU-9250 (I²C), and OpenIMU (CAN)
 * **Power:** Li-Ion drill batteries and LiPo options
 
-See the full **[Part Picker](PartPicker)** and **[Setup](Setup)** pages in the documentation for model-specific recommendations, wiring diagrams, and supporting components (e.g. CAN transceivers, fuses, safety pouches, etc.).
+See the full **[Part Picker](https://gatech-epic-power.github.io/epically-powerful/pages/part_picker.html)** and **[Setup](https://gatech-epic-power.github.io/epically-powerful/pages/setup.html)** pages in the documentation for model-specific recommendations, wiring diagrams, and supporting components (e.g. CAN transceivers, fuses, safety pouches, etc.).
 
 ---
 
