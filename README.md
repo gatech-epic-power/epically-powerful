@@ -70,7 +70,7 @@ See the full **[Part Picker](PartPicker)** and **[Setup](Setup)** pages in the d
 
 If you use *Epically Powerful* in your research or publications, please cite:
 
-JK Leestma, SR Nathella, CPO Nuesslein, S Mathur, GS Sawicki, and AJ Young, "Epically Powerful: An open-source software and mechatronics infrastructure for wearable robotic systems", *(in review at IEEE Access)*. DOI: [placeholder] todo!!!!
+JK Leestma, SR Nathella, CPO Nuesslein, S Mathur, GS Sawicki, and AJ Young, "Epically Powerful: An open-source software and mechatronics infrastructure for wearable robotic systems", *(in review at IEEE Access)*. DOI: [placeholder]
 
 ---
 
@@ -89,6 +89,7 @@ This project is released under the [GPLv3 License](LICENSE).
 ### 👩🏼‍💻 Papers Powered by Epically Powerful
 
 * JK Leestma, S Mathur, M Anderton, GS Sawicki, and AJ Young, [Dynamic duo: Design and validation of an autonomous frontal and sagittal actuating hip exoskeleton for step placement modulation during perturbed locomotion](https://doi.org/10.1109/LRA.2024.3371290), *Robotics and Automation Letters*, 2024.
+
 
 
 

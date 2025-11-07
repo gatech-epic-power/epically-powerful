@@ -5,10 +5,12 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.setuptools]
-packages = ["epicallypowerful"]
+# packages = ["epicallypowerful"]
+packages = {find = {}}
 ext-modules = [
     {name = "epicallypowerful.toolbox._clocking", sources = ["epicallypowerful/toolbox/_clocking.pyx"]}
 ]
+
 
 [tool.cibuildwheel.linux]
 # Build manylinux wheels (default)
@@ -17,7 +19,7 @@ archs = ["x86_64", "aarch64"]
 [project]
 requires-python = ">=3.9"
 name = "epicallypowerful"
-version = "1.0.0"
+version = "1.0.1"
 description = "A library for controling actuators and reading sensors for scientific and robotics applications."
 authors = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
 maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
@@ -38,6 +40,7 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
 ]
+readme = "README.md"
 
 
 [project.optional-dependencies]
