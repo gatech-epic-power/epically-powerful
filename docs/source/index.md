@@ -13,10 +13,10 @@ Our goal is to lower the barriers to designing custom wearable and other robotic
 
 ### Key Features
 
-- **[Versatile Software Package](https://pypi.org/project/epicallypowerful/):** Includes code to control systems with common electrical actuators and IMUs, as well as basic control structuring and data recording.
-- **Comprehensive Documentation:** Step-by-step instructions for [setting up microcontrollers](Computer), [actuators](Actuators), [sensors](IMUs), [power systems, and communication networks](Mechatronics).
-- **Built-in Controllers:** Access [impedance](ImpedanceControl), [position](PositionControl), and [other example/stock controllers](ExampleControllers), along with a [dynamic visualization interface](Visualization).
-- **Useful Resources:** [Recommended materials lists](https://docs.google.com/spreadsheets/d/1C3gL_t8qy4Z1Y0Z88K9UOk3GDusG5Bix34zb_12FyFI/edit?usp=sharing), design guidelines, [startup guides](Setup), and [video tutorials](https://www.youtube.com/watch?v=TPDbrZND5xw&list=PLpoS8Arl9MxfbMvvfZNv9yS5zY06kI1Cy&pp=gAQB) for seamless hardware and software integration.
+- **Versatile Software Package:** Includes [easily installable code](https://pypi.org/project/epicallypowerful/) to control systems with common electrical actuators and IMUs, as well as basic control structuring and data recording.
+- **Comprehensive Documentation:** Step-by-step instructions for [setting up microcontrollers](Computer), [actuators](Actuators), [sensors](IMUs), [power systems and communication networks](Mechatronics).
+- **Built-in Controllers:** Access [impedance](ImpedanceControl), [position](PositionController), and [other example/stock controllers](ExampleControllers), along with a [dynamic visualization interface](Visualization).
+- **Useful Resources:** [Recommended materials lists](https://docs.google.com/spreadsheets/d/1C3gL_t8qy4Z1Y0Z88K9UOk3GDusG5Bix34zb_12FyFI/edit?usp=sharing), design guidelines, [basic](GettingStarted) and [comprehensive](Setup) startup guides, and [video tutorials](https://www.youtube.com/watch?v=TPDbrZND5xw&list=PLpoS8Arl9MxfbMvvfZNv9yS5zY06kI1Cy&pp=gAQB) for seamless hardware and software integration.
 - **Continual Improvements:** Support for new hardware and development-focused [issue tracking](https://github.com/gatech-epic-power/epically-powerful/issues).
 
 ### Who We Are

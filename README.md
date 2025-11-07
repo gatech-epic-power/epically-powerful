@@ -15,12 +15,15 @@ Epically Powerful lowers the barrier to building custom robotic systems without 
 ---
 
 ### 🚀 Launchpad
-* [Setup guide](Setup)
-* [API](API)
-* [Example controllers](ExampleControllers)
-* [Part picking guide](PartPicker)
+* [Quickstart steps](https://gatech-epic-power.github.io/epically-powerful/pages/tutorials.html)
+* [Broader setup guide](https://gatech-epic-power.github.io/epically-powerful/pages/setup.html)
+* [API](https://gatech-epic-power.github.io/epically-powerful/pages/api.html)
+* [Example controllers](https://gatech-epic-power.github.io/epically-powerful/pages/example_controllers.html)
+* [Part picking guide](https://gatech-epic-power.github.io/epically-powerful/pages/part_picker.html#partpicker)
 * [Component sheet](https://docs.google.com/spreadsheets/d/1C3gL_t8qy4Z1Y0Z88K9UOk3GDusG5Bix34zb_12FyFI/edit?usp=sharing)
 * [Video tutorial playlist](https://www.youtube.com/watch?v=TPDbrZND5xw&list=PLpoS8Arl9MxfbMvvfZNv9yS5zY06kI1Cy&pp=gAQB)
+
+---
 
 ### 🤨 Why use it?
 
