@@ -73,7 +73,7 @@ See the full **[Part Picker](https://gatech-epic-power.github.io/epically-powerf
 
 If you use *Epically Powerful* in your research or publications, please cite:
 
-JK Leestma, SR Nathella, CPO Nuesslein, S Mathur, GS Sawicki, and AJ Young, "Epically Powerful: An open-source software and mechatronics infrastructure for wearable robotic systems", *(in review at IEEE Access)*. DOI: [placeholder]
+JK Leestma, SR Nathella, CPO Nuesslein, S Mathur, GS Sawicki, and AJ Young, "Epically Powerful: An open-source software and mechatronics infrastructure for wearable robotic systems", *(in review at IEEE Access)*. DOI: https://doi.org/10.48550/arXiv.2511.05033
 
 ---
 

@@ -25,10 +25,11 @@ This project was driven by a team of robotics PhD students at Georgia Tech. We a
 
 Authors of Epically Powerful include: <sup>#</sup>Jennifer K. Leestma, <sup>#</sup>Siddharth R. Nathella, <sup>#</sup>Christoph Nuesslein, Snehil Mathur, Gregory S. Sawicki, and Aaron J. Young
 
-
 <sup>#</sup>These authors contributed equally to this work
 
 ![school_GT](/res/GT_long.png){height="100"}
+
+See the preprint outlining Epically Powerful [on arXiv](https://doi.org/10.48550/arXiv.2511.05033)!
 
 ### Community and Development
 
