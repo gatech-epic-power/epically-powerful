@@ -73,5 +73,8 @@ cdef class TimedLoopC:
     cdef sleepy(self, timespec sleep_to):
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleep_to, NULL)
 
+    def continue_loop(self):
+        return self.sleep()
+
     def __call__(self):
         return self.sleep()
