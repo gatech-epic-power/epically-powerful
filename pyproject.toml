@@ -19,7 +19,7 @@ archs = ["x86_64", "aarch64"]
 [project]
 requires-python = ">=3.9"
 name = "epicallypowerful"
-version = "1.0.2"
+version = "1.0.3"
 description = "A library for controling actuators and reading sensors for scientific and robotics applications."
 authors = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
 maintainers = [{name = "Siddharth Nathella", email = "snathella@gatech.edu"}, {name="Christoph Nuesslein", email="cnuesslein3@gatech.edu"},{name="Jennifer Leestma", email="jleestma@gatech.edu"}]
