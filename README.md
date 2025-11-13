@@ -92,6 +92,7 @@ This project is released under the [GPLv3 License](LICENSE).
 ### 👩🏼‍💻 Papers Powered by Epically Powerful
 
 * JK Leestma, S Mathur, M Anderton, GS Sawicki, and AJ Young, [Dynamic duo: Design and validation of an autonomous frontal and sagittal actuating hip exoskeleton for step placement modulation during perturbed locomotion](https://doi.org/10.1109/LRA.2024.3371290), *Robotics and Automation Letters*, 2024.
+* RTF Casey, CPO Nuesslein, F Davenport, J Wheeler, A Mazumdar, G Sawicki, and AJ Young [The Second Skin: A Wearable Sensor Suite that Enables Real-Time Human Biomechanics Tracking Through Deep Learning](https://doi.org/10.1109/TBME.2025.3589996), *IEEE Transactions on Biomedical Engineering*, 2025.
 
 
 
