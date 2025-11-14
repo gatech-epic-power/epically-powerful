@@ -3,6 +3,8 @@
 This module contains the classes and commands for initializing
 and reading from OpenIMUs.
 
+Adapted from Abhiram Ghanta's work modernizing existing code.
+
 Reference info:
 - OpenIMU ReadTheDocs page: https://openimu.readthedocs.io/en/latest/index.html
 - OpenIMU CAN bus usage and breakdown: https://medium.com/@mikehorton/what-can-a-can-bus-imu-do-to-make-an-autonomous-vehicle-safer-e93f748569f6
@@ -28,7 +30,7 @@ from epicallypowerful.sensing.imu_data import IMUData
 
 
 # Set conversion constants
-DEG2RAD = 3.141592653589/180 # [rad/deg]
+DEG2RAD = 3.1415926535897932384/180 # [rad/deg]
 
 # Set the PGNs of the CAN messages sent by the OpenIMU300RIs
 ACCELEROMETER_PGN = 61485 # Linear acceleration

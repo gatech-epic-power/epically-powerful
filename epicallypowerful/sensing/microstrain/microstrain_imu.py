@@ -40,7 +40,7 @@ except:
 TARE_ON_STARTUP = False
 IMU_RATE = 1000 # [Hz]
 G_CONSTANT = 9.80665 # [m*s^-2]
-PI = 3.1415265
+PI = 3.1415926535897932384
 
 
 class MicroStrainIMUs(IMU):

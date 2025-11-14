@@ -7,6 +7,8 @@ The range of possible input values can be fully specified by including EITHER
 a lower bound (low) and an upper bound (high) OR a single bound (low or high)
 and a resolution. Allowing for both methods of specification accommodates
 varying specifications provided by hardware manufacturers.
+
+Adapted from Abhiram Ghanta's work modernizing existing code.
 """
 
 from typing import Optional

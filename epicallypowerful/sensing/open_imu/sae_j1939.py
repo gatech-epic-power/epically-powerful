@@ -1,4 +1,7 @@
-"""Basic conversions for some SAE-J1939 CAN protocol."""
+"""Basic conversions for some SAE-J1939 CAN protocol.
+
+Adapted from Abhiram Ghanta's work modernizing existing code.
+"""
 
 
 class ExtendedID29Bit:
