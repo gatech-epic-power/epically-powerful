@@ -1,0 +1,32 @@
+/* :root {
+    --sd-color-primary: #ff0000;
+}
+@import url("https://use.typekit.net/zjn1vfs.css");
+
+body, h1, h2, h3, h4, h5, h6  {
+    font-family:"ibm-plex-sans",sans-serif;
+} */
+
+/* Example: Change the sidebar background color */
+.wy-side-nav-search, .wy-nav-side {
+    background-color: #333333; /* Your desired color */
+}
+
+/* Example: Change the main body background color */
+.wy-nav-content {
+    background-color: #f9f9f9; /* Your desired color */
+}
+
+
+
+
+.wy-nav-content {
+    max-width: 1200px !important;
+}
+
+.wy-table-responsive table td {
+    white-space: normal !important;
+}
+.wy-table-responsive {
+    overflow: visible !important;
+}
