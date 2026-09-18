@@ -183,8 +183,11 @@ class MicroStrainIMUs(IMU):
             print("Tip: check that you set all the serial numbers of the IMUs properly!")
 
             for serial_port in devices.keys():
-                tmp_connection = mscl.Connection.Serial(serial_port)
-                tmp_connection.disconnect()
+                imu_id = devices[serial_port].serial().split(".")[1]
+                if imu_id in imu_ids:
+                    print(f"Disconnecting {imu_id}...")
+                    tmp_connection = mscl.Connection.Serial(serial_port)
+                    tmp_connection.disconnect()
 
         # Set up active data channels for each node
         ahrs_channels = mscl.MipChannels()

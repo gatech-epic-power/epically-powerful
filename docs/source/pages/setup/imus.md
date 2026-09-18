@@ -5,7 +5,15 @@ This section handles all the setup steps needed for the supported IMU types: Mic
 ## MicroStrain
 The low level driver library for the MicroStrain IMUs is maintained by MicroStrain by HBK, and is routinely updated on [their GitHub page](https://github.com/LORD-MicroStrain/MSCL). However, the installation is not automatically included with the pip or conda Epically Powerful installation. Epically Powerful can be used without it, though the MicroStrain IMU functions and tools will not be available. **There are two options for installing the package**.
 
-### Using the Epically Powerful MSCL Installation Helper
+### MSCL now included as python dependency!
+MSCL now has its own python module hosted on pypi. We have included it as a dependency in the Epically Powerful installation, so no post installation steps are required.
+
+To verify that things are set up properly, you can open up a terminal on your single-board computer, then type `ep-stream-microstrain-imu --imu-serial-id [SERIAL_ID]`, where your SERIAL ID is the ID of the MicroStrain IMU (last 6 digits of the serial number, e.g. `133932`).
+
+<del>
+<p>
+
+### Using the Epically Powerful MSCL Installation Helper (To be deprecated)
 Epically Powerful comes with a helper script that will attempt to automatically install the MSCL dependency. Once you've installed Epically Powerful, run `ep-install-mscl`. By default, this will grab the version of MSCL that corresponds with your hardware and Python version and attempt to install it into your base Python environment. Additionally, if you are using a virtual environment or conda environment, you can run it with the `-E` flag, which will attempt to install it into your virtual environment, or you can use `-d` to manually specify a directory to copy the files into. After this, you will have access to the all the MicroStrain IMU functionality.
 
 Run this to install the library in your virtual environment:
@@ -13,14 +21,15 @@ Run this to install the library in your virtual environment:
 $ ep-install-mscl -E
 ```
 
-### Manually Installing MSCL
+### Manually Installing MSCL (To be deprecated)
 We recommend using the Epically Powerful installer, but in case you need the manual version for your application, we are providing that below.
 1.  First, you need to download the installer. This is a .deb file hosted on the release page of the [MSCL GitHub](https://github.com/LORD-MicroStrain/MSCL/releases). We recommend going one release back, as the library is only built for Python 3.13 or 2.7 in the latest builds.
 2.  Once this is installed, running `sudo dpkg -i MSCL_<architecture>_Python<version>_v<release>.deb` (specifying your computer's architecture, Python version, and release) will install the package to the base Python installation inside its dist-packages folder. If you are not using a virtual environment, this is all you need to do, after which you can move on to actually building your robot!
 3.  If you have a virtual environment, you will need to copy the installed files into one of the folders in that path. If you are using venv or miniforge, the appropriate command will be `cp /usr/share/python3.<version>/dist-packages/*mscl* <path/to/env>`.
 
 Once this MSCL dependency is handled, you should be all ready to go. To verify that things are set up properly, you can open up a terminal on your single-board computer, then type `ep-stream-microstrain-imu --imu-serial-id [SERIAL_ID]`, where your SERIAL ID is the ID of the MicroStrain IMU (last 6 digits of the serial number, e.g. `133932`).
-
+</p>
+</del>
 
 ## OpenIMU
 OpenIMUs require per-unit setup, but have a number of well-documented resources online that make this process easier to follow. For regular operation, they use the same CAN protocol as the Epically Powerful-supported actuators, so follow the CAN setup steps for each single-board computer on the [Computer](Computer) page to get these working.

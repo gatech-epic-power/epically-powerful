@@ -988,17 +988,29 @@ def install_mscl_python():
     if pyversion.major != 3 or pyversion.minor < 8:
         raise RuntimeError("MSCL Python requires Python 3.8 or higher")
     res = os.system(f"wget https://github.com/LORD-MicroStrain/MSCL/releases/download/v{CURRENT_VERSION}/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb -O /tmp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
+    
+    tmp_dir_location = f"/tmp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}"
+
     if res != 0:
         raise RuntimeError("Failed to download MSCL Python package")
-    res = os.system(f"sudo apt install /tmp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
     res2 = os.system(f"sudo apt install python3.{pyversion.minor}-dev")
-    if res != 0:
-        raise RuntimeError("Failed to install MSCL Python package")
-
+    if res2 != 0:
+        # Must manually move files from the deb into an environment
+        if not args.to_env and not args.dir:
+            raise RuntimeError("Unable to install python3 using apt. Please specify '-E' or a directory to install to")
+        os.system(f"dpkg-deb -x /tmp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb /tmp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}")
+        copy_from_location = tmp_dir_location + f"/usr/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/"
+        print(copy_from_location)
+    else:
+        res = os.system(f"sudo apt install /tmp/MSCL_arm64_Python{pyversion.major}.{pyversion.minor}_v{CURRENT_VERSION}.deb")
+        
+        if res != 0:
+            raise RuntimeError("Failed to install MSCL Python package")
+        copy_from_location = f"/usr/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/"
 
     if args.dir is not None:
         # Copy the MSCL Python package to the specified directory
-        res = os.system(f"cp -r /usr/local/python{pyversion.major}.{pyversion.minor}/dist-packages/*mscl* {parser.dir}")
+        res = os.system(f"cp -r {copy_from_location}*mscl* {parser.dir}")
         if res != 0:
             raise RuntimeError("Failed to copy MSCL Python package to specified directory")
 
@@ -1013,8 +1025,8 @@ def install_mscl_python():
                         os.remove(mf)
 
                 # res = os.system(f"cp /usr/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/*mscl* {location}")
-                shutil.copy2(f"/usr/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/_mscl.so", f"{location}/_mscl.so")
-                shutil.copy2(f"/usr/lib/python{pyversion.major}.{pyversion.minor}/dist-packages/mscl.py", f"{location}/mscl.py")
+                shutil.copy2(f"{copy_from_location}_mscl.so", f"{location}/_mscl.so")
+                shutil.copy2(f"{copy_from_location}mscl.py", f"{location}/mscl.py")
                 break
     
 

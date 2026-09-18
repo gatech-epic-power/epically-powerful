@@ -28,8 +28,9 @@ dependencies = [
     "python-can",
     "scipy",
     "msgspec",
-    "nicegui",
+    "nicegui<3.0",
     "smbus2",
+    "pymscl"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
