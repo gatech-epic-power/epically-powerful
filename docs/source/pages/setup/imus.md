@@ -10,7 +10,7 @@ MSCL now has its own python module hosted on pypi. We have included it as a depe
 
 To verify that things are set up properly, you can open up a terminal on your single-board computer, then type `ep-stream-microstrain-imu --imu-serial-id [SERIAL_ID]`, where your SERIAL ID is the ID of the MicroStrain IMU (last 6 digits of the serial number, e.g. `133932`).
 
-<del>
+<strike>
 <p>
 
 ### Using the Epically Powerful MSCL Installation Helper (To be deprecated)
@@ -29,7 +29,7 @@ We recommend using the Epically Powerful installer, but in case you need the man
 
 Once this MSCL dependency is handled, you should be all ready to go. To verify that things are set up properly, you can open up a terminal on your single-board computer, then type `ep-stream-microstrain-imu --imu-serial-id [SERIAL_ID]`, where your SERIAL ID is the ID of the MicroStrain IMU (last 6 digits of the serial number, e.g. `133932`).
 </p>
-</del>
+</strike>
 
 ## OpenIMU
 OpenIMUs require per-unit setup, but have a number of well-documented resources online that make this process easier to follow. For regular operation, they use the same CAN protocol as the Epically Powerful-supported actuators, so follow the CAN setup steps for each single-board computer on the [Computer](Computer) page to get these working.
