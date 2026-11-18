@@ -31,7 +31,7 @@ class IMUData:
     ref_m32: float = 0.0
     ref_m33: float = 0.0
 
-    # Orientation (Quaternion) [MICROSTRAIN ONLY]
+    # Orientation (Quaternion) [MICROSTRAIN & SixthSense]
     quat_x: float = 0.0
     quat_y: float = 0.0
     quat_z: float = 0.0
@@ -42,22 +42,22 @@ class IMUData:
     ef_quat_z: float = 0.0
     ef_quat_w: float = 1.0
 
-    # Orientation (Euler) [MICROSTRAIN ONLY]
+    # Orientation (Euler) [MICROSTRAIN & SixthSense]
     eul_x: float = 0.0
     eul_y: float = 0.0
     eul_z: float = 0.0
 
-    # Gyro [MICROSTRAIN & MPU9250]
+    # Gyro [MICROSTRAIN & MPU9250 & SixthSense]
     gyro_x: float = 0.0
     gyro_y: float = 0.0
     gyro_z: float = 0.0
 
-    # Linear acceleration [MICROSTRAIN & MPU9250]
+    # Linear acceleration [MICROSTRAIN & MPU9250 & SixthSense]
     acc_x: float = 0.0
     acc_y: float = 0.0
     acc_z: float = 0.0
 
-    # Magnetometer readings (raw) [MICROSTRAIN & MPU9250]
+    # Magnetometer readings (raw) [MICROSTRAIN & MPU9250 & SixthSense]
     mag_x: float = 0.0
     mag_y: float = 0.0
     mag_z: float = 0.0
@@ -66,6 +66,10 @@ class IMUData:
     temp: float = 0.0
 
     timestamp: float = 0.0
+
+    # Battery & link status [SixthSense ONLY]
+    soc: int = 0
+    connected: bool = False
 
     @property
     def accelerometer(self):
